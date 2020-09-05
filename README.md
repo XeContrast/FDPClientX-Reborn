@@ -1,4 +1,4 @@
-# LiquidBounce-1.12.2-Source
+# LiquidBounce 1.12.2 Source
 GET DAWGED ON MARCO
 
 henlo senk ju, marco and other clowns
