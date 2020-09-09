@@ -49,7 +49,7 @@ public class Scaffold extends Module {
     public final ListValue modeValue = new ListValue("Mode", new String[]{"Normal", "Rewinside", "Expand"}, "Normal");
 
     // Delay
-    private final IntegerValue maxDelayValue = new IntegerValue("MaxPlaceableDelay", 0, 0, 1000) {
+    private final IntegerValue maxDelayValue = new IntegerValue("MaxDelay", 0, 0, 1000) {
         @Override
         protected void onChanged(final Integer oldValue, final Integer newValue) {
             final int i = minDelayValue.get();
@@ -59,7 +59,7 @@ public class Scaffold extends Module {
         }
     };
 
-    private final IntegerValue minDelayValue = new IntegerValue("MinPlaceableDelay", 0, 0, 1000) {
+    private final IntegerValue minDelayValue = new IntegerValue("MinDelay", 0, 0, 1000) {
         @Override
         protected void onChanged(final Integer oldValue, final Integer newValue) {
             final int i = maxDelayValue.get();
@@ -243,7 +243,6 @@ public class Scaffold extends Module {
                     slot1 = null;
                 }
             }
-            super.onUpdate();
         }
 
         if(noBob.get()) {
@@ -405,6 +404,7 @@ public class Scaffold extends Module {
                 zitterDirection = !zitterDirection;
             }
         }
+        super.onUpdate();
     }
 
     @EventTarget
@@ -420,6 +420,7 @@ public class Scaffold extends Module {
 
             slot = packetHeldItemChange.getSlotId();
         }
+        super.onPacket();
     }
 
     @EventTarget

@@ -10,7 +10,6 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
-import net.ccbluex.liquidbounce.features.module.modules.`fun`.DiscordRPC
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
@@ -46,6 +45,8 @@ class ModuleManager : Listenable {
                 AutoArmor::class.java,
                 AutoBow::class.java,
                 AutoLeave::class.java,
+                AntiBot::class.java,
+                NoBob::class.java,
                 AutoPot::class.java,
                 AutoSoup::class.java,
                 Bobbing::class.java,
@@ -68,10 +69,8 @@ class ModuleManager : Listenable {
                 Sprint::class.java,
                 Teams::class.java,
                 NoRotateSet::class.java,
-                AntiBot::class.java,
                 ChestStealer::class.java,
                 Scaffold::class.java,
-                DiscordRPC::class.java,
                 CivBreak::class.java,
                 Tower::class.java,
                 FastBreak::class.java,
@@ -127,7 +126,6 @@ class ModuleManager : Listenable {
                 MultiActions::class.java,
                 AirJump::class.java,
                 AutoClicker::class.java,
-                NoBob::class.java,
                 BlockOverlay::class.java,
                 NoFriends::class.java,
                 BlockESP::class.java,

@@ -2174,10 +2174,10 @@ Import: java.util.Objects
 End  Processing: net/ccbluex/liquidbounce/injection/forge/mixins/network/MixinNetworkPlayerInfo.java
 
 Start Processing: net/ccbluex/liquidbounce/injection/forge/mixins/packets/MixinC00Handshake.java
-Rename method net/minecraft/network/PacketBuffer/writeVarInt (I)Lnet/minecraft/network/PacketBuffer;[999,1010]::writeVarInt->func_150787_b
-Rename method net/minecraft/network/PacketBuffer/writeString (Ljava/lang/String;)Lnet/minecraft/network/PacketBuffer;[1048,1059]::writeString->func_180714_a
-Rename method net/minecraft/network/PacketBuffer/writeVarInt (I)Lnet/minecraft/network/PacketBuffer;[1131,1142]::writeVarInt->func_150787_b
-Rename method net/minecraft/network/EnumConnectionState/getId ()I[1165,1170]::getId->func_150759_c
+Rename method net/minecraft/network/PacketBuffer/writeVarInt (I)Lnet/minecraft/network/PacketBuffer;[1000,1011]::writeVarInt->func_150787_b
+Rename method net/minecraft/network/PacketBuffer/writeString (Ljava/lang/String;)Lnet/minecraft/network/PacketBuffer;[1049,1060]::writeString->func_180714_a
+Rename method net/minecraft/network/PacketBuffer/writeVarInt (I)Lnet/minecraft/network/PacketBuffer;[1120,1131]::writeVarInt->func_150787_b
+Rename method net/minecraft/network/EnumConnectionState/getId ()I[1154,1159]::getId->func_150759_c
 Import: net.minecraft.network.EnumConnectionState
 Import: net.minecraft.network.PacketBuffer
 Import: net.minecraft.network.handshake.client.C00Handshake

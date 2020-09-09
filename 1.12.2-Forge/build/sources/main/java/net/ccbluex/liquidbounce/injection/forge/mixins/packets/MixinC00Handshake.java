@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @SideOnly(Side.CLIENT)
 @Mixin(C00Handshake.class)
 public class MixinC00Handshake {
+
     @Shadow
     public int port;
     @Shadow
@@ -32,7 +33,7 @@ public class MixinC00Handshake {
     @Overwrite
     public void writePacketData(PacketBuffer buf) {
         buf.writeVarInt(this.protocolVersion);
-        buf.writeString(this.ip + "\0FML\0");
+        buf.writeString(this.ip);
         buf.writeShort(this.port);
         buf.writeVarInt(this.requestedState.getId());
     }

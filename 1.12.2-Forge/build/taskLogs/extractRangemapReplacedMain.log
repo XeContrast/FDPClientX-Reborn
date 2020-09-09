@@ -1,6 +1,6 @@
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-cross_version\1.12.2-Forge\build\classes\java\api
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-cross_version\1.12.2-Forge\build\classes\kotlin\api
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-cross_version\1.12.2-Forge\build\resources\api
+Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\java\api
+Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\kotlin\api
+Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\resources\api
 Symbol range map extraction starting
 Processing 154 files
 startProcessing "co/uk/hexeption/utils/OutlineUtils.java" md5: 368b7316da3e0c976b96bdfed5b69819
@@ -930,7 +930,7 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/render/ClickGU
     Compile Error! Pb(50) mc cannot be resolved
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/render/ClickGUI.java"
 
-startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java" md5: 94c8800bb3a788dab64add3669cb835e
+startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java" md5: 29e5dc5fcd820e8531188dcf4d596dc1
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.LiquidBounce cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
@@ -1755,7 +1755,7 @@ startProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/network/MixinNe
     Compile Error! Pb(2) NameProtect cannot be resolved to a type
 endProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/network/MixinNetworkPlayerInfo.java"
 
-startProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/packets/MixinC00Handshake.java" md5: d38d1046ebd2df83bf8e7263d41de33f
+startProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/packets/MixinC00Handshake.java" md5: 15e072cadd1ac1801ee2d0c10ee058bf
 endProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/packets/MixinC00Handshake.java"
 
 startProcessing "net/ccbluex/liquidbounce/injection/forge/mixins/render/MixinEffectRenderer.java" md5: 5ee0bc74693ddb00502d5198d659f7fd

@@ -24,7 +24,7 @@ import net.ccbluex.liquidbounce.utils.createUseItemPacket
 import net.ccbluex.liquidbounce.value.BoolValue
 import net.ccbluex.liquidbounce.value.FloatValue
 
-@ModuleInfo(name = "NoSlowDown", description = "Cancels slowness effects caused by soulsand and using items.",
+@ModuleInfo(name = "NoSlow", description = "Cancels slowness effects caused by soulsand and using items.",
         category = ModuleCategory.MOVEMENT)
 class NoSlow : Module() {
 
