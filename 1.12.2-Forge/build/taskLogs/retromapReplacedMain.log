@@ -1,4 +1,4 @@
-Processing 154 files
+Processing 156 files
 Start Processing: co/uk/hexeption/utils/OutlineUtils.java
 Rename method net/minecraft/client/renderer/OpenGlHelper/setLightmapTextureCoords (IFF)V[1784,1808]::setLightmapTextureCoords->func_77475_a
 Rename field net/minecraft/client/renderer/OpenGlHelper/lightmapTexUnit[1810,1825]::lightmapTexUnit->field_77476_b
@@ -272,6 +272,72 @@ Import: java.util.List
 Import: static org.lwjgl.opengl.GL11.*
 End  Processing: net/ccbluex/liquidbounce/features/module/modules/exploit/Teleport.java
 
+Start Processing: net/ccbluex/liquidbounce/features/module/modules/misc/AntiBot.java
+Rename method net/minecraft/network/play/server/SPacketEntity/getEntity (Lnet/minecraft/world/World;)Lnet/minecraft/entity/Entity;[4421,4430]::getEntity->func_149065_a
+Rename method net/minecraft/network/play/server/SPacketEntity/getOnGround ()Z[4532,4543]::getOnGround->func_179742_g
+Rename method net/minecraft/entity/Entity/getEntityId ()I[4575,4586]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[4632,4643]::getEntityId->func_145782_y
+Rename method net/minecraft/network/play/server/SPacketEntity/getOnGround ()Z[4686,4697]::getOnGround->func_179742_g
+Rename method net/minecraft/entity/Entity/getEntityId ()I[4726,4737]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[4780,4791]::getEntityId->func_145782_y
+Rename method net/minecraft/network/play/server/SPacketEntity/getOnGround ()Z[4833,4844]::getOnGround->func_179742_g
+Rename field net/minecraft/entity/Entity/prevPosY[4883,4891]::prevPosY->field_70167_r
+Rename field net/minecraft/entity/Entity/posY[4907,4911]::posY->field_70163_u
+Rename method net/minecraft/entity/Entity/getEntityId ()I[4972,4983]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5023,5034]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5150,5161]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5271,5282]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5365,5376]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/isInvisible ()Z[5442,5453]::isInvisible->func_82150_aj
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5488,5499]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5548,5559]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5624,5635]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[5775,5786]::getEntityId->func_145782_y
+Rename method net/minecraft/network/play/server/SPacketAnimation/getEntityID ()I[6038,6049]::getEntityID->func_148978_c
+Rename method net/minecraft/network/play/server/SPacketAnimation/getAnimationType ()I[6128,6144]::getAnimationType->func_148977_d
+Rename method net/minecraft/entity/Entity/getEntityId ()I[6175,6186]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[6227,6238]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[6469,6480]::getEntityId->func_145782_y
+Rename method net/minecraft/entity/Entity/getEntityId ()I[6518,6529]::getEntityId->func_145782_y
+Rename field net/minecraft/entity/player/EntityPlayer/inventory[8451,8460]::inventory->field_71071_by
+Rename field net/minecraft/entity/player/InventoryPlayer/armorInventory[8466,8480]::armorInventory->field_70460_b
+Rename field net/minecraft/entity/player/EntityPlayer/inventory[8505,8514]::inventory->field_71071_by
+Rename field net/minecraft/entity/player/InventoryPlayer/armorInventory[8520,8534]::armorInventory->field_70460_b
+Rename field net/minecraft/entity/player/EntityPlayer/inventory[8580,8589]::inventory->field_71071_by
+Rename field net/minecraft/entity/player/InventoryPlayer/armorInventory[8595,8609]::armorInventory->field_70460_b
+Rename field net/minecraft/entity/player/EntityPlayer/inventory[8634,8643]::inventory->field_71071_by
+Rename field net/minecraft/entity/player/InventoryPlayer/armorInventory[8649,8663]::armorInventory->field_70460_b
+Rename method net/minecraft/entity/Entity/getUniqueID ()Ljava/util/UUID;[8877,8888]::getUniqueID->func_110124_au
+Import: net.ccbluex.liquidbounce.LiquidBounce
+Import: net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntity
+Import: net.ccbluex.liquidbounce.api.minecraft.client.entity.IEntityLivingBase
+Import: net.ccbluex.liquidbounce.api.minecraft.client.network.INetworkPlayerInfo
+Import: net.ccbluex.liquidbounce.api.minecraft.network.IPacket
+Import: net.ccbluex.liquidbounce.event.AttackEvent
+Import: net.ccbluex.liquidbounce.event.EventTarget
+Import: net.ccbluex.liquidbounce.event.PacketEvent
+Import: net.ccbluex.liquidbounce.event.WorldEvent
+Import: net.ccbluex.liquidbounce.features.module.Module
+Import: net.ccbluex.liquidbounce.features.module.ModuleCategory
+Import: net.ccbluex.liquidbounce.features.module.ModuleInfo
+Import: net.ccbluex.liquidbounce.utils.EntityUtils
+Import: net.ccbluex.liquidbounce.utils.render.ColorUtils
+Import: net.ccbluex.liquidbounce.value.BoolValue
+Import: net.ccbluex.liquidbounce.value.FloatValue
+Import: net.ccbluex.liquidbounce.value.IntegerValue
+Import: net.ccbluex.liquidbounce.value.ListValue
+Import: net.minecraft.entity.Entity
+Import: net.minecraft.entity.EntityLivingBase
+Import: net.minecraft.entity.player.EntityPlayer
+Import: net.minecraft.network.play.server.SPacketAnimation
+Import: net.minecraft.network.play.server.SPacketEntity
+Adding 4 imports
+        java.util.ArrayList
+        java.util.HashMap
+        java.util.List
+        java.util.Map
+End  Processing: net/ccbluex/liquidbounce/features/module/modules/misc/AntiBot.java
+
 Start Processing: net/ccbluex/liquidbounce/features/module/modules/misc/Spammer.java
 Import: net.ccbluex.liquidbounce.LiquidBounce
 Import: net.ccbluex.liquidbounce.event.EventTarget
@@ -345,6 +411,13 @@ Import: net.ccbluex.liquidbounce.utils.MovementUtils
 Import: net.ccbluex.liquidbounce.utils.timer.MSTimer
 End  Processing: net/ccbluex/liquidbounce/features/module/modules/movement/speeds/ncp/CubeCraftGround.java
 
+Start Processing: net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop.java
+FOUND CONSTR method net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop/MineplexHop ()V net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop
+Import: net.ccbluex.liquidbounce.api.minecraft.network.IPacket
+Import: net.ccbluex.liquidbounce.event.*
+Import: net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
+End  Processing: net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop.java
+
 Start Processing: net/ccbluex/liquidbounce/features/module/modules/render/Bobbing.java
 Import: net.ccbluex.liquidbounce.event.EventTarget
 Import: net.ccbluex.liquidbounce.event.MotionEvent
@@ -374,6 +447,7 @@ Import: java.awt.*
 End  Processing: net/ccbluex/liquidbounce/features/module/modules/render/ClickGUI.java
 
 Start Processing: net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java
+Rename method net/minecraft/network/play/client/CPacketHeldItemChange/getSlotId ()I[19294,19303]::getSlotId->func_149614_c
 Import: net.ccbluex.liquidbounce.LiquidBounce
 Import: net.ccbluex.liquidbounce.api.enums.BlockType
 Import: net.ccbluex.liquidbounce.api.enums.EnumFacingType
@@ -400,7 +474,10 @@ Import: net.ccbluex.liquidbounce.value.BoolValue
 Import: net.ccbluex.liquidbounce.value.FloatValue
 Import: net.ccbluex.liquidbounce.value.IntegerValue
 Import: net.ccbluex.liquidbounce.value.ListValue
+Import: net.minecraft.block.Block
+Import: net.minecraft.item.ItemBlock
 Import: net.minecraft.network.play.client.CPacketHeldItemChange
+Import: net.minecraft.util.math.BlockPos
 Import: org.jetbrains.annotations.NotNull
 Import: org.lwjgl.opengl.GL11
 Import: net.ccbluex.liquidbounce.utils.Rotation

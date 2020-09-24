@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketPlayer
 import net.ccbluex.liquidbounce.api.minecraft.network.play.client.ICPacketUseEntity
 import net.ccbluex.liquidbounce.api.minecraft.potion.PotionType
 import net.ccbluex.liquidbounce.api.minecraft.util.WBlockPos
+import net.ccbluex.liquidbounce.api.minecraft.util.WVec3
 import net.ccbluex.liquidbounce.api.minecraft.world.IWorldSettings
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -84,6 +85,12 @@ class KillAura : Module() {
     public val noSwingValue = BoolValue("NoSwing", false)
     public val serverSideNoSwingValue = BoolValue("ServerSideNoSwing", false)
     private val keepSprintValue = BoolValue("KeepSprint", true)
+
+    // AutoBlock
+    private val autoBlockValue = BoolValue("AutoBlock", false)
+    private val interactAutoBlockValue = BoolValue("InteractAutoBlock", true)
+    private val delayedBlockValue = BoolValue("DelayedBlock", true)
+    private val blockRate = IntegerValue("BlockRate", 100, 1, 100)
 
     // Raycast
     private val raycastValue = BoolValue("RayCast", true)
@@ -162,6 +169,7 @@ class KillAura : Module() {
     // Container Delay
     private var containerOpen = -1L
 
+    // Fake block status
     var blockingStatus = false
 
     init {
@@ -189,6 +197,7 @@ class KillAura : Module() {
         attackTimer.reset()
         clicks = 0
 
+        stopBlocking()
     }
 
     /**
@@ -203,11 +212,23 @@ class KillAura : Module() {
             // Update hitable
             updateHitable()
 
+            // AutoBlock
+            if (autoBlockValue.get() && delayedBlockValue.get() && canBlock)
+                startBlocking(currentTarget!!, hitable)
+
+            return
         }
 
         if (rotationStrafeValue.get().equals("Off", true))
             update()
     }
+
+    /**
+     * Check if player is able to block
+     */
+    private val canBlock: Boolean
+        inline get() = mc.thePlayer!!.heldItem != null && classProvider.isItemSword(mc.thePlayer!!.heldItem!!.item)
+
 
     /**
      * Strafe event
@@ -268,7 +289,7 @@ class KillAura : Module() {
         updateTarget()
 
         if (target == null) {
-
+            stopBlocking()
             return
         }
 
@@ -288,6 +309,7 @@ class KillAura : Module() {
             target = null
             currentTarget = null
             hitable = false
+            stopBlocking()
             return
         }
 
@@ -321,6 +343,7 @@ class KillAura : Module() {
             target = null
             currentTarget = null
             hitable = false
+            stopBlocking()
             return
         }
 
@@ -502,6 +525,7 @@ class KillAura : Module() {
      * Attack [entity]
      */
     private fun attackEntity(entity: IEntityLivingBase) {
+        // Stop blocking
         val thePlayer = mc.thePlayer!!
 
         if (thePlayer.isBlocking || blockingStatus) {
@@ -509,6 +533,7 @@ class KillAura : Module() {
                     WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
             blockingStatus = false
         }
+
 
 
         // Call attack event
@@ -535,6 +560,17 @@ class KillAura : Module() {
         } else {
             if (mc.playerController.currentGameType != IWorldSettings.WGameType.SPECTATOR)
                 thePlayer.attackTargetEntityWithCurrentItem(entity)
+        }
+
+        // Start blocking after attack
+        if (thePlayer.isBlocking || (autoBlockValue.get() && canBlock)) {
+            if (!(blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()))
+                return
+
+            if (delayedBlockValue.get())
+                return
+
+            startBlocking(entity, interactAutoBlockValue.get())
         }
 
         // Extra critical effects
@@ -567,9 +603,9 @@ class KillAura : Module() {
 
         if (predictValue.get())
             boundingBox = boundingBox.offset(
-                    (entity.posX - entity.prevPosX) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get()),
-                    (entity.posY - entity.prevPosY) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get()),
-                    (entity.posZ - entity.prevPosZ) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get())
+                    (entity.posX - entity.prevPosX - (mc.thePlayer!!.posX - mc.thePlayer!!.prevPosX)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get()),
+                    (entity.posY - entity.prevPosY - (mc.thePlayer!!.posY - mc.thePlayer!!.prevPosY)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get()),
+                    (entity.posZ - entity.prevPosZ - (mc.thePlayer!!.posZ - mc.thePlayer!!.prevPosZ)) * RandomUtils.nextFloat(minPredictSize.get(), maxPredictSize.get())
             )
 
         val (vec, rotation) = RotationUtils.searchCenter(
@@ -624,6 +660,50 @@ class KillAura : Module() {
     }
 
     /**
+     * Start blocking
+     */
+    private fun startBlocking(interactEntity: IEntity, interact: Boolean) {
+        if (interact) {
+            val positionEye = mc.renderViewEntity?.getPositionEyes(1F)
+
+            val expandSize = interactEntity.collisionBorderSize.toDouble()
+            val boundingBox = interactEntity.entityBoundingBox.expand(expandSize, expandSize, expandSize)
+
+            val (yaw, pitch) = RotationUtils.targetRotation ?: Rotation(mc.thePlayer!!.rotationYaw, mc.thePlayer!!.rotationPitch)
+            val yawCos = cos(-yaw * 0.017453292F - Math.PI.toFloat())
+            val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
+            val pitchCos = -cos(-pitch * 0.017453292F)
+            val pitchSin = sin(-pitch * 0.017453292F)
+            val range = min(maxRange.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
+            val lookAt = positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
+
+            val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
+            val hitVec = movingObject.hitVec
+
+            mc.netHandler.addToSendQueue(classProvider.createCPacketUseEntity(interactEntity, WVec3(
+                    hitVec.xCoord - interactEntity.posX,
+                    hitVec.yCoord - interactEntity.posY,
+                    hitVec.zCoord - interactEntity.posZ)
+            ))
+            mc.netHandler.addToSendQueue(classProvider.createCPacketUseEntity(interactEntity, ICPacketUseEntity.WAction.INTERACT))
+        }
+
+        mc.netHandler.addToSendQueue(createUseItemPacket(mc.thePlayer!!.inventory.getCurrentItemInHand(), WEnumHand.MAIN_HAND))
+        blockingStatus = false
+    }
+
+
+    /**
+     * Stop blocking
+     */
+    private fun stopBlocking() {
+        if (blockingStatus) {
+            mc.netHandler.addToSendQueue(classProvider.createCPacketPlayerDigging(ICPacketPlayerDigging.WAction.RELEASE_USE_ITEM, WBlockPos.ORIGIN, classProvider.getEnumFacing(EnumFacingType.DOWN)))
+            blockingStatus = false
+        }
+    }
+
+    /**
      * Check if run should be cancelled
      */
     private val cancelRun: Boolean
@@ -635,6 +715,8 @@ class KillAura : Module() {
      */
     private fun isAlive(entity: IEntityLivingBase) = entity.entityAlive && entity.health > 0 ||
             aacValue.get() && entity.hurtTime > 5
+
+
 
     /**
      * Range

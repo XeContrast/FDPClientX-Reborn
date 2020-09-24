@@ -30,6 +30,7 @@ class HUD : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent?) {
         LiquidBounce.hud.update()
+
     }
 
     @EventTarget

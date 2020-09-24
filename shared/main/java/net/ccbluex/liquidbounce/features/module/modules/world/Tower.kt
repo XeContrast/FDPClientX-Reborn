@@ -46,7 +46,7 @@ class Tower : Module() {
     private val modeValue = ListValue("Mode", arrayOf(
             "Jump", "Motion", "ConstantMotion", "MotionTP", "Packet", "Teleport", "AAC3.3.9", "AAC3.6.4"
     ), "Motion")
-    private val autoBlockModeValue = ListValue("AutoBlockMode", arrayOf("Normal", "Switch"), "Normal")
+    private val autoBlockModeValue = ListValue("AutoBlockMode", arrayOf("Off", "Normal", "Switch"), "Normal")
     private val stayAutoBlock = BoolValue("StayAutoBlock", false)
     private val swingValue = BoolValue("Swing", true)
     private val stopWhenBlockAbove = BoolValue("StopWhenBlockAbove", false)
@@ -54,7 +54,7 @@ class Tower : Module() {
     private val keepRotationValue = BoolValue("KeepRotation", false)
     private val onJumpValue = BoolValue("OnJump", false)
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post"), "Post")
-    private val timerValue = FloatValue("Timer", 1f, 0f, 10f)
+    private val timerValue = FloatValue("Timer", 1f, 0.1f, 10f)
 
     // Jump mode
     private val jumpMotionValue = FloatValue("JumpMotion", 0.42f, 0.3681289f, 0.79f)

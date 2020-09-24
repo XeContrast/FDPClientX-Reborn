@@ -31,7 +31,10 @@ import net.ccbluex.liquidbounce.value.BoolValue;
 import net.ccbluex.liquidbounce.value.FloatValue;
 import net.ccbluex.liquidbounce.value.IntegerValue;
 import net.ccbluex.liquidbounce.value.ListValue;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import net.ccbluex.liquidbounce.utils.Rotation;
@@ -46,7 +49,7 @@ public class Scaffold extends Module {
      */
 
     // Mode
-    public final ListValue modeValue = new ListValue("Mode", new String[]{"Normal", "Rewinside", "Expand"}, "Normal");
+    public final ListValue modeValue = new ListValue("Mode", new String[]{"Normal", "Rewinside", "Expand", "Expand2"}, "Normal");
 
     // Delay
     private final IntegerValue maxDelayValue = new IntegerValue("MaxDelay", 0, 0, 1000) {
@@ -72,7 +75,7 @@ public class Scaffold extends Module {
     private final BoolValue placeableDelay = new BoolValue("PlaceableDelay", false);
 
     // AutoBlock
-    public final ListValue autoBlockModeValue = new ListValue("AutoBlockMode", new String[]{"Normal", "Switch"}, "Normal");
+    public final ListValue autoBlockModeValue = new ListValue("AutoBlockMode", new String[]{"Off", "Normal", "Switch"}, "Normal");
     private final BoolValue stayAutoBlock = new BoolValue("StayAutoBlock", false);
 
     // Basic stuff
@@ -89,6 +92,9 @@ public class Scaffold extends Module {
 
     // Expand
     private final IntegerValue expandLengthValue = new IntegerValue("ExpandLength", 5, 1, 6);
+
+    // Expand2
+    private final IntegerValue expand2LengthValue = new IntegerValue("Expand2Length", 5, 1, 6);
 
     // Rotations
     public final BoolValue clientSideRotationsValue = new BoolValue("SilentRotation", false);
@@ -112,7 +118,7 @@ public class Scaffold extends Module {
     private final FloatValue yRangeValue = new FloatValue("yRange", 0.8F, 0.1F, 1.0F);
 
     // SearchAccuracy
-    private final IntegerValue searchAccuracyValue = new IntegerValue("SearchAccuracy", 8, 1, 24) {
+    private final IntegerValue searchAccuracyValue = new IntegerValue("SearchAccuracy", 8, 1, 128) {
         @Override
         protected void onChanged(final Integer oldValue, final Integer newValue) {
             if (getMaximum() < newValue) {
@@ -158,7 +164,8 @@ public class Scaffold extends Module {
     // Game
     private final FloatValue timerValue = new FloatValue("Timer", 1F, 0.1F, 10F);
     private final FloatValue speedModifierValue = new FloatValue("SpeedModifier", 1F, 0, 2F);
-    private final BoolValue  slowValue = new BoolValue("Slow", false) {
+    private final BoolValue slowValue = new BoolValue("Slow", false);
+    private final BoolValue slowNoSprintValue = new BoolValue("SlowNoSprint", false) {
         @Override
         protected void onChanged(final Boolean oldValue, @NotNull final Boolean newValue) {
             if (newValue)
@@ -245,6 +252,10 @@ public class Scaffold extends Module {
             }
         }
 
+        if(autoBlockModeValue.get().equalsIgnoreCase("Spoof")) {
+                mc2.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtils.findAutoBlockBlock() - 36));
+        }
+
         if(noBob.get()) {
             mc.getThePlayer().setDistanceWalkedModified(0F);
         }
@@ -269,6 +280,21 @@ public class Scaffold extends Module {
             if (mode.equalsIgnoreCase("Rewinside")) {
                 MovementUtils.strafe(0.2F);
                 mc.getThePlayer().setMotionY(0D);
+            }
+
+            // Expand2 scaffold mode
+            if (mode.equalsIgnoreCase("Expand2")) {
+                double x = mc2.player.posX;
+                double z = mc2.player.posZ;
+                double forward = mc2.player.movementInput.moveForward;
+                double strafe = mc2.player.movementInput.moveStrafe;
+                float YAW = mc2.player.rotationYaw;
+
+                if (!mc2.player.collidedHorizontally) {
+                    double[] coords = getExpandCoords(x, z, forward, strafe, YAW);
+                    x = coords[0];
+                    z = coords[1];
+                }
             }
 
             // Smooth Zitter
@@ -415,8 +441,8 @@ public class Scaffold extends Module {
         final IPacket packet = event.getPacket();
 
         // AutoBlock
-        if (classProvider.isCPacketHeldItemChange(packet)) {
-            final ICPacketHeldItemChange packetHeldItemChange = packet.asCPacketHeldItemChange();
+        if (packet instanceof CPacketHeldItemChange) {
+            final CPacketHeldItemChange packetHeldItemChange = (CPacketHeldItemChange) packet;
 
             slot = packetHeldItemChange.getSlotId();
         }
@@ -560,17 +586,10 @@ public class Scaffold extends Module {
         if (eventState == EventState.PRE)
             update();
 
+
         // Reset placeable delay
         if (targetPlace == null && placeableDelay.get())
             delayTimer.reset();
-    }
-
-    private void update() {
-        final boolean isHeldItemBlock = mc.getThePlayer().getHeldItem() != null && classProvider.isItemBlock(mc.getThePlayer().getHeldItem().getItem());
-        if (autoBlockModeValue.get().equalsIgnoreCase("Normal") ? InventoryUtils.findAutoBlockBlock() == -1 && !isHeldItemBlock : !isHeldItemBlock)
-            return;
-
-        findBlock(modeValue.get().equalsIgnoreCase("expand"));
     }
 
     private void setRotation(Rotation r, int keepR) {
@@ -580,6 +599,15 @@ public class Scaffold extends Module {
         } else {
             RotationUtils.setTargetRotation(r, keepR);
         }
+    }
+
+    private void update() {
+        final boolean isHeldItemBlock = mc.getThePlayer().getHeldItem() != null && classProvider.isItemBlock(mc.getThePlayer().getHeldItem().getItem());
+        if (autoBlockModeValue.get().equalsIgnoreCase("Normal") ? InventoryUtils.findAutoBlockBlock() == -1 && !isHeldItemBlock : !isHeldItemBlock)
+            return;
+
+        findBlock(modeValue.get().equalsIgnoreCase("expand"));
+
     }
 
     private void setRotation(Rotation r) {
@@ -616,6 +644,35 @@ public class Scaffold extends Module {
                         return;
         }
     }
+
+    public double[] getExpandCoords(double x, double z, double forward, double strafe, float YAW){
+        BlockPos underPos = new BlockPos(x, mc2.player.posY - 1, z);
+        Block underBlock = mc2.world.getBlockState(underPos).getBlock();
+        double xCalc = -999, zCalc = -999;
+        double dist = 0;
+        double expandDist = expand2LengthValue.get();
+        while(!classProvider.isBlockAir(underBlock)){
+            xCalc = x;
+            zCalc = z;
+            dist ++;
+            if(dist > expandDist){
+                dist = expandDist;
+            }
+            xCalc += (forward * 0.45 * Math.cos(Math.toRadians(YAW + 90.0f)) + strafe * 0.45 * Math.sin(Math.toRadians(YAW + 90.0f))) * dist;
+            zCalc += (forward * 0.45 * Math.sin(Math.toRadians(YAW + 90.0f)) - strafe * 0.45 * Math.cos(Math.toRadians(YAW + 90.0f))) * dist;
+            if(dist == expandDist){
+                break;
+            }
+            underPos = new BlockPos(xCalc, mc2.player.posY - 1, zCalc);
+            underBlock = mc2.world.getBlockState(underPos).getBlock();
+        }
+        return new double[]{xCalc,zCalc};
+    }
+
+    public static double randomNumber(double max, double min) {
+        return (Math.random() * (max - min)) + min;
+    }
+
 
     private void place() {
         if (targetPlace == null) {
@@ -876,7 +933,7 @@ public class Scaffold extends Module {
         return range / accuracy;
     }
 
-    private int getBlocksAmount() { 
+    private int getBlocksAmount() {
         int amount = 0;
 
         for (int i = 36; i < 45; i++) {

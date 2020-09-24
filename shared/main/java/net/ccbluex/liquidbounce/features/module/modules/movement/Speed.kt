@@ -73,6 +73,7 @@ class Speed : Module() {
             HiveHop(),
             HypixelHop(),
             MineplexGround(),
+            MineplexHop(),
 
             // Other
             SlowHop(),

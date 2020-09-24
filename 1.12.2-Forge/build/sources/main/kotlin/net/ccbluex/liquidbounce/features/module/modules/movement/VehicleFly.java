@@ -16,18 +16,16 @@ public class VehicleFly extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-            mc.getNetHandler().addToSendQueue(classProvider.createCPacketPlayerPosition(mc.getThePlayer().getPosX(),
-                    mc.getThePlayer().getPosY(), mc.getThePlayer().getPosZ(), mc.getThePlayer().getOnGround()));
-            if (mc.getThePlayer().getMovementInput().getJump() && mc.getThePlayer().isRiding()) {
-                for (int i = 0; i < 10; i++) {
-                    mc.getNetHandler().addToSendQueue(classProvider.createCPacketEntityAction(mc.getThePlayer(), ICPacketEntityAction.WAction.START_RIDING_JUMP));
-                    mc.getNetHandler().addToSendQueue(classProvider.createCPacketEntityAction(mc.getThePlayer(),
-                            ICPacketEntityAction.WAction.STOP_RIDING_JUMP));
-                }
-            }
             if(mc.getThePlayer().isRiding()) {
                 if(mc.getThePlayer().getMovementInput().getJump() || mc.getGameSettings().getKeyBindJump().getPressed()) {
                     mc.getThePlayer().getRidingEntity().setMotionY(motion.get());
+                    for (int i = 0; i < 10; i++) {
+                        mc.getNetHandler().addToSendQueue(classProvider.createCPacketPlayerPosition(mc.getThePlayer().getPosX(),
+                                mc.getThePlayer().getPosY(), mc.getThePlayer().getPosZ(), mc.getThePlayer().getOnGround()));
+                        mc.getNetHandler().addToSendQueue(classProvider.createCPacketEntityAction(mc.getThePlayer(), ICPacketEntityAction.WAction.START_RIDING_JUMP));
+                        mc.getNetHandler().addToSendQueue(classProvider.createCPacketEntityAction(mc.getThePlayer(),
+                                ICPacketEntityAction.WAction.STOP_RIDING_JUMP));
+                    }
                 }
             }
     }

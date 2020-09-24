@@ -1,8 +1,8 @@
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\java\api
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\kotlin\api
-Unsupposrted library path: D:\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\resources\api
+Unsupposrted library path: C:\Users\thefleksiscekcu\Desktop\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\java\api
+Unsupposrted library path: C:\Users\thefleksiscekcu\Desktop\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\classes\kotlin\api
+Unsupposrted library path: C:\Users\thefleksiscekcu\Desktop\LiquidBounce-Source\LiquidBounce-1.12.2-master\1.12.2-Forge\build\resources\api
 Symbol range map extraction starting
-Processing 154 files
+Processing 156 files
 startProcessing "co/uk/hexeption/utils/OutlineUtils.java" md5: 368b7316da3e0c976b96bdfed5b69819
 endProcessing "co/uk/hexeption/utils/OutlineUtils.java"
 
@@ -668,6 +668,109 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/exploit/Telepo
     Compile Error! Pb(634) The method getTag() of type Teleport must override or implement a supertype method
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/exploit/Teleport.java"
 
+startProcessing "net/ccbluex/liquidbounce/features/module/modules/misc/AntiBot.java" md5: f413226ca21183adf06f619fff0ff350
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.LiquidBounce cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.AttackEvent cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.EventTarget cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.PacketEvent cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.WorldEvent cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.Module cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.ModuleCategory cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.ModuleInfo cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.utils.render.ColorUtils cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.value cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.value cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.value cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.value cannot be resolved
+    Compile Error! Pb(2) ModuleInfo cannot be resolved to a type
+    Compile Error! Pb(83) ModuleCategory cannot be resolved to a variable
+    Compile Error! Pb(2) Module cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) ListValue cannot be resolved to a type
+    Compile Error! Pb(2) ListValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) IntegerValue cannot be resolved to a type
+    Compile Error! Pb(2) IntegerValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) FloatValue cannot be resolved to a type
+    Compile Error! Pb(2) FloatValue cannot be resolved to a type
+    Compile Error! Pb(634) The method onDisable() of type AntiBot must override or implement a supertype method
+    Compile Error! Pb(2) Module cannot be resolved to a type
+    Compile Error! Pb(2) EventTarget cannot be resolved to a type
+    Compile Error! Pb(2) PacketEvent cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(2) IPacket cannot be resolved to a type
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(2) EventTarget cannot be resolved to a type
+    Compile Error! Pb(2) EventTarget cannot be resolved to a type
+    Compile Error! Pb(2) IEntityLivingBase cannot be resolved to a type
+    Compile Error! Pb(50) LiquidBounce cannot be resolved
+    Compile Error! Pb(100) The method getState() is undefined for the type AntiBot
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) IntegerValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) ListValue cannot be resolved to a type
+    Compile Error! Pb(50) ColorUtils cannot be resolved
+    Compile Error! Pb(2) INetworkPlayerInfo cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) ColorUtils cannot be resolved
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+endProcessing "net/ccbluex/liquidbounce/features/module/modules/misc/AntiBot.java"
+
 startProcessing "net/ccbluex/liquidbounce/features/module/modules/misc/Spammer.java" md5: 403ee19201aae685c680facc941592ad
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.LiquidBounce cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.EventTarget cannot be resolved
@@ -806,7 +909,7 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/Sprin
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/Sprint.java"
 
-startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/VehicleFly.java" md5: c5300f899611d8602e4e1a0ffcd424d2
+startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/VehicleFly.java" md5: 80c592464bbbddf082caf022a7dd3401
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.EventTarget cannot be resolved
@@ -823,26 +926,24 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/Vehic
     Compile Error! Pb(2) EventTarget cannot be resolved to a type
     Compile Error! Pb(2) UpdateEvent cannot be resolved to a type
     Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) classProvider cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) classProvider cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(83) ICPacketEntityAction cannot be resolved to a variable
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(50) classProvider cannot be resolved
-    Compile Error! Pb(50) mc cannot be resolved
-    Compile Error! Pb(83) ICPacketEntityAction cannot be resolved to a variable
-    Compile Error! Pb(50) mc cannot be resolved
     Compile Error! Pb(50) mc cannot be resolved
     Compile Error! Pb(50) mc cannot be resolved
     Compile Error! Pb(50) mc cannot be resolved
     Compile Error! Pb(2) FloatValue cannot be resolved to a type
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) classProvider cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) classProvider cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(83) ICPacketEntityAction cannot be resolved to a variable
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) classProvider cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(83) ICPacketEntityAction cannot be resolved to a variable
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/VehicleFly.java"
 
 startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/speeds/ncp/CubeCraftGround.java" md5: 5e7f0f810ad000c4cf5c5925e33dbaf3
@@ -861,6 +962,41 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/speed
     Compile Error! Pb(2) EventTarget cannot be resolved to a type
     Compile Error! Pb(2) MoveEvent cannot be resolved to a type
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/speeds/ncp/CubeCraftGround.java"
+
+startProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop.java" md5: c58df7ac3f80b3f5f7eff2124f35d62a
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
+    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode cannot be resolved
+    Compile Error! Pb(2) SpeedMode cannot be resolved to a type
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(50) mc2 cannot be resolved
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(50) mc2 cannot be resolved
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(634) The method onMotion() of type MineplexHop must override or implement a supertype method
+    Compile Error! Pb(2) EventTarget cannot be resolved to a type
+    Compile Error! Pb(2) MotionEvent cannot be resolved to a type
+    Compile Error! Pb(2) EventState cannot be resolved to a type
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(83) mc2 cannot be resolved to a variable
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(50) mc cannot be resolved
+    Compile Error! Pb(2) EventTarget cannot be resolved to a type
+    Compile Error! Pb(2) PacketEvent cannot be resolved to a type
+    Compile Error! Pb(2) IPacket cannot be resolved to a type
+    Compile Error! Pb(50) classProvider cannot be resolved
+    Compile Error! Pb(634) The method onUpdate() of type MineplexHop must override or implement a supertype method
+    Compile Error! Pb(2) MoveEvent cannot be resolved to a type
+endProcessing "net/ccbluex/liquidbounce/features/module/modules/movement/speeds/other/MineplexHop.java"
 
 startProcessing "net/ccbluex/liquidbounce/features/module/modules/render/Bobbing.java" md5: 464ec4bdee737941a2b22de9559bc50c
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.event.EventTarget cannot be resolved
@@ -930,7 +1066,7 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/render/ClickGU
     Compile Error! Pb(50) mc cannot be resolved
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/render/ClickGUI.java"
 
-startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java" md5: 29e5dc5fcd820e8531188dcf4d596dc1
+startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java" md5: c51d1813e386bd97644cc157bde24250
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.LiquidBounce cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
@@ -985,6 +1121,8 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold
     Compile Error! Pb(2) FloatValue cannot be resolved to a type
     Compile Error! Pb(2) IntegerValue cannot be resolved to a type
     Compile Error! Pb(2) IntegerValue cannot be resolved to a type
+    Compile Error! Pb(2) IntegerValue cannot be resolved to a type
+    Compile Error! Pb(2) IntegerValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) ListValue cannot be resolved to a type
@@ -1023,12 +1161,10 @@ startProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold
     Compile Error! Pb(2) FloatValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
+    Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) FloatValue cannot be resolved to a type
     Compile Error! Pb(2) FloatValue cannot be resolved to a type
-    Compile Error! Pb(2) BoolValue cannot be resolved to a type
-    Compile Error! Pb(2) BoolValue cannot be resolved to a type
-    Compile Error! Pb(2) BoolValue cannot be resolved to a type
-    Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
     Compile Error! Pb(2) BoolValue cannot be resolved to a type
 endProcessing "net/ccbluex/liquidbounce/features/module/modules/world/Scaffold.java"
@@ -2904,7 +3040,6 @@ startProcessing "net/ccbluex/liquidbounce/utils/EntityUtils.java" md5: fd3f4f1c1
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.api cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.modules.combat.NoFriends cannot be resolved
-    Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.modules.misc.AntiBot cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.features.module.modules.misc.Teams cannot be resolved
     Compile Error! Pb(390) The import net.ccbluex.liquidbounce.utils.render.ColorUtils cannot be resolved
     Compile Error! Pb(2) IEntity cannot be resolved to a type
@@ -2912,7 +3047,6 @@ startProcessing "net/ccbluex/liquidbounce/utils/EntityUtils.java" md5: fd3f4f1c1
     Compile Error! Pb(2) IMinecraft cannot be resolved to a type
     Compile Error! Pb(2) IClassProvider cannot be resolved to a type
     Compile Error! Pb(2) IEntityPlayer cannot be resolved to a type
-    Compile Error! Pb(50) AntiBot cannot be resolved
     Compile Error! Pb(50) LiquidBounce cannot be resolved
     Compile Error! Pb(2) NoFriends cannot be resolved to a type
     Compile Error! Pb(2) Teams cannot be resolved to a type

@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.KeyEvent
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.Derp
+import net.ccbluex.liquidbounce.features.module.modules.`fun`.Experimental
 import net.ccbluex.liquidbounce.features.module.modules.`fun`.SkinDerp
 import net.ccbluex.liquidbounce.features.module.modules.combat.*
 import net.ccbluex.liquidbounce.features.module.modules.exploit.*
@@ -39,6 +40,7 @@ class ModuleManager : Listenable {
         ClientUtils.getLogger().info("[ModuleManager] Loading modules...")
 
         registerModules(
+                Experimental::class.java,
                 ClientSpoof::class.java,
                 VehicleFly::class.java,
                 InvMove::class.java,

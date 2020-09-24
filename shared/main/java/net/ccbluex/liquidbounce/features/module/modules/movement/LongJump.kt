@@ -5,10 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.movement
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.JumpEvent
-import net.ccbluex.liquidbounce.event.MoveEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.LiquidBounce
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -19,11 +17,8 @@ import net.ccbluex.liquidbounce.value.ListValue
 
 @ModuleInfo(name = "LongJump", description = "Allows you to jump further.", category = ModuleCategory.MOVEMENT)
 class LongJump : Module() {
-    private val modeValue = ListValue("Mode", arrayOf("NCP", "Boost", "AACv1", "AACv2", "AACv3", "Mineplex", "Mineplex2", "Mineplex3"), "NCP")
+    private val modeValue = ListValue("Mode", arrayOf("NCP", "AACv1", "AACv2", "AACv3", "Mineplex", "Mineplex2", "Mineplex3"), "NCP")
     private val ncpBoostValue = FloatValue("NCPBoost", 4.25f, 1f, 10f)
-    private val boostValue = FloatValue("BoostAmount", 4.25f, 1f, 10f)
-    private val boostTimer = FloatValue("BoostTimer", 1F, 0.1F, 3F)
-    private val boostStrafeValue = BoolValue("BoostStrafe", true)
     private val autoJumpValue = BoolValue("AutoJump", false)
     private var jumped = false
     private var canBoost = false
@@ -48,24 +43,12 @@ class LongJump : Module() {
                     thePlayer.motionX = 0.0
                     thePlayer.motionZ = 0.0
                 }
-                if (mode.equals("Boost", ignoreCase = true)) {
-                    thePlayer.motionX = 0.0
-                    thePlayer.motionZ = 0.0
-                }
                 return
             }
             run {
                 when (mode.toLowerCase()) {
                     "ncp" -> {
                         MovementUtils.strafe(MovementUtils.speed * if (canBoost) ncpBoostValue.get() else 1f)
-                        canBoost = false
-                    }
-                    "boost" -> {
-                        MovementUtils.strafe(MovementUtils.speed * if (canBoost) boostValue.get() else 1f)
-                        if(boostStrafeValue.get()) {
-                            MovementUtils.strafe()
-                        }
-                        mc.timer.timerSpeed = boostTimer.get()
                         canBoost = false
                     }
                     "aacv1" -> {

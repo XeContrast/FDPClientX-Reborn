@@ -40,6 +40,7 @@ class Fly : Module() {
     val modeValue = ListValue("Mode", arrayOf(
             "Vanilla",
             "SmoothVanilla",
+            "GlideVanilla",
 
             // NCP
             "NCP",
@@ -280,6 +281,17 @@ class Fly : Module() {
                     if (mc.gameSettings.keyBindSneak.isKeyDown) thePlayer.motionY -= vanillaSpeed
                     MovementUtils.strafe(vanillaSpeed)
                     handleVanillaKickBypass()
+                }
+                "glidevanilla" -> {
+                    thePlayer.capabilities.isFlying = false;
+                    thePlayer.motionY = -0.20
+                    thePlayer.motionX = 0.0
+                    thePlayer.motionZ = 0.0
+                    if (mc.gameSettings.keyBindJump.isKeyDown)
+                        thePlayer.motionY += vanillaSpeed
+                    if (mc.gameSettings.keyBindSneak.isKeyDown)
+                        thePlayer.motionY -= vanillaSpeed
+                    MovementUtils.strafe(vanillaSpeed)
                 }
                 "smoothvanilla" -> {
                     thePlayer.capabilities.isFlying = true
@@ -637,6 +649,9 @@ class Fly : Module() {
                     event.x = -sin(yaw) * 0.2
                     event.z = cos(yaw) * 0.2
                 }
+            }
+            "glidevanilla" -> {
+                mc.thePlayer!!.motionY = -0.50
             }
             "boosthypixel" -> {
                 if (!MovementUtils.isMoving) {
