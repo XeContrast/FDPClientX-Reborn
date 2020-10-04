@@ -174,10 +174,7 @@ class Velocity : Module() {
                 "simple" -> {
                     val horizontal = horizontalValue.get()
                     val vertical = verticalValue.get()
-
-                    if (horizontal == 0F && vertical == 0F)
-                        event.cancelEvent()
-
+                    
                     packetEntityVelocity.motionX = (packetEntityVelocity.motionX * horizontal).toInt()
                     packetEntityVelocity.motionY = (packetEntityVelocity.motionY * vertical).toInt()
                     packetEntityVelocity.motionZ = (packetEntityVelocity.motionZ * horizontal).toInt()

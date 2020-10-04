@@ -40,6 +40,7 @@ class ModuleManager : Listenable {
         ClientUtils.getLogger().info("[ModuleManager] Loading modules...")
 
         registerModules(
+                IlIl111Ill1::class.java,
                 Experimental::class.java,
                 ClientSpoof::class.java,
                 VehicleFly::class.java,
