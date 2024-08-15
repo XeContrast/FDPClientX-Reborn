@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.utils
 
 import kevin.utils.multiply
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
+import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.minecraft.block.BlockSlime
 import net.minecraft.client.entity.EntityPlayerSP

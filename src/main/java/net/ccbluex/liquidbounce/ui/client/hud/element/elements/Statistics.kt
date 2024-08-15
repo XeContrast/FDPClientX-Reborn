@@ -111,8 +111,8 @@ class Statistics(
                 Color(textR.get(), textG.get(), textB.get(), textAlpha.get()).rgb
             )
             if (!mc.isSingleplayer) FontLoaders.C16.drawString(
-                SessionUtils.getFormatSessionTime(),
-                135F - FontLoaders.C16.getStringWidth(SessionUtils.getFormatSessionTime()),
+                SessionUtils.formatSessionTime,
+                135F - FontLoaders.C16.getStringWidth(SessionUtils.formatSessionTime),
                 10.0f,
                 Color(infoR.get(), infoG.get(), infoB.get(), infoAlpha.get()).rgb
             )
@@ -132,8 +132,8 @@ class Statistics(
                 Color(textR.get(), textG.get(), textB.get(), textAlpha.get()).rgb
             )
             FontLoaders.C16.drawString(
-                StatisticsUtils.getKills().toString(),
-                135F - FontLoaders.C16.getStringWidth(StatisticsUtils.getKills().toString()),
+                StatisticsUtils.kills.toString(),
+                135F - FontLoaders.C16.getStringWidth(StatisticsUtils.kills.toString()),
                 20.0f,
                 Color(infoR.get(), infoG.get(), infoB.get(), infoAlpha.get()).rgb
             )
@@ -146,8 +146,8 @@ class Statistics(
                 Color(textR.get(), textG.get(), textB.get(), textAlpha.get()).rgb
             )
             FontLoaders.C16.drawString(
-                StatisticsUtils.getDeaths().toString(),
-                135F - FontLoaders.C16.getStringWidth(StatisticsUtils.getDeaths().toString()),
+                StatisticsUtils.deaths.toString(),
+                135F - FontLoaders.C16.getStringWidth(StatisticsUtils.deaths.toString()),
                 30.0f,
                 Color(infoR.get(), infoG.get(), infoB.get(), infoAlpha.get()).rgb
             )
@@ -166,9 +166,9 @@ class Statistics(
             RenderUtils.drawRoundedRect(0F, 0F, 180F, 50F, 10F,Color(0,0,0,100).rgb, 2.5F,
                 Color(255, 100, 255, 255).rgb )
             Fonts.fontTenacityBold40.drawCenteredString("Session Stats", 90F, 5F, Color(255, 255, 255).rgb, true)
-            Fonts.fontTenacity35.drawString("Kill: " + StatisticsUtils.getKills(), 5F, 20F, Color.WHITE.rgb, true)
+            Fonts.fontTenacity35.drawString("Kill: " + StatisticsUtils.kills, 5F, 20F, Color.WHITE.rgb, true)
             Fonts.fontTenacity35.drawString(
-                "Session Time: " + SessionUtils.getFormatSessionTime(),
+                "Session Time: " + SessionUtils.formatSessionTime,
                 5F,
                 29F,
                 Color.WHITE.rgb,

@@ -116,11 +116,11 @@ class Text(
                 if (mc.isSingleplayer) {
                     "Singleplayer"
                 } else {
-                    SessionUtils.getFormatSessionTime()
+                    SessionUtils.formatSessionTime
                 }
             }
-            "kills" -> StatisticsUtils.getKills().toString()
-            "deaths" -> StatisticsUtils.getDeaths().toString()
+            "kills" -> StatisticsUtils.kills.toString()
+            "deaths" -> StatisticsUtils.deaths.toString()
             "username" -> mc.getSession().username
             "clientName" -> FDPClient.CLIENT_NAME
             "clientVersion" -> FDPClient.CLIENT_VERSION
@@ -128,7 +128,7 @@ class Text(
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
-            "serverIp" -> ServerUtils.getRemoteIp()
+            "serverIp" -> ServerUtils.remoteIp
             "cps", "lcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.LEFT).toString()
             "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE).toString()
             "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()

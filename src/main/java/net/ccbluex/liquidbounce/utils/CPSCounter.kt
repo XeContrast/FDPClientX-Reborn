@@ -3,15 +3,15 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils;
+package net.ccbluex.liquidbounce.utils
 
-public class CPSCounter {
-    private static final int MAX_CPS = 50;
-    private static final RollingArrayLongBuffer[] TIMESTAMP_BUFFERS = new RollingArrayLongBuffer[MouseButton.values().length];
+object CPSCounter {
+    private const val MAX_CPS = 50
+    private val TIMESTAMP_BUFFERS = arrayOfNulls<RollingArrayLongBuffer>(MouseButton.entries.size)
 
-    static {
-        for (int i = 0; i < TIMESTAMP_BUFFERS.length; i++) {
-            TIMESTAMP_BUFFERS[i] = new RollingArrayLongBuffer(MAX_CPS);
+    init {
+        for (i in TIMESTAMP_BUFFERS.indices) {
+            TIMESTAMP_BUFFERS[i] = RollingArrayLongBuffer(MAX_CPS)
         }
     }
 
@@ -20,8 +20,9 @@ public class CPSCounter {
      *
      * @param button The clicked button
      */
-    public static void registerClick(MouseButton button) {
-        TIMESTAMP_BUFFERS[button.getIndex()].add(System.currentTimeMillis());
+    @JvmStatic
+    fun registerClick(button: MouseButton) {
+        TIMESTAMP_BUFFERS[button.index]!!.add(System.currentTimeMillis())
     }
 
     /**
@@ -30,21 +31,11 @@ public class CPSCounter {
      * @param button The mouse button
      * @return The CPS
      */
-    public static int getCPS(MouseButton button) {
-        return TIMESTAMP_BUFFERS[button.getIndex()].getTimestampsSince(System.currentTimeMillis() - 1000L);
+    fun getCPS(button: MouseButton): Int {
+        return TIMESTAMP_BUFFERS[button.index]!!.getTimestampsSince(System.currentTimeMillis() - 1000L)
     }
 
-    public enum MouseButton {
-        LEFT(0), MIDDLE(1), RIGHT(2);
-
-        private final int index;
-
-        MouseButton(int index) {
-            this.index = index;
-        }
-
-        private int getIndex() {
-            return index;
-        }
+    enum class MouseButton(val index: Int) {
+        LEFT(0), MIDDLE(1), RIGHT(2)
     }
 }

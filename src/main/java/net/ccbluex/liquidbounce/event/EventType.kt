@@ -1,6 +1,6 @@
-package net.ccbluex.liquidbounce.event;
+package net.ccbluex.liquidbounce.event
 
-public enum EventType {
+enum class EventType {
     PRE,
     POST
 }

@@ -3,53 +3,62 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.particles;
+package net.ccbluex.liquidbounce.utils.particles
 
-import net.ccbluex.liquidbounce.utils.timer.ParticleTimer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockBush;
-import net.minecraft.block.BlockLiquid;
+import net.ccbluex.liquidbounce.utils.timer.ParticleTimer
+import net.minecraft.block.BlockAir
+import net.minecraft.block.BlockBush
+import net.minecraft.block.BlockLiquid
 
-public class Particle {
+class Particle(val position: Vec3) {
+    private val removeTimer = ParticleTimer()
 
-    private final ParticleTimer removeTimer = new ParticleTimer();
+    private val delta = Vec3(
+        (Math.random() * 2.5 - 1.25) * 0.04,
+        (Math.random() * 0.5 - 0.2) * 0.04,
+        (Math.random() * 2.5 - 1.25) * 0.04
+    )
 
-    public final Vec3 position;
-    private final Vec3 delta;
-
-    public Particle(final Vec3 position) {
-        this.position = position;
-        this.delta = new Vec3((Math.random() * 2.5 - 1.25) * 0.04, (Math.random() * 0.5 - 0.2) * 0.04, (Math.random() * 2.5 - 1.25) * 0.04);
-        this.removeTimer.reset();
+    init {
+        removeTimer.reset()
     }
 
-    public void update() {
-        final Block block1 = PlayerParticles.getBlock(this.position.xCoord, this.position.yCoord, this.position.zCoord + this.delta.zCoord);
-        if (!(block1 instanceof BlockAir || block1 instanceof BlockBush || block1 instanceof BlockLiquid))
-            this.delta.zCoord *= -0.8;
+    fun update() {
+        val block1 = PlayerParticles.getBlock(
+            position.xCoord,
+            position.yCoord,
+            position.zCoord + delta.zCoord
+        )
+        if (!(block1 is BlockAir || block1 is BlockBush || block1 is BlockLiquid)) delta.zCoord *= -0.8
 
-        final Block block2 = PlayerParticles.getBlock(this.position.xCoord, this.position.yCoord + this.delta.yCoord, this.position.zCoord);
-        if (!(block2 instanceof BlockAir || block2 instanceof BlockBush || block2 instanceof BlockLiquid)) {
-            this.delta.xCoord *= 0.99F;
-            this.delta.zCoord *= 0.99F;
+        val block2 = PlayerParticles.getBlock(
+            position.xCoord,
+            position.yCoord + delta.yCoord,
+            position.zCoord
+        )
+        if (!(block2 is BlockAir || block2 is BlockBush || block2 is BlockLiquid)) {
+            delta.xCoord *= 0.99
+            delta.zCoord *= 0.99
 
-            this.delta.yCoord *= -0.5;
+            delta.yCoord *= -0.5
         }
 
-        final Block block3 = PlayerParticles.getBlock(this.position.xCoord + this.delta.xCoord, this.position.yCoord, this.position.zCoord);
-        if (!(block3 instanceof BlockAir || block3 instanceof BlockBush || block3 instanceof BlockLiquid))
-            this.delta.xCoord *= -0.8;
+        val block3 = PlayerParticles.getBlock(
+            position.xCoord + delta.xCoord,
+            position.yCoord,
+            position.zCoord
+        )
+        if (!(block3 is BlockAir || block3 is BlockBush || block3 is BlockLiquid)) delta.xCoord *= -0.8
 
-        this.updateWithoutPhysics();
+        this.updateWithoutPhysics()
     }
 
-    public void updateWithoutPhysics() {
-        this.position.xCoord += this.delta.xCoord;
-        this.position.yCoord += this.delta.yCoord;
-        this.position.zCoord += this.delta.zCoord;
-        this.delta.xCoord *= 0.998F;
-        this.delta.yCoord -= 0.000031;
-        this.delta.zCoord *= 0.998F;
+    fun updateWithoutPhysics() {
+        position.xCoord += delta.xCoord
+        position.yCoord += delta.yCoord
+        position.zCoord += delta.zCoord
+        delta.xCoord *= 0.998
+        delta.yCoord -= 0.000031
+        delta.zCoord *= 0.998
     }
 }

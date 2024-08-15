@@ -3,60 +3,53 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.item;
+package net.ccbluex.liquidbounce.utils.item
 
-import net.ccbluex.liquidbounce.utils.MinecraftInstance;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
+import net.minecraft.nbt.JsonToNBT
+import net.minecraft.util.ResourceLocation
+import java.util.*
+import java.util.regex.Pattern
+import kotlin.math.min
 
-import java.util.Objects;
-import java.util.regex.Pattern;
-
-public final class ilegalItems extends MinecraftInstance {
-
-    public static ItemStack createItem(String itemArguments) {
+object ilegalItems : MinecraftInstance() {
+    fun createItem(itemArguments: String): ItemStack? {
+        var itemArguments = itemArguments
         try {
-            itemArguments = itemArguments.replace('&', '§');
-            Item item = new Item();
-            String[] args = null;
-            int i = 1;
-            int j = 0;
+            itemArguments = itemArguments.replace('&', '§')
+            var item: Item? = Item()
+            var args: Array<String>? = null
+            var i = 1
+            var j = 0
 
-            for (int mode = 0; mode <= Math.min(12, itemArguments.length() - 2); ++mode) {
-                args = itemArguments.substring(mode).split(Pattern.quote(" "));
-                ResourceLocation resourcelocation = new ResourceLocation(args[0]);
-                item = Item.itemRegistry.getObject(resourcelocation);
+            for (mode in 0..min(12.0, (itemArguments.length - 2).toDouble()).toInt()) {
+                args = itemArguments.substring(mode).split(Pattern.quote(" ").toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
+                val resourcelocation = ResourceLocation(args[0])
+                item = Item.itemRegistry.getObject(resourcelocation)
 
-                if (item != null)
-                    break;
+                if (item != null) break
             }
 
-            if (item == null)
-                return null;
+            if (item == null) return null
 
-            if (Objects.requireNonNull(args).length >= 2 && args[1].matches("\\d+"))
-                i = Integer.parseInt(args[1]);
-            if (args.length >= 3 && args[2].matches("\\d+"))
-                j = Integer.parseInt(args[2]);
+            if (Objects.requireNonNull(args)!!.size >= 2 && args!![1].matches("\\d+".toRegex())) i = args[1].toInt()
+            if (args!!.size >= 3 && args[2].matches("\\d+".toRegex())) j = args[2].toInt()
 
-            ItemStack itemstack = new ItemStack(item, i, j);
+            val itemstack = ItemStack(item, i, j)
 
-            if (args.length >= 4) {
-                StringBuilder NBT = new StringBuilder();
-                for (int nbtcount = 3; nbtcount < args.length; ++nbtcount)
-                    NBT.append(" ").append(args[nbtcount]);
-                itemstack.setTagCompound(JsonToNBT.getTagFromJson(NBT.toString()));
+            if (args.size >= 4) {
+                val NBT = StringBuilder()
+                for (nbtcount in 3 until args.size) NBT.append(" ").append(args[nbtcount])
+                itemstack.tagCompound = JsonToNBT.getTagFromJson(NBT.toString())
             }
 
-            return itemstack;
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return null;
+            return itemstack
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            return null
         }
     }
-
 }

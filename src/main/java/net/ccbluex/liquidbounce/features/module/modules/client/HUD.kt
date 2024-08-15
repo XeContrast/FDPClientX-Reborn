@@ -36,8 +36,7 @@ object HUD : Module() {
     private val clolormode = ListValue("ColorMode", arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"), "Light Rainbow")
     private val MusicDisplay = BoolValue("MusicDisplay",true)
     val inventoryOnHotbar = BoolValue("InventoryOnHotbar", false)
-    val hueInterpolation = BoolValue("HueInterpolation", false)
-    val movingcolors = BoolValue("MovingColors", false)
+    private val hueInterpolation = BoolValue("HueInterpolation", false)
     val inventoryParticle = BoolValue("InventoryParticle", false)
     private val blurValue = BoolValue("Blur", false)
     private val HealthValue = BoolValue("Health", true)
@@ -132,7 +131,7 @@ object HUD : Module() {
         FDPClient.hud.handleKey('a', event.key)
     }
 
-    fun getClientColors(): Array<Color> {
+    private fun getClientColors(): Array<Color> {
         val firstColor: Color
         val secondColor: Color
         when (clolormode.get().lowercase(Locale.getDefault())) {

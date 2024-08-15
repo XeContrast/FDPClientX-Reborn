@@ -1,26 +1,24 @@
-package net.ccbluex.liquidbounce.utils;
+package net.ccbluex.liquidbounce.utils
 
-import java.awt.*;
-import java.text.NumberFormat;
+import java.awt.Color
 
-public class Colors {
-    public static int getColor(int color,int a){
-        Color color1=new Color(color);
-        return new Color(color1.getRed(),color1.getGreen(),color1.getBlue(),a).getRGB();
+object Colors {
+    fun getColor(color: Int, a: Int): Int {
+        val color1 = Color(color)
+        return Color(color1.red, color1.green, color1.blue, a).rgb
     }
 
-    public static int getColor(int brightness) {
-        return getColor(brightness, brightness, brightness, 255);
+    fun getColor(brightness: Int): Int {
+        return getColor(brightness, brightness, brightness, 255)
     }
 
 
-    public static int getColor(int red, int green, int blue, int alpha) {
-        int color = 0;
-        color |= alpha << 24;
-        color |= red << 16;
-        color |= green << 8;
-        color |= blue;
-        return color;
+    fun getColor(red: Int, green: Int, blue: Int, alpha: Int): Int {
+        var color = 0
+        color = color or (alpha shl 24)
+        color = color or (red shl 16)
+        color = color or (green shl 8)
+        color = color or blue
+        return color
     }
-
 }

@@ -1,13 +1,24 @@
+<div align="center">
+
 # FDPClientX-Reborn
 
 Follow me on BiliBili: https://space.bilibili.com/1353540064
 
+</div>
+
+<div align="Center">
+
 # This is Super Skid Client
+
+</div>
 You have to admit that I haven't written any line of code myself
 
 Simply copy and paste to write code
 
+<div align="Center">
+
 ## License
+</div>
 This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
 
 For those who are unfamiliar with the license, here is a summary of its main points. This is by no means legal advice nor legally binding.

@@ -182,7 +182,7 @@ object FightBot : Module() {
                             entity.posY,
                             entity.posZ,
                             2.5
-                        )
+                        ) as MutableList<Vec3>
                         return@thread
                     }
                 }
@@ -212,7 +212,7 @@ object FightBot : Module() {
                                         mc.thePlayer.posZ,
                                         mainPos[0].toDouble(), mainPos[1].toDouble(), mainPos[2].toDouble(),
                                         0.1
-                                    )
+                                    ) as MutableList<Vec3>
                                     return@thread
                                 }
                             }
@@ -250,7 +250,7 @@ object FightBot : Module() {
                                         entity.posY,
                                         entity.posZ,
                                         2.5
-                                    )
+                                    ) as MutableList<Vec3>
                                     return@thread
                                 }
                             }

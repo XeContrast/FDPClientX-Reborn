@@ -3,38 +3,36 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils;
+package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EntityKilledEvent;
-import net.ccbluex.liquidbounce.event.EventTarget;
-import net.ccbluex.liquidbounce.event.Listenable;
-import net.minecraft.entity.player.EntityPlayer;
+import net.ccbluex.liquidbounce.event.EntityKilledEvent
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
+import net.minecraft.entity.player.EntityPlayer
 
-public class StatisticsUtils implements Listenable {
-    private static int kills;
-    private static int deaths;
-
+class StatisticsUtils : Listenable {
     @EventTarget
-    public void onTargetKilled(EntityKilledEvent e) {
-        if (!(e.getTargetEntity() instanceof EntityPlayer)) {
-            return;
+    fun onTargetKilled(e: EntityKilledEvent) {
+        if (e.targetEntity !is EntityPlayer) {
+            return
         }
 
-        kills++;
+        kills++
     }
 
-    public static void addDeaths() {
-        deaths++;
+    override fun handleEvents(): Boolean {
+        return true
     }
 
-    public static int getDeaths() {
-        return deaths;
-    }
+    companion object {
+        var kills: Int = 0
+            private set
+        var deaths: Int = 0
+            private set
 
-    public static int getKills() {
-        return kills;
+        @JvmStatic
+        fun addDeaths() {
+            deaths++
+        }
     }
-
-    @Override
-    public boolean handleEvents() { return true; }
 }

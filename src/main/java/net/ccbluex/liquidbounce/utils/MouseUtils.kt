@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.ClickBlockEvent
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions
 import net.ccbluex.liquidbounce.features.module.modules.world.Breaker
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
+import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.minecraft.block.material.Material
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MovingObjectPosition

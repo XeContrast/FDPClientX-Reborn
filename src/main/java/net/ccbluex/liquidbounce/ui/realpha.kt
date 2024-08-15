@@ -1,11 +1,11 @@
-package net.ccbluex.liquidbounce.ui;
+package net.ccbluex.liquidbounce.ui
 
-import java.awt.*;
+import java.awt.Color
 
-public class realpha {
-
-    public static int reAlpha(final int n, final float n2) {
-        final Color color = new Color(n);
-        return new Color(0.003921569f * color.getRed(), 0.003921569f * color.getGreen(), 0.003921569f * color.getBlue(), n2).getRGB();
+object realpha {
+    @JvmStatic
+    fun reAlpha(n: Int, n2: Float): Int {
+        val color = Color(n)
+        return Color(0.003921569f * color.red, 0.003921569f * color.green, 0.003921569f * color.blue, n2).rgb
     }
 }

@@ -5,19 +5,9 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.event.EventState
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.utils.PacketUtils.packets
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.network.Packet
-import net.minecraft.network.handshake.client.C00Handshake
 import net.minecraft.network.play.INetHandlerPlayServer
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.server.S02PacketChat
-import net.minecraft.network.play.server.S40PacketDisconnect
-import net.minecraft.network.status.client.C00PacketServerQuery
-import net.minecraft.network.status.client.C01PacketPing
-import net.minecraft.util.Vec3
 import java.math.BigInteger
 import java.util.*
 

@@ -3,35 +3,35 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils;
+package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.FDPClient;
-import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.multiplayer.GuiConnecting;
-import net.minecraft.client.multiplayer.ServerData;
+import net.ccbluex.liquidbounce.FDPClient
+import net.minecraft.client.gui.GuiMultiplayer
+import net.minecraft.client.multiplayer.GuiConnecting
+import net.minecraft.client.multiplayer.ServerData
 
-public final class ServerUtils extends MinecraftInstance {
+object ServerUtils : MinecraftInstance() {
+    @JvmField
+    var serverData: ServerData? = null
 
-    public static ServerData serverData;
+    @JvmStatic
+    fun connectToLastServer() {
+        if (serverData == null) return
 
-    public static void connectToLastServer() {
-        if(serverData == null)
-            return;
-
-        mc.displayGuiScreen(new GuiConnecting(new GuiMultiplayer(FDPClient.mainMenu), mc, serverData));
+        mc.displayGuiScreen(GuiConnecting(GuiMultiplayer(FDPClient.mainMenu), mc, serverData))
     }
 
-    public static String getRemoteIp() {
-        String serverIp = "Idling";
+    val remoteIp: String
+        get() {
+            var serverIp = "Idling"
 
-        if (mc.isIntegratedServerRunning()) {
-            serverIp = "SinglePlayer";
-        } else if (mc.theWorld != null && mc.theWorld.isRemote) {
-            final ServerData serverData = mc.getCurrentServerData();
-            if(serverData != null)
-                serverIp = serverData.serverIP;
+            if (mc.isIntegratedServerRunning) {
+                serverIp = "SinglePlayer"
+            } else if (mc.theWorld != null && mc.theWorld.isRemote) {
+                val serverData = mc.currentServerData
+                if (serverData != null) serverIp = serverData.serverIP
+            }
+
+            return serverIp
         }
-
-        return serverIp;
-    }
 }

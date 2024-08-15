@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.StrafeEvent
-import net.ccbluex.liquidbounce.utils.MinecraftInstance.mc
+import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
