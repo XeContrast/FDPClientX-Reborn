@@ -451,7 +451,7 @@ class Scaffold : Module() {
                 var dif = 0.5
                 val blockPos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ)
                 if (edgeDistanceValue.get() > 0) {
-                    for (facingType in EnumFacing.values()) {
+                    for (facingType in EnumFacing.entries) {
                         if (facingType == EnumFacing.UP || facingType == EnumFacing.DOWN) {
                             continue
                         }
@@ -1312,8 +1312,7 @@ class Scaffold : Module() {
                 }
                 "backwards" -> {
                     val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
-                    var calcpitch = 0f
-                    calcpitch = if (calcyaw % 90 == 0) {
+                    val calcpitch: Float = if (calcyaw % 90 == 0) {
                         82f
                     } else {
                         78f
@@ -1321,9 +1320,7 @@ class Scaffold : Module() {
                     Rotation(calcyaw.toFloat(), calcpitch)
                 }
                 "advanced" -> {
-                    var advancedYaw = 0f
-                    var advancedPitch = 0f
-                    advancedYaw = when (advancedYawModeValue.get().lowercase()) {
+                    val advancedYaw: Float = when (advancedYawModeValue.get().lowercase()) {
                         "offset" -> placeRotation.rotation.yaw + advancedYawOffsetValue.get()
                         "static" -> mc.thePlayer.rotationYaw + advancedYawStaticValue.get()
                         "vanilla" -> placeRotation.rotation.yaw
@@ -1333,7 +1330,7 @@ class Scaffold : Module() {
                         "offsetmove" -> MovementUtils.movingYaw - 180 + advancedYawMoveOffsetValue.get()
                         else -> placeRotation.rotation.yaw
                     }
-                    advancedPitch = when (advancedPitchModeValue.get().lowercase()) {
+                    val advancedPitch: Float = when (advancedPitchModeValue.get().lowercase()) {
                         "offset" -> placeRotation.rotation.pitch + advancedPitchOffsetValue.get()
                         "static" -> advancedPitchStaticValue.get()
                         "vanilla" -> placeRotation.rotation.pitch
@@ -1392,8 +1389,7 @@ class Scaffold : Module() {
                 }
 
                 "advanced" -> {
-                    var advancedYaw = 0f
-                    advancedYaw = when (advancedYawModeValue.get().lowercase()) {
+                    val advancedYaw: Float = when (advancedYawModeValue.get().lowercase()) {
                         "offset" -> placeRotation.rotation.yaw + advancedYawOffsetValue.get()
                         "static" -> mc.thePlayer.rotationYaw + advancedYawStaticValue.get()
                         "vanilla" -> placeRotation.rotation.yaw
