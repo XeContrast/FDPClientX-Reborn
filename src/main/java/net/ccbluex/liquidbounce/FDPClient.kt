@@ -83,7 +83,7 @@ object FDPClient {
     lateinit var keyBindManager: KeyBindManager
 
     // Menu Background
-    var background: ResourceLocation? = ResourceLocation("fdpclient/background.png")
+    var background: ResourceLocation? = ResourceLocation("fdpclient/bg2.png")
 
     val launchFilters = mutableListOf<EnumLaunchFilter>()
     private val dynamicLaunchOptions: Array<LaunchOption>

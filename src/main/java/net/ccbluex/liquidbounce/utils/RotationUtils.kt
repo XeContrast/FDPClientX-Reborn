@@ -5,11 +5,16 @@
  */
 package net.ccbluex.liquidbounce.utils
 
+import kevin.utils.component1
+import kevin.utils.component2
+import kevin.utils.component3
+import kevin.utils.minus
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
+import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.projectile.EntityEgg
@@ -249,6 +254,20 @@ class RotationUtils : MinecraftInstance(), Listenable {
                     Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f
                 ), MathHelper.wrapAngleTo180_float(
                     (-Math.toDegrees(atan2(diffY, sqrt(diffX * diffX + diffZ * diffZ)))).toFloat()
+                )
+            )
+        }
+
+        fun toRotation(vec: Vec3, predict: Boolean = false, fromEntity: Entity = mc.thePlayer): Rotation {
+            val eyesPos = fromEntity.eyes
+            if (predict) eyesPos.addVector(fromEntity.motionX, fromEntity.motionY, fromEntity.motionZ)
+
+            val (diffX, diffY, diffZ) = vec - eyesPos
+            return Rotation(
+                MathHelper.wrapAngleTo180_float(
+                    atan2(diffZ, diffX).toDegreesF() - 90f
+                ), MathHelper.wrapAngleTo180_float(
+                    -atan2(diffY, sqrt(diffX * diffX + diffZ * diffZ)).toDegreesF()
                 )
             )
         }

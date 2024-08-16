@@ -50,6 +50,7 @@ object Velocity : Module() {
     val onlyCombatValue = BoolValue("OnlyCombat", false)
     // private val onlyHitVelocityValue = BoolValue("OnlyHitVelocity",false)
     private val noFireValue = BoolValue("noFire", false)
+    private val nowater = BoolValue("NoWater",false)
 
     private val overrideDirectionValue = ListValue("OverrideDirection", arrayOf("None", "Hard", "Offset"), "None")
     private val overrideDirectionYawValue = FloatValue("OverrideDirectionYaw", 0F, -180F, 180F)
@@ -101,6 +102,7 @@ object Velocity : Module() {
             return
         }
         if (noFireValue.get() && mc.thePlayer.isBurning) return
+        if (nowater.get() && mc.thePlayer.isInWater) return
         mode.onVelocity(event)
     }
 
@@ -132,6 +134,7 @@ object Velocity : Module() {
                 return
             }
             // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
+            if (nowater.get() && mc.thePlayer.isInWater) return
             if (noFireValue.get() && mc.thePlayer.isBurning) return
             velocityTimer.reset()
             velocityTick = 0

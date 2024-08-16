@@ -1,11 +1,11 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
 
 import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
 import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
+import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils

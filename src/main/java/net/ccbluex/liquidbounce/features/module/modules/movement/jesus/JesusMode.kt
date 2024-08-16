@@ -2,7 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.movement.jesus
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.modules.movement.Jesus
+import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidSpeed
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.features.value.Value
@@ -11,8 +11,8 @@ import net.minecraft.util.BlockPos
 abstract class JesusMode(val modeName: String) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
-    protected val jesus: Jesus
-        get() = FDPClient.moduleManager[Jesus::class.java]!!
+    protected val jesus: LiquidSpeed
+        get() = FDPClient.moduleManager[LiquidSpeed::class.java]!!
 
     open val values: List<Value<*>>
         get() = ClassUtils.getValues(this.javaClass, this)

@@ -85,7 +85,7 @@ class MainMenuButton {
         }
     }
 
-    interface Executor {
+    fun interface Executor {
         fun execute()
     }
 }

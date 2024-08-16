@@ -18,8 +18,8 @@ import net.minecraft.block.BlockLiquid
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 
-@ModuleInfo(name = "Jesus", category = ModuleCategory.MOVEMENT)
-object Jesus : Module() {
+@ModuleInfo(name = "LiquidSpeed", category = ModuleCategory.MOVEMENT)
+object LiquidSpeed : Module() {
 
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.jesus", JesusMode::class.java)
         .map { it.newInstance() as JesusMode }

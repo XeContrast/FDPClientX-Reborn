@@ -5,6 +5,9 @@
  */
 package net.ccbluex.liquidbounce.utils
 
+import net.minecraft.block.Block
+import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.Vec3
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -46,6 +49,21 @@ object MathUtils {
         }
         return distanceSq(p, lerp(v, w, (((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2).coerceAtMost(1.0).coerceAtLeast(0.0)))
     }
+
+    val AxisAlignedBB.center
+        get() = lerpWith(0.5)
+
+    fun Block.lerpWith(x: Double, y: Double, z: Double) = Vec3(
+        blockBoundsMinX + (blockBoundsMaxX - blockBoundsMinX) * x,
+        blockBoundsMinY + (blockBoundsMaxY - blockBoundsMinY) * y,
+        blockBoundsMinZ + (blockBoundsMaxZ - blockBoundsMinZ) * z
+    )
+
+    fun AxisAlignedBB.lerpWith(x: Double, y: Double, z: Double) =
+        Vec3(minX + (maxX - minX) * x, minY + (maxY - minY) * y, minZ + (maxZ - minZ) * z)
+
+    fun AxisAlignedBB.lerpWith(point: Vec3) = lerpWith(point.xCoord, point.yCoord, point.zCoord)
+    fun AxisAlignedBB.lerpWith(value: Double) = lerpWith(value, value, value)
 
     fun Double.inRange(base: Double, range: Double): Boolean {
         return this in base - range..base + range

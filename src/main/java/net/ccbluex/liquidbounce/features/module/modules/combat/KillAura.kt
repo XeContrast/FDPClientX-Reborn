@@ -768,7 +768,7 @@ object KillAura : Module() {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (rotationStrafeValue.equals("Vanilla")) {
+        if (rotationStrafeValue.equals("Vanilla") && discoveredTargets.isNotEmpty()) {
             event.yaw = RotationUtils.targetRotation!!.yaw
         }
     }

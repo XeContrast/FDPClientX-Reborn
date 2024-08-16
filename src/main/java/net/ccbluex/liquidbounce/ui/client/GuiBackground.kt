@@ -90,7 +90,7 @@ class GuiBackground(private val prevGui: GuiScreen) : GuiScreen() {
                     Files.copy(file.toPath(), FileOutputStream(FDPClient.fileManager.backgroundFile))
 
                     val image = ImageIO.read(FileInputStream(FDPClient.fileManager.backgroundFile))
-                    FDPClient.background = ResourceLocation(FDPClient.CLIENT_NAME.lowercase() + "/background.png")
+                    FDPClient.background = ResourceLocation(FDPClient.CLIENT_NAME.lowercase() + "/bg2.png")
                     mc.textureManager.loadTexture(FDPClient.background, DynamicTexture(image))
                 } catch (e: Exception) {
                     e.printStackTrace()

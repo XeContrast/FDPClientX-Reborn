@@ -12,11 +12,17 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.MathUtils.center
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getAngleDifference
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.toRotation
+import net.ccbluex.liquidbounce.utils.extensions.eyes
+import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.EntityLivingBase
@@ -31,6 +37,7 @@ class SuperKnockback : Module() {
     private val onlyMoveForwardValue = BoolValue("OnlyMoveForward", true). displayable { onlyMoveValue.get() }
     private val onlyGroundValue = BoolValue("OnlyGround", false)
     private val delayValue = IntegerValue("Delay", 0, 0, 500)
+    private val minEnemyRotDiffToIgnore = FloatValue("MinRot", 180f, 0f,180f)
 
     private var ticks = 0
 
@@ -39,6 +46,11 @@ class SuperKnockback : Module() {
     @EventTarget
     fun onAttack(event: AttackEvent) {
         if (event.targetEntity is EntityLivingBase) {
+            val player = mc.thePlayer ?: return
+            val target = event.targetEntity as? EntityLivingBase ?: return
+            val rotationToPlayer = toRotation(player.hitBox.center, false, target).fixedSensitivity().yaw
+            val angleDifferenceToPlayer = getAngleDifference(rotationToPlayer, target.rotationYaw)
+            if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore.get() && !target.hitBox.isVecInside(player.eyes)) return
             if (event.targetEntity.hurtTime > hurtTimeValue.get() || !timer.hasTimePassed(delayValue.get().toLong()) ||
                 (!MovementUtils.isMoving() && onlyMoveValue.get()) || (!mc.thePlayer.onGround && onlyGroundValue.get())) {
                 return

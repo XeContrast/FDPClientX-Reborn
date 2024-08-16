@@ -179,7 +179,7 @@ class FileManager : MinecraftInstance() {
         if (backgroundFile.exists()) {
             try {
                 val bufferedImage = ImageIO.read(FileInputStream(backgroundFile)) ?: return
-                FDPClient.background = ResourceLocation(FDPClient.CLIENT_NAME.lowercase() + "/background.png")
+                FDPClient.background = ResourceLocation(FDPClient.CLIENT_NAME.lowercase() + "/bg2.png")
                 mc.textureManager.loadTexture(FDPClient.background, DynamicTexture(bufferedImage))
                 ClientUtils.logInfo("[FileManager] Loaded background.")
             } catch (e: Exception) {
