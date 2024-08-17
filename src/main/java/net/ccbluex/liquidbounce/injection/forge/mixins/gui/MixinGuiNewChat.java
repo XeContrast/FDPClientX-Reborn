@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.ccbluex.liquidbounce.FDPClient;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
 import net.ccbluex.liquidbounce.features.module.modules.client.ChatControl;
 import net.ccbluex.liquidbounce.font.CFontRenderer;
 import net.ccbluex.liquidbounce.font.FontLoaders;
@@ -74,7 +74,7 @@ public abstract class MixinGuiNewChat {
     private int sameMessageAmount;
     private int line;
 
-    private final HUD hud = FDPClient.moduleManager.getModule(HUD.class);
+    private final HUDModule hud = FDPClient.moduleManager.getModule(HUDModule.class);
 
     private final ChatControl chatEnhance = FDPClient.moduleManager.getModule(ChatControl.class);
 

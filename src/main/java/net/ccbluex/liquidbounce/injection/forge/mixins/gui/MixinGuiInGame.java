@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.Render2DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
 import net.ccbluex.liquidbounce.features.module.modules.client.HotbarSettings;
 import net.ccbluex.liquidbounce.features.module.modules.visual.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.visual.Crosshair;
@@ -61,7 +61,7 @@ public abstract class MixinGuiInGame extends MixinGui {
 
     @Inject(method = "renderScoreboard", at = @At("HEAD"), cancellable = true)
     private void renderScoreboard(CallbackInfo callbackInfo) {
-        if (Objects.requireNonNull(FDPClient.moduleManager.getModule(HUD.class)).getState())
+        if (Objects.requireNonNull(FDPClient.moduleManager.getModule(HUDModule.class)).getState())
             callbackInfo.cancel();
     }
 
@@ -71,7 +71,7 @@ public abstract class MixinGuiInGame extends MixinGui {
      */
     @Overwrite
     protected void renderTooltip(ScaledResolution sr, float partialTicks) {
-        final HUD hud = FDPClient.moduleManager.getModule(HUD.class);
+        final HUDModule hud = FDPClient.moduleManager.getModule(HUDModule.class);
         final HotbarSettings HotbarSettings = FDPClient.moduleManager.getModule(HotbarSettings.class);
         final EntityPlayer entityplayer = (EntityPlayer) mc.getRenderViewEntity();
 

@@ -19,7 +19,7 @@ import java.awt.Color
 import java.io.IOException
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
-    val butt = ArrayList<Any?>()
+    private val butt = ArrayList<Any?>()
     private var currentX = 0f
     private var currentY = 0f
     private var res: ScaledResolution? = null

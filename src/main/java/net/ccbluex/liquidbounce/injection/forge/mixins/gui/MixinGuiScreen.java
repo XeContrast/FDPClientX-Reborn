@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.FDPClient;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
 import net.ccbluex.liquidbounce.ui.client.GuiBackground;
 import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
 import net.minecraft.client.Minecraft;
@@ -71,7 +71,7 @@ public abstract class MixinGuiScreen {
         if (!fDPClient$shouldRenderBackground()) {
             callbackInfo.cancel();
         }
-        final HUD hud = HUD.INSTANCE;
+        final HUDModule hud = HUDModule.INSTANCE;
 
         if (hud.getInventoryParticle().get() && mc.thePlayer != null) {
             final ScaledResolution scaledResolution = new ScaledResolution(mc);

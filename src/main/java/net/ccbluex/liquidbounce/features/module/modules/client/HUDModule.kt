@@ -19,18 +19,24 @@ import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorBlueValue
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorGreenValue
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorRedValue
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.EaseUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RoundedUtil
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.EnumChatFormatting
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.util.*
 
 @ModuleInfo(name = "HUD", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
-object HUD : Module() {
+object HUDModule : Module() {
     val tabHead = BoolValue("Tab-HeadOverlay", true)
     val shadowValue = ListValue("TextShadowMode", arrayOf("LiquidBounce", "Outline", "Default", "Autumn"), "Default")
     private val clolormode = ListValue("ColorMode", arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"), "Light Rainbow")
@@ -40,7 +46,7 @@ object HUD : Module() {
     val inventoryParticle = BoolValue("InventoryParticle", false)
     private val blurValue = BoolValue("Blur", false)
     private val HealthValue = BoolValue("Health", true)
-    private val mark = ListValue("Mark", arrayOf("FDPCN","FDP","None"),"FDP")
+    private val mark = ListValue("Mark", arrayOf("FDPCN","FDP","NeverLose", "None"),"FDP")
     val rainbowStartValue = FloatValue("RainbowStart", 0.55f, 0f, 1f)
     val rainbowStopValue = FloatValue("RainbowStop", 0.85f, 0f, 1f)
     val rainbowSaturationValue = FloatValue("RainbowSaturation", 0.45f, 0f, 1f)
@@ -64,8 +70,12 @@ object HUD : Module() {
         if (MusicDisplay.get()) MusicOverlayRenderer.INSTANCE.renderOverlay()
         if (mc.currentScreen is GuiHudDesigner) return
         FDPClient.hud.render(false, event.partialTicks)
-        if (mark.equals("FDP")) renderWatermark()
-        if (mark.equals("FDPCN")) renderfdpcn()
+        when (mark.get().lowercase()) {
+            "fdp" -> renderWatermark()
+            "fdpcn" -> renderfdpcn()
+            "neverlose" -> neverlose()
+            else -> {}
+        }
         if (HealthValue.get()) mc.fontRendererObj.drawStringWithShadow(
             MathHelper.ceiling_float_int(mc.thePlayer.health).toString(),
             (width / 2 - 4).toFloat(), (height / 2 - 13).toFloat(), if (mc.thePlayer.health <= 15) Color(255, 0, 0).rgb else Color(0, 255, 0).rgb)
@@ -100,6 +110,57 @@ object HUD : Module() {
 
             getClientName(0,3), 5.0f, 0.0f,Color(255,255,255,220).rgb
         )
+        FontLoaders.C16.drawString(
+            "Xe", 5F + FontLoaders.F40.getStringWidth("FDP"), 13.0f,Color(255,255,255,220).rgb
+        )
+        RenderUtils.drawRect(5f,22.5f,70f,22.8f,Color(200,200,200,220).rgb)
+        FontLoaders.C14.drawString(
+            FDPClient.CLIENT_VERSION + " | "+ FDPClient.VERSIONTYPE, 5.0f, 27.0f,Color(255,255,255,220).rgb
+        )
+        FontLoaders.C14.drawString(
+            "CN 240817 | Reborn!", 5.0f, 37.0f,Color(255,255,255,220).rgb
+        )
+    }
+    private fun neverlose() {
+        val str =
+            EnumChatFormatting.DARK_GRAY.toString() + " | " + EnumChatFormatting.WHITE + mc.session.username + EnumChatFormatting.DARK_GRAY + " | " + EnumChatFormatting.WHITE + Minecraft.getDebugFPS() + "fps" + EnumChatFormatting.DARK_GRAY + " | " + EnumChatFormatting.WHITE + (if (mc.isSingleplayer) "SinglePlayer" else mc.currentServerData.serverIP)
+        RoundedUtil.drawRound(
+            6.0f, 6.0f,
+            (Fonts.font35.getStringWidth(str) + 8 + Fonts.font40.getStringWidth(
+                CLIENT_NAME.uppercase(
+                    Locale.getDefault()
+                )
+            )).toFloat(), 15.0f, 0.0f, Color(19, 19, 19, 230)
+        )
+        RoundedUtil.drawRound(
+            6.0f, 6.0f,
+            (Fonts.font35.getStringWidth(str) + 8 + Fonts.font40.getStringWidth(
+                CLIENT_NAME.uppercase(
+                    Locale.getDefault()
+                )
+            )).toFloat(), 1.0f, 1.0f, color(8)
+        )
+        Fonts.font35.drawString(
+            str,
+            (11 + Fonts.font40.getStringWidth(CLIENT_NAME.uppercase(Locale.getDefault()))).toFloat(), 11.5f, Color.WHITE.rgb
+        )
+        Fonts.font40.drawString(
+            EnumChatFormatting.BOLD.toString() + CLIENT_NAME.uppercase(
+                Locale.getDefault()
+            ), 9.5f, 11.5f, color(8).rgb
+        )
+        Fonts.font40.drawString(
+            EnumChatFormatting.BOLD.toString() + CLIENT_NAME.uppercase(
+                Locale.getDefault()
+            ), 10.0f, 12f, Color.WHITE.rgb
+        )
+    }
+
+    fun color(tick: Int): Color {
+        var textColor = Color(-1)
+        textColor =
+            fade(5, tick * 20, rainbow(), 1.0f)
+        return textColor
     }
 
     @EventTarget

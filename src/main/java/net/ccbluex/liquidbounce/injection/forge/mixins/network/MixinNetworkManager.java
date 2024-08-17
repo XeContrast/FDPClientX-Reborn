@@ -6,7 +6,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD;
+import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
 import net.ccbluex.liquidbounce.features.module.modules.combat.BackTrack;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.PacketEvent;
@@ -37,8 +37,8 @@ public abstract class MixinNetworkManager {
     private INetHandler packetListener;
     /**
      * show player head in tab bar
-     * @author
-     * @reason
+     * @author XeContrast
+     * @reason test
      */
     @Overwrite
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) {
@@ -120,7 +120,7 @@ public abstract class MixinNetworkManager {
      */
     @Inject(method = "getIsencrypted", at = @At("HEAD"), cancellable = true)
     private void injectEncryption(CallbackInfoReturnable<Boolean> cir) {
-        final HUD hud = FDPClient.moduleManager.getModule(HUD.class);
+        final HUDModule hud = FDPClient.moduleManager.getModule(HUDModule.class);
         if(hud != null && hud.getTabHead().get()) {
             cir.setReturnValue(true);
         }

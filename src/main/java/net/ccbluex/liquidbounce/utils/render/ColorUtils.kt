@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.utils.render
 
 import com.ibm.icu.text.NumberFormat
-import net.ccbluex.liquidbounce.features.module.modules.client.HUD
+import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ChatAllowedCharacters
 import org.lwjgl.opengl.GL11
@@ -227,12 +227,12 @@ object ColorUtils {
     @JvmStatic
     fun hslRainbow(
         index: Int,
-        lowest: Float = HUD.rainbowStartValue.get(),
-        bigest: Float = HUD.rainbowStopValue.get(),
+        lowest: Float = HUDModule.rainbowStartValue.get(),
+        bigest: Float = HUDModule.rainbowStopValue.get(),
         indexOffset: Int = 300,
-        timeSplit: Int = HUD.rainbowSpeedValue.get(),
-        saturation: Float = HUD.rainbowSaturationValue.get(),
-        brightness: Float = HUD.rainbowBrightnessValue.get()
+        timeSplit: Int = HUDModule.rainbowSpeedValue.get(),
+        saturation: Float = HUDModule.rainbowSaturationValue.get(),
+        brightness: Float = HUDModule.rainbowBrightnessValue.get()
     ): Color {
         return Color.getHSBColor((abs(((((System.currentTimeMillis() - startTime).toInt() + index * indexOffset) / timeSplit.toFloat()) % 2) - 1) * (bigest - lowest)) + lowest, saturation, brightness)
     }
@@ -449,6 +449,14 @@ object ColorUtils {
 
     fun toRGB(f: Float, f2: Float, f3: Float, f4: Float): Int {
         return toRGB((f * 255.0f).toInt(), (f2 * 255.0f).toInt(), (f3 * 255.0f).toInt(), (f4 * 255.0f).toInt())
+    }
+    @JvmStatic
+    fun fade(speed: Int, index: Int, color: Color, alpha: Float): Color {
+        val hsb = Color.RGBtoHSB(color.red, color.green, color.blue, null)
+        var angle = ((System.currentTimeMillis() / speed + index) % 360L).toInt()
+        angle = (if (angle > 180) 360 - angle else angle) + 180
+        val colorHSB = Color(Color.HSBtoRGB(hsb[0], hsb[1], angle / 360.0f))
+        return Color(colorHSB.red, colorHSB.green, colorHSB.blue, (max(0.0, min(255.0, (alpha * 255.0f).toDouble()))).toInt())
     }
 
 }

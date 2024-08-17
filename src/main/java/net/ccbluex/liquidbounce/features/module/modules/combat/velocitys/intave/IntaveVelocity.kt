@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.intave
 
+import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
@@ -14,7 +15,7 @@ class IntaveVelocity : VelocityMode("IntaveReveres") {
     private val yreuce = FloatValue("ReduceY", 0.05f, 0f, 0.5f)
 
     @EventTarget
-    override fun onUpdate(event: UpdateEvent) {
+    override fun onAttack(event: AttackEvent) {
         if (mc.objectMouseOver == null) {
             return
         }

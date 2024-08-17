@@ -47,7 +47,7 @@ class FileManager : MinecraftInstance() {
     /**
      * Setup folder
      */
-    fun setupFolder() {
+    private fun setupFolder() {
         if (!dir.exists()) {
             dir.mkdir()
         }
@@ -175,7 +175,7 @@ class FileManager : MinecraftInstance() {
     /**
      * Load background for background
      */
-    fun loadBackground() {
+    private fun loadBackground() {
         if (backgroundFile.exists()) {
             try {
                 val bufferedImage = ImageIO.read(FileInputStream(backgroundFile)) ?: return
@@ -275,6 +275,6 @@ class FileManager : MinecraftInstance() {
     }
 
     companion object {
-        val PRETTY_GSON = GsonBuilder().setPrettyPrinting().create()
+        val PRETTY_GSON = GsonBuilder().setPrettyPrinting().create()!!
     }
 }

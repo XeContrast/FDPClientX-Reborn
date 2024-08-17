@@ -43,6 +43,10 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         return 90.0F;
     }
 
+    /**
+     * @author XeContrast
+     * @reason test
+     */
     @Overwrite
     protected <T extends EntityLivingBase> void rotateCorpse(T p_rotateCorpse_1_, float p_rotateCorpse_2_, float p_rotateCorpse_3_, float p_rotateCorpse_4_) {
         GlStateManager.rotate(180.0F - p_rotateCorpse_3_, 0.0F, 1.0F, 0.0F);
