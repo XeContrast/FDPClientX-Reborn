@@ -16,7 +16,7 @@ class HypixelNewHop : SpeedMode("NewHypixelHop") {
                 player.jump()
             } else {
                 player.jump()
-                MovementUtils.strafe(0.4f)
+                MovementUtils.strafe(0.48f)
             }
         }
     }

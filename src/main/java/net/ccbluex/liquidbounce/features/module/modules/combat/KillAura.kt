@@ -90,6 +90,7 @@ object KillAura : Module() {
     private val attackTimingValue =
         ListValue("AttackTiming", arrayOf("All", "Pre", "Post"), "All").displayable { attackDisplay.get() }
     val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion","Normal"),"KeepSprint").displayable { attackDisplay.get() }
+    val stopsprint = BoolValue("StopSprintWhenC02",false).displayable { !sprintmode.equals("StopSprint") }
 
     private val hitselectValue = BoolValue("HitSelect", false).displayable { attackDisplay.get() }
     private val hitselectRangeValue = FloatValue(
@@ -448,6 +449,8 @@ object KillAura : Module() {
     // Fake block status
     var blockingStatus = false
 
+    var attack = false
+
     val displayBlocking: Boolean
         get() = blockingStatus || (((autoBlockValue.equals("Fake") || (alwaysBlockDisplayValue.get() && autoBlockValue.equals(
             "Range"
@@ -516,6 +519,7 @@ object KillAura : Module() {
         attackTickTimes.clear()
         clicks = 0
         canSwing = false
+        attack = false
 
         stopBlocking()
         if (autoBlockPacketValue.equals("HoldKey") || autoBlockPacketValue.equals("KeyBlock")) {
@@ -763,6 +767,14 @@ object KillAura : Module() {
         if (legitBlocking < 1 && autoBlockPacketValue.equals("Legit")) {
             if (blockingStatus) stopBlocking()
             blockingStatus = false
+        }
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (stopsprint.get() && !sprintmode.equals("StopSprint")) {
+            attack = packet is C02PacketUseEntity
         }
     }
 

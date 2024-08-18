@@ -117,6 +117,7 @@ public abstract class MixinNetworkManager {
     /**
      * show player head in tab bar
      * @author Liulihaocai, FDPClient
+     * @reason idk
      */
     @Inject(method = "getIsencrypted", at = @At("HEAD"), cancellable = true)
     private void injectEncryption(CallbackInfoReturnable<Boolean> cir) {

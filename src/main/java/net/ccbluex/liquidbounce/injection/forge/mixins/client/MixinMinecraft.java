@@ -47,6 +47,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
@@ -96,7 +97,8 @@ public abstract class MixinMinecraft {
     @Unique
     public boolean fDP1$sendClickBlockToController;
 
-    private float prevYaw = 0.0f;
+    @Unique
+    private final float fDPClient$prevYaw = 0.0f;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void injectConstructor(GameConfiguration p_i45547_1_, CallbackInfo ci) {
@@ -137,13 +139,14 @@ public abstract class MixinMinecraft {
         FDPClient.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
-    private long lastFrame = getTime();
+    @Unique
+    private long fDPClient$lastFrame = fDPClient$getTime();
 
     @Inject(method = "runGameLoop", at = @At("HEAD"))
     private void runGameLoop(final CallbackInfo callbackInfo) {
-        final long currentTime = getTime();
-        final int deltaTime = (int) (currentTime - lastFrame);
-        lastFrame = currentTime;
+        final long currentTime = fDPClient$getTime();
+        final int deltaTime = (int) (currentTime - fDPClient$lastFrame);
+        fDPClient$lastFrame = currentTime;
 
         RenderUtils.deltaTime = deltaTime;
     }
@@ -153,13 +156,14 @@ public abstract class MixinMinecraft {
         StaticStorage.scaledResolution = new ScaledResolution((Minecraft) (Object) this);
     }
 
-    public long getTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-    }
-
     @Inject(method = "runTick", at = @At("HEAD"))
     private void injectGameRuntimeTicks(CallbackInfo ci) {
         ClientUtils.INSTANCE.setRunTimeTicks(ClientUtils.INSTANCE.getRunTimeTicks() + 1);
+    }
+
+    @Unique
+    public long fDPClient$getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE, ordinal = 0))
@@ -192,7 +196,7 @@ public abstract class MixinMinecraft {
     @Inject(method = "clickMouse", at = @At("HEAD"))
     private void clickMouse(CallbackInfo callbackInfo) {
         CPSCounter.registerClick(CPSCounter.MouseButton.LEFT);
-        if (FDPClient.moduleManager.getModule(AutoClicker.class).getState())
+        if (Objects.requireNonNull(FDPClient.moduleManager.getModule(AutoClicker.class)).getState())
             leftClickCounter = 0;
     }
 
@@ -228,14 +232,14 @@ public abstract class MixinMinecraft {
 
     /**
      * @author CCBlueX
-     * @reason
+     * @reason Update
      */
     @Overwrite
     private void sendClickBlockToController(boolean leftClick) {
         if (!leftClick)
             this.leftClickCounter = 0;
 
-        if (this.leftClickCounter <= 0 && (!this.thePlayer.isUsingItem() || FDPClient.moduleManager.getModule(MultiActions.class).getState())) {
+        if (this.leftClickCounter <= 0 && (!this.thePlayer.isUsingItem() || Objects.requireNonNull(FDPClient.moduleManager.getModule(MultiActions.class)).getState())) {
             if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                 BlockPos blockPos = this.objectMouseOver.getBlockPos();
 
@@ -258,7 +262,7 @@ public abstract class MixinMinecraft {
     private void setWindowIcon(CallbackInfo callbackInfo) {
         try {
             if (Util.getOSType() != Util.EnumOS.OSX) {
-                BufferedImage image = ImageIO.read(this.getClass().getResourceAsStream("/assets/minecraft/fdpclient/misc/icon.png"));
+                BufferedImage image = ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/assets/minecraft/fdpclient/misc/icon.png")));
                 ByteBuffer bytebuffer = ImageUtils.readImageToBuffer(ImageUtils.resizeImage(image, 16, 16));
                 if (bytebuffer == null) {
                     throw new Exception("Error when loading image.");

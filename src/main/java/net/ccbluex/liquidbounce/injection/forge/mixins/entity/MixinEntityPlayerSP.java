@@ -431,11 +431,13 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             if (killAura.getSprintmode().equals("Ground")) {
                 this.setSprinting(mc.thePlayer.onGround);
             }
-            if (killAura.getSprintmode().equals("StopSprint")) {
+            if (Objects.equals(killAura.getSprintmode().get(), "StopSprint")) {
                 this.setSprinting(false);
             }
         }
-
+        if (Objects.requireNonNull(killAura).getState() && mc.thePlayer.isSprinting() && MovementUtils.INSTANCE.isMoving()) {
+            this.setSprinting(!killAura.getAttack());
+        }
 
         //aac may check it :(
         if (this.capabilities.allowFlying) {

@@ -5,10 +5,10 @@
  */
 package net.ccbluex.liquidbounce.ui.client.hud.element.elements
 
-import codes.som.anthony.koffee.modifiers.private
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
+import net.ccbluex.liquidbounce.features.value.*
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
@@ -18,14 +18,14 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Horizontal
 import net.ccbluex.liquidbounce.ui.client.hud.element.Side.Vertical
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
-import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.utils.render.*
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.createFrameBuffer
+import net.ccbluex.liquidbounce.utils.render.Animation
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.ShadowUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.shader.Framebuffer
-import java.awt.Color
-
 import org.lwjgl.opengl.GL11
+import java.awt.Color
 
 /**
  * CustomHUD Arraylist element
