@@ -21,14 +21,12 @@ object Step : Module() {
     var stepY = 0.0
     var stepZ = 0.0
 
-    var ncpNextStep = 0
     var spartanSwitch = false
-    var isAACStep = false
     var wasTimer = false
     var lastOnGround = false
     var canStep = false
     val timer = MSTimer()
-    var high = 0.0f
+    private var high = 0.0f
     var doncheck = false
     var off = false //你麻痹不每个设置一个直接狗日的不工作了
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.steps", StepMode::class.java)

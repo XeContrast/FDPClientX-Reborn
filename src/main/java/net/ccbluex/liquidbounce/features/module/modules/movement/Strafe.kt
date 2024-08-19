@@ -83,7 +83,7 @@ object Strafe : Module() {
     }
 
 
-    fun getMoveYaw(): Float {
+    private fun getMoveYaw(): Float {
         var moveYaw = mc.thePlayer!!.rotationYaw
         if (mc.thePlayer!!.moveForward != 0F && mc.thePlayer!!.moveStrafing == 0F) {
             moveYaw += if(mc.thePlayer!!.moveForward > 0) 0 else 180

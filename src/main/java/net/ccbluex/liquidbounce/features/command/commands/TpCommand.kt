@@ -17,9 +17,8 @@ class TpCommand : Command("tp", arrayOf("teleport")) {
             val theName = args[1]
 
             // Get target player data
-            val targetPlayer = mc.theWorld.playerEntities
-                .filter { !AntiBot.isBot(it) && it.name.equals(theName, true) }
-                .firstOrNull()
+            val targetPlayer =
+                mc.theWorld.playerEntities.firstOrNull { !AntiBot.isBot(it) && it.name.equals(theName, true) }
 
             // Attempt to teleport to player's position.
             if (targetPlayer != null) {

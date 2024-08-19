@@ -2,36 +2,71 @@ package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.intave
 
 import net.ccbluex.liquidbounce.event.AttackEvent
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.script.api.global.Chat
-import kotlin.math.cos
-import kotlin.math.sin
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 
-class IntaveVelocity : VelocityMode("IntaveReveres") {
-    private val reverse = BoolValue("Reveres", false)
-    private val yreuce = FloatValue("ReduceY", 0.05f, 0f, 0.5f)
+class IntaveVelocity : VelocityMode("Intave") {
+    private val flagCheck = BoolValue("FlagCheck",false)
+    private val intavejump = BoolValue("IntaveJump",false)
+    private var work = false
+    private var idk = false
+
+
+    @EventTarget
+    override fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (packet is S08PacketPlayerPosLook && flagCheck.get()) {
+            if (velocity.debug.get()) {
+                Chat.alert("Return")
+            }
+            return
+        }
+        if (packet is S12PacketEntityVelocity) {
+            if (packet.entityID == mc.thePlayer.entityId) {
+                work = true
+                idk = true
+            }
+        }
+    }
+
+    @EventTarget
+    override fun onUpdate(event: UpdateEvent) {
+        if (intavejump.get()) {
+            if (mc.thePlayer.hurtTime == 9 && mc.thePlayer.onGround) {
+                if (velocity.debug.get()) { Chat.alert("Jump") }
+                mc.thePlayer.jump()
+            }
+        }
+    }
 
     @EventTarget
     override fun onAttack(event: AttackEvent) {
-        if (mc.objectMouseOver == null) {
-            return
-        }
-        if (mc.thePlayer.hurtTime <= 6 && mc.thePlayer.isSwingInProgress && mc.thePlayer.hurtTime > 0) {
-            if (reverse.get() && !mc.thePlayer.onGround) {
-                if (velocity.debug.get()) {
-                    Chat.alert("Reverse")
+        if (work) {
+            if (mc.objectMouseOver.entityHit != null) {
+                if (mc.thePlayer.hurtTime > 0 && idk) {
+                    mc.thePlayer.isSprinting = false
+                    if (mc.thePlayer.isSwingInProgress) {
+                        if (Velocity.debug.get()) {
+                            Chat.alert("Motion *= 0.6")
+                        }
+                        mc.thePlayer.motionX *= 0.6
+                        mc.thePlayer.motionZ *= 0.6
+                    }
+                    idk = false
                 }
-                mc.thePlayer.motionX = -sin(Math.toRadians(mc.thePlayer.rotationYaw.toDouble())) * 0.019999999552965164
-                mc.thePlayer.motionZ = cos(Math.toRadians(mc.thePlayer.rotationYaw.toDouble())) * 0.019999999552965164
             }
-            val var10000 = mc.thePlayer
-            var10000.motionY *= 1.0 - yreuce.get()
-            if (velocity.debug.get()) {
-                Chat.alert("MotionY *= " + (1 - yreuce.get()).toString())
-            }
+            work = false
         }
+    }
+
+    override fun onDisable() {
+        idk = false
+        work = false
     }
 }

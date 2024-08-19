@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.features.module.EnumAutoDisableType
 import net.ccbluex.liquidbounce.utils.misc.StringUtils
 
 class AutoDisableCommand : Command("autodisable", arrayOf("ad")) {
-    private val modes = EnumAutoDisableType.values().map { it.name.lowercase() }.toTypedArray()
+    private val modes = EnumAutoDisableType.entries.map { it.name.lowercase() }.toTypedArray()
 
     override fun execute(args: Array<String>) {
         if (args.size > 2) {

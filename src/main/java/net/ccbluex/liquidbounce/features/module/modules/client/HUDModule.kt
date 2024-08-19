@@ -156,6 +156,10 @@ object HUDModule : Module() {
         )
     }
 
+    private fun edfdp() {
+
+    }
+
     fun color(tick: Int): Color {
         var textColor = Color(-1)
         textColor =

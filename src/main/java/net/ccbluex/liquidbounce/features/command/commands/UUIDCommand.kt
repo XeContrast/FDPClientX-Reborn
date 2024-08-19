@@ -25,9 +25,8 @@ class UUIDCommand : Command("uuid", emptyArray()) {
             }
 
             // Get target player data
-            val targetPlayer = mc.theWorld.playerEntities
-                .filter { !AntiBot.isBot(it) && it.name.equals(theName, true) }
-                .firstOrNull()
+            val targetPlayer =
+                mc.theWorld.playerEntities.firstOrNull { !AntiBot.isBot(it) && it.name.equals(theName, true) }
 
             if (targetPlayer == null)
                 UUIDSpoofer.spoofId = theName

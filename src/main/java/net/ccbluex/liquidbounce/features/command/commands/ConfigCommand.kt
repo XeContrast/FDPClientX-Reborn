@@ -80,7 +80,7 @@ class ConfigCommand : Command("config", arrayOf("cfg")) {
                 }
 
                 "save" -> {
-                    FDPClient.configManager.save(true, true)
+                    FDPClient.configManager.save(true, forceSave = true)
                     alert("Saved config ${FDPClient.configManager.nowConfig}")
                 }
 
