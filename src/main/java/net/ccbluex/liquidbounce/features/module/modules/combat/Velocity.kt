@@ -63,7 +63,7 @@ object Velocity : Module() {
 
     var antiDesync = false
 
-    var needReset = true
+    private var needReset = true
 
     override fun onEnable() {
         antiDesync = false

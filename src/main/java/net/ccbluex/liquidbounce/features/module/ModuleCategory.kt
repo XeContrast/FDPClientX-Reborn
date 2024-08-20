@@ -20,10 +20,10 @@ enum class ModuleCategory(val displayName: String, val configName: String, val h
     OTHER("%module.category.other%", "Other", "&#xe5d3;"),
     EXPLOIT("%module.category.exploit%", "Exploit", "&#xe868;");
 
-    var namee: String? = null
+    private var namee: String? = null
     var icon: String? = null
     var posX = 0
-    var expanded = false
+    private var expanded = false
 
     @Getter
     val scroll: Scroll = Scroll()
@@ -34,7 +34,6 @@ enum class ModuleCategory(val displayName: String, val configName: String, val h
 
     open fun ModuleCategory(name: String?) {
         namee = name
-        icon = icon
         posX = 40 + Main.categoryCount * 120
         drag = Drag(posX.toFloat(), posY.toFloat())
         expanded = true

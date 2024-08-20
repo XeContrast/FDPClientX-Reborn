@@ -41,7 +41,7 @@ GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameSetting
         FONT_HEIGHT = height
     }
 
-    fun getColorIndex2(type: Char): Int {
+    private fun getColorIndex2(type: Char): Int {
         return when (type) {
             in '0'..'9' -> type - '0'
             in 'a'..'f' -> type - 'a' + 10
@@ -96,7 +96,7 @@ GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameSetting
     private fun drawText(text: String?, x: Float, y: Float, color: Int, ignoreColor: Boolean, rainbow: Boolean = false): Int {
         if (text == null)
             return 0
-        if (text.isNullOrEmpty())
+        if (text.isEmpty())
             return x.toInt()
 
         GlStateManager.translate(x - 1.5, y + 0.5, 0.0)
@@ -214,7 +214,7 @@ GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameSetting
     private fun drawText(text: String?, x: Float, y: Float, colorHex: Int, ignoreColor: Boolean): Int {
         if (text == null)
             return 0
-        if (text.isNullOrEmpty())
+        if (text.isEmpty())
             return x.toInt()
 
         GlStateManager.translate(x - 1.5, y + 0.5, 0.0)

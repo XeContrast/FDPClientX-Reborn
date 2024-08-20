@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorGreenValue
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorRedValue
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.Fonts.fontBold40
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
@@ -102,13 +103,13 @@ object HUDModule : Module() {
             colors[1].rgb
         )
     }
-    private fun getClientName(i: Int, i2: Int): String{
-        return "FDPClient".substring(i,i2)
+    private fun getClientName(): String{
+        return "FDPClient".substring(0,3)
     }
     private fun renderfdpcn() {
         FontLoaders.F40.drawString(
 
-            getClientName(0,3), 5.0f, 0.0f,Color(255,255,255,220).rgb
+            getClientName(), 5.0f, 0.0f,Color(255,255,255,220).rgb
         )
         FontLoaders.C16.drawString(
             "Xe", 5F + FontLoaders.F40.getStringWidth("FDP"), 13.0f,Color(255,255,255,220).rgb
@@ -156,14 +157,8 @@ object HUDModule : Module() {
         )
     }
 
-    private fun edfdp() {
-
-    }
-
     fun color(tick: Int): Color {
-        var textColor = Color(-1)
-        textColor =
-            fade(5, tick * 20, rainbow(), 1.0f)
+        val textColor: Color = fade(5, tick * 20, rainbow(), 1.0f)
         return textColor
     }
 

@@ -118,7 +118,7 @@ object AutoRod : Module() {
                 // Check if player has rod in hand
                 if (mc.thePlayer.heldItem?.item != Items.fishing_rod) {
                     // Check if player has rod in hotbar
-                    val rod = findRod(36, 45)
+                    val rod = findRod()
 
                     if (rod == -1) {
                         // There is no rod in hotbar
@@ -141,7 +141,7 @@ object AutoRod : Module() {
      * Use rod
      */
     private fun rod() {
-        val rod = findRod(36, 45)
+        val rod = findRod()
 
         mc.thePlayer.inventory.currentItem = rod - 36
         // We do not need to send our own packet, because sendUseItem will handle it for us.
@@ -154,8 +154,9 @@ object AutoRod : Module() {
     /**
      * Find rod in inventory
      */
-    private fun findRod(startSlot: Int, endSlot: Int): Int {
-        for (i in startSlot until endSlot) {
+    private fun findRod(
+    ): Int {
+        for (i in 36 until 45) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
             if (stack != null && stack.item === Items.fishing_rod) {
                 return i

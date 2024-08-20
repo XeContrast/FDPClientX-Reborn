@@ -229,7 +229,7 @@ class Nuker : Module() {
     companion object {
         var currentDamage = 0F
     }
-    fun switchSlot(blockPos: BlockPos) {
+    private fun switchSlot(blockPos: BlockPos) {
         var bestSpeed = 1F
         var bestSlot = -1
 

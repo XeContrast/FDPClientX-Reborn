@@ -66,7 +66,7 @@ object Breaker : Module() {
     private val rangeValue = FloatValue("Range", 5F, 1F, 7F)
     private val switchValue = IntegerValue("SwitchDelay", 250, 0, 1000)
     private val surroundingsValue = BoolValue("Surroundings", true)
-    val rotationsValue = BoolValue("Rotations", true)
+    private val rotationsValue = BoolValue("Rotations", true)
     private val fastMineValue = BoolValue("FastMine", false)
     private val fastMineSpeed = FloatValue("FastMine-Speed", 1.5f, 1f, 3f).displayable { fastMineValue.get() }
     private val instantValue = BoolValue("InstantMine", false)
