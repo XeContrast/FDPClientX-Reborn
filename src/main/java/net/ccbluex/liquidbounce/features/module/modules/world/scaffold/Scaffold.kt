@@ -1095,7 +1095,6 @@ class Scaffold : Module() {
 
 
         val scaledResolution = ScaledResolution(mc)
-        val info = "$blocksAmount Blocks"
         if (renderOptions.get()) {
             when (counterDisplayValue.get().lowercase()) {
                 "fdp" -> {

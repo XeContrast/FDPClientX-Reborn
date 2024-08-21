@@ -29,5 +29,5 @@ abstract class NoWebMode(val modeName: String) : MinecraftInstance() {
     open fun onTick() {}
     open fun onStrafe(event: StrafeEvent) {}
     open fun onBlockBB(event: BlockBBEvent) {}
-    open fun onBlockPos(pos: BlockPos) {}
+    open fun blockPos(pos: BlockPos) {}
 }

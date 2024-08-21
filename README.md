@@ -4,6 +4,8 @@
 
 Follow me on BiliBili: https://space.bilibili.com/1353540064
 
+现在急需来个人跟我一起写，一个人写的太他妈的累了，有意愿的私信我b站或者QQ
+
 </div>
 
 <div align="Center">

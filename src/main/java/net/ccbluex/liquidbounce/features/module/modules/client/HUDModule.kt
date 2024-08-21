@@ -12,15 +12,18 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.font.FontLoaders
+import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.ccbluex.liquidbounce.ui.cape.GuiCapeManager.height
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorBlueValue
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorGreenValue
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.colorRedValue
 import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.ui.font.Fonts.fontBold40
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
@@ -30,11 +33,14 @@ import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.item.ItemFood
+import net.minecraft.item.ItemPotion
 import net.minecraft.util.EnumChatFormatting
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.util.*
+import kotlin.math.roundToInt
 
 @ModuleInfo(name = "HUD", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
 object HUDModule : Module() {
@@ -42,6 +48,7 @@ object HUDModule : Module() {
     val shadowValue = ListValue("TextShadowMode", arrayOf("LiquidBounce", "Outline", "Default", "Autumn"), "Default")
     private val clolormode = ListValue("ColorMode", arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"), "Light Rainbow")
     private val MusicDisplay = BoolValue("MusicDisplay",true)
+    private val eatbar = BoolValue("EatingBar",false)
     val inventoryOnHotbar = BoolValue("InventoryOnHotbar", false)
     private val hueInterpolation = BoolValue("HueInterpolation", false)
     val inventoryParticle = BoolValue("InventoryParticle", false)
@@ -62,6 +69,8 @@ object HUDModule : Module() {
     private val fontEpsilonValue = FloatValue("FontVectorEpsilon", 0.5f, 0f, 1.5f)
 
     private var lastFontEpsilon = 0f
+    private var tick: Double = 0.0
+    private var idk: Double = 0.0
 
     /**
      * Renders the HUD.
@@ -76,6 +85,34 @@ object HUDModule : Module() {
             "fdpcn" -> renderfdpcn()
             "neverlose" -> neverlose()
             else -> {}
+        }
+        if (eatbar.get()) {
+            if (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem
+                    .item is ItemPotion
+            ) {
+                val scaledResolution = StaticStorage.scaledResolution
+                val math: Double
+                val height: Double = scaledResolution.scaledHeight.toDouble()
+                val width: Double = scaledResolution.scaledWidth.toDouble()
+                if (mc.gameSettings.keyBindUseItem.pressed) {
+                    idk = (1f - (tick / 32))
+                    math = (30 * idk)
+                } else {
+                    math = 0.0
+                }
+                val left = (width / 2) - math
+                val right = (width / 2) + math
+                if (mc.gameSettings.keyBindUseItem.pressed) {
+                    Fonts.font40.drawString(
+                        ((tick / 32) * 100).roundToInt().toString() + "%",
+                        (width / 2).toFloat() - 5,
+                        (height / 2).toFloat() + 10, Color(220, 220, 220).rgb
+                    )
+                    RenderUtils.drawRect((width / 2) - 30,(height / 2) + 20,(width / 2) + 30,(height / 2) + 25,Color(0,0,0,100).rgb)
+                }
+
+                RenderUtils.drawRect(left, (height / 2) + 20, right, (height / 2) + 25, Color.WHITE.rgb)
+            }
         }
         if (HealthValue.get()) mc.fontRendererObj.drawStringWithShadow(
             MathHelper.ceiling_float_int(mc.thePlayer.health).toString(),
@@ -164,6 +201,20 @@ object HUDModule : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        if (eatbar.get()) {
+            if (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem.item is ItemPotion
+            ) {
+                if (mc.gameSettings.keyBindUseItem.pressed) {
+                    tick++
+                } else {
+                    tick = 0.0
+                }
+                if ((tick / 32) >= 1) {
+                    tick = 0.0
+                    idk = 0.0
+                }
+            }
+        }
         FDPClient.hud.update()
         if (mc.currentScreen == null && lastFontEpsilon != fontEpsilonValue.get()) {
             lastFontEpsilon = fontEpsilonValue.get()

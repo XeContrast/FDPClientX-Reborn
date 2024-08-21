@@ -46,8 +46,8 @@ class NoWeb : Module() {
     }
 
     @EventTarget
-    fun onBlockPos(pos: BlockPos) {
-        mode.onBlockPos(pos)
+    fun blockPos(pos: BlockPos) {
+        mode.blockPos(pos)
     }
 
     override val tag: String
