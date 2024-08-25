@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -198,6 +199,7 @@ object KillAura : Module() {
         ),
         "Vanilla"
     ).displayable { autoBlockValue.equals("Range") && autoBlockValue.displayable }
+    private val unmode = ListValue("UnBlockMode", arrayOf("Basic","Change","Empty"),"Basic").displayable { autoBlockValue.equals("Range") && autoBlockValue.displayable }
     private val interactAutoBlockValue =
         BoolValue("InteractAutoBlock", false).displayable { autoBlockPacketValue.displayable }
     private val smartAutoBlockValue =
@@ -1358,13 +1360,25 @@ object KillAura : Module() {
             if (packetSent && noBadPacketsValue.get()) {
                 return
             }
-            mc.netHandler.addToSendQueue(
-                C07PacketPlayerDigging(
-                    C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
-                    BlockPos.ORIGIN, //if (MovementUtils.isMoving()) BlockPos(-1, -1, -1) else BlockPos.ORIGIN,
-                    EnumFacing.DOWN
-                )
-            )
+            when (unmode.get().lowercase()) {
+                "basic" -> {
+                    mc.netHandler.addToSendQueue(
+                        C07PacketPlayerDigging(
+                            C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                            BlockPos.ORIGIN, //if (MovementUtils.isMoving()) BlockPos(-1, -1, -1) else BlockPos.ORIGIN,
+                            EnumFacing.DOWN
+                        )
+                    )
+                }
+                "Change" -> {
+                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
+                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                }
+                "empty" -> {
+                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.firstEmptyStack))
+                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                }
+            }
             blockingStatus = false
             packetSent = true
         }

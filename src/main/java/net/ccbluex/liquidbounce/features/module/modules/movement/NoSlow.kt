@@ -48,7 +48,7 @@ object NoSlow : Module() {
         "Matrix",
         "Medusa",
         "OldIntave",
-        "IntaveSword",
+        "Intave",
         "InvalidC08",
         "GrimAC",
         "GrimC09",
@@ -77,7 +77,7 @@ object NoSlow : Module() {
     private val consumeModifyValue = BoolValue("Consume", true)
     private val consumePacketValue = ListValue(
         "ConsumePacket",
-        arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","IntaveFood","InvalidC08", "Packet"),
+        arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","Intave","InvalidC08", "Packet"),
         "None"
     ).displayable { consumeModifyValue.get() }
     private val conmode = ListValue("BugMode", arrayOf("C07","C16"),"C07").displayable { consumePacketValue.equals("Bug")}
@@ -270,7 +270,7 @@ object NoSlow : Module() {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
             }
-            "intavefood" -> {
+            "intave" -> {
                 if (start) PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,BlockPos.ORIGIN,EnumFacing.UP))
             }
             "uncp" -> {
@@ -450,7 +450,7 @@ object NoSlow : Module() {
                     mc.thePlayer.stopUsingItem()
                     mc.thePlayer.closeScreen()
                 }
-                "intavesword" -> {
+                "intave" -> {
                     if (start) PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
                 }
                 "invalidc08" -> {
@@ -786,5 +786,13 @@ object NoSlow : Module() {
     private fun usingItemFunc() = mc.thePlayer?.heldItem != null && (mc.thePlayer.isUsingItem || (mc.thePlayer.heldItem?.item is ItemSword && KillAura.blockingStatus) || isUNCPBlocking())
 
     override val tag: String
-        get() = modeValue.get()
+        get() = if (blockModifyValue.get()) {
+            modeValue.get()
+        } else if (consumeModifyValue.get()) {
+            consumePacketValue.get()
+        } else if (bowModifyValue.get()){
+            bowPacketValue.get()
+        } else {
+            "NoOpen"
+        }
 }

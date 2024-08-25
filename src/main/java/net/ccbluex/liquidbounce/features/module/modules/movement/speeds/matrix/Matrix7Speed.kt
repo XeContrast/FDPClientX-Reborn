@@ -31,7 +31,7 @@ class Matrix7Speed : SpeedMode("Matrix7") {
                 mc.timer.timerSpeed = 1f
             }
             if (MovementUtils.getSpeed() < 0.19f) {
-                MovementUtils.strafe(0.215f)
+                MovementUtils.strafe()
             }
         }
     }

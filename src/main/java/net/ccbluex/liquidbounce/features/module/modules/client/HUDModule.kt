@@ -94,7 +94,7 @@ object HUDModule : Module() {
                 val math: Double
                 val height: Double = scaledResolution.scaledHeight.toDouble()
                 val width: Double = scaledResolution.scaledWidth.toDouble()
-                if (mc.gameSettings.keyBindUseItem.pressed) {
+                if (!(tick <= 0)) {
                     idk = (1f - (tick / 32))
                     math = (30 * idk)
                 } else {
@@ -102,7 +102,7 @@ object HUDModule : Module() {
                 }
                 val left = (width / 2) - math
                 val right = (width / 2) + math
-                if (mc.gameSettings.keyBindUseItem.pressed) {
+                if (!(tick <= 0)) {
                     Fonts.font40.drawString(
                         ((tick / 32) * 100).roundToInt().toString() + "%",
                         (width / 2).toFloat() - 5,
@@ -201,12 +201,16 @@ object HUDModule : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        FDPClient.hud.update()
         if (eatbar.get()) {
             if (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem.item is ItemPotion
             ) {
-                if (mc.gameSettings.keyBindUseItem.pressed) {
+                if (tick < 0) {
+                    tick = 0.0
+                }
+                if (mc.thePlayer.isUsingItem) {
                     tick++
-                } else {
+                } else if (!mc.gameSettings.keyBindUseItem.pressed) {
                     tick = 0.0
                 }
                 if ((tick / 32) >= 1) {
@@ -215,7 +219,6 @@ object HUDModule : Module() {
                 }
             }
         }
-        FDPClient.hud.update()
         if (mc.currentScreen == null && lastFontEpsilon != fontEpsilonValue.get()) {
             lastFontEpsilon = fontEpsilonValue.get()
             alert("You need to reload FDPClient to apply changes!")

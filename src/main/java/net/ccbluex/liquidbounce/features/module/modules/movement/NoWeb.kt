@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.minecraft.util.BlockPos
 
 @ModuleInfo("NoWeb", category = ModuleCategory.MOVEMENT)
-class NoWeb : Module() {
+object NoWeb : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.nowebs", NoWebMode::class.java)
         .map { it.newInstance() as NoWebMode }
         .sortedBy { it.modeName }
