@@ -14,7 +14,7 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.stats.StatList
 import kotlin.math.sqrt
 
-@ModuleInfo("StepTest", category = ModuleCategory.MOVEMENT)
+@ModuleInfo("Step", category = ModuleCategory.MOVEMENT)
 object Step : Module() {
     var isStep = false
     var stepX = 0.0

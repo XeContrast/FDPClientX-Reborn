@@ -12,7 +12,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class Matrix : StepMode("Matrix") {
     override fun onStep(event: StepEvent) {
-        if (event.eventState == EventState.PRE) else {
+        if (event.eventState != EventState.PRE) {
             fakeJump()
 
             // Vanilla step (3 packets) [COULD TRIGGER TOO MANY PACKETS]

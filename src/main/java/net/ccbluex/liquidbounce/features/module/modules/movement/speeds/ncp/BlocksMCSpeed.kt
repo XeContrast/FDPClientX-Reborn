@@ -13,23 +13,25 @@ import net.minecraft.potion.Potion
 class BlocksMCSpeed : SpeedMode("BlocksMC") {
     private val strafe = BoolValue("DamageStrafe",true)
 
-    override fun onUpdate() {
+    override fun onPreMotion() {
         if (MovementUtils.isMoving()) {
+            if (mc.thePlayer.fallDistance > 0) {
+                mc.thePlayer.motionY -= 0.004f
+            }
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.jump()
+                mc.thePlayer.motionY = 0.4
                 if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
                     MovementUtils.strafe(0.48f * (1.0f + 0.13f * (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1)))
                 } else {
-                    MovementUtils.strafe(0.39f)
+                    MovementUtils.strafe(0.49f)
                 }
             } else {
-                if (MovementUtils.getSpeed() < 0.25f) {
-                    MovementUtils.strafe(0.25f)
-                }
+                mc.thePlayer.motionY += 0.23 * 0.03
+                MovementUtils.strafe()
             }
             if (strafe.get()) {
-                if (mc.thePlayer.hurtTime > 0) {
-                    MovementUtils.strafe()
+                if (mc.thePlayer.hurtTime > 5) {
+                    MovementUtils.strafe(0.39f)
                 }
             }
         }
