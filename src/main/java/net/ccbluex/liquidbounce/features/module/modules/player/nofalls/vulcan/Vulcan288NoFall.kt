@@ -12,7 +12,7 @@ class Vulcan288NoFall : NoFallMode("Vulcan2.8.8") {
 
         if (packet is C03PacketPlayer.C04PacketPlayerPosition) {
             val fallingPlayer = FallingPlayer(mc.thePlayer)
-            if (player.fallDistance > 2.5 && player.fallDistance < 50) {
+            if (player.fallDistance in 2.5..50.0) {
                 // Checks to prevent fast falling to void.
                 if (fallingPlayer.findCollision(500) != null) {
                     packet.onGround = true
