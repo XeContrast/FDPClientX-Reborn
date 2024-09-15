@@ -71,17 +71,6 @@ public interface Fonts {
 
 	}
 
-	interface GOOBOTO {
-		FontFamily GOOBOTO = FONT_MANAGER.fontFamily(FontType.GOOBOTO);
-		final class GOOBOTO24 {
-			public static final FontRenderer GOOBOTO24 = GOOBOTO.ofSize(24);
-
-			private GOOBOTO24(){
-
-			}
-		}
-	}
-
     interface CheckFont {
 
 		FontFamily CheckFont = FONT_MANAGER.fontFamily(FontType.Check);

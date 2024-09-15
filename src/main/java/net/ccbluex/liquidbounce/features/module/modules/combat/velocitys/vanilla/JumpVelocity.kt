@@ -6,6 +6,7 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.Velocit
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class JumpVelocity : VelocityMode("Jump") {
@@ -43,12 +44,28 @@ class JumpVelocity : VelocityMode("Jump") {
             }
             if (skipVeloc) {
                 skipVeloc = false
+                if (velocity.debug.get()) {
+                    Chat.alert("Smart Fail")
+                }
                 return
             }
             when(modeValue.get().lowercase()) {
-                "motion" -> mc.thePlayer.motionY = motionValue.get().toDouble()
-                "jump" -> mc.thePlayer.jump()
+                "motion" -> {
+                    if (velocity.debug.get()) {
+                        Chat.alert("MotionY = " + motionValue.get().toString())
+                    }
+                    mc.thePlayer.motionY = motionValue.get().toDouble()
+                }
+                "jump" -> {
+                    if (velocity.debug.get()) {
+                        Chat.alert("Jump")
+                    }
+                    mc.thePlayer.jump()
+                }
                 "both" -> {
+                    if (velocity.debug.get()) {
+                        Chat.alert("Jump && motionY = " + motionValue.get().toString())
+                    }
                     mc.thePlayer.jump()
                     mc.thePlayer.motionY = motionValue.get().toDouble()
                 }
@@ -58,6 +75,9 @@ class JumpVelocity : VelocityMode("Jump") {
     override fun onVelocityPacket(event: PacketEvent) {
         val packet = event.packet
         if(packet is S12PacketEntityVelocity && jumpReductionValue.get()) {
+            if (velocity.debug.get()) {
+                Chat.alert("motionXZ *= " + jumpReductionAmountValue.get().toString())
+            }
             packet.motionX = (packet.getMotionX() * jumpReductionAmountValue.get().toDouble()).toInt()
             packet.motionZ = (packet.getMotionZ() * jumpReductionAmountValue.get().toDouble()).toInt()
         }

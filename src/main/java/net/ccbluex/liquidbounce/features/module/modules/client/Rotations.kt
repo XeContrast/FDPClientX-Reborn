@@ -11,6 +11,8 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
 
@@ -19,9 +21,14 @@ object Rotations : Module() {
 
     private val realistic = BoolValue("Realistic", false)
     private val body = BoolValue("Body", true).displayable { !realistic.get() }
+    private val smooth = BoolValue("SmoothRotation",true)
+    private val Smoothing = FloatValue("SmoothFacing",0.15f,0.1f,0.9f).displayable { smooth.get() }
 
     var prevHeadPitch = 0f
     var headPitch = 0f
+
+
+    private var lastRotation: Rotation? = null
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
@@ -39,6 +46,8 @@ object Rotations : Module() {
         if (body.get()) {
             thePlayer.renderYawOffset = thePlayer.rotationYawHead
         }
+
+        lastRotation = targetRotation
     }
 
     fun lerp(tickDelta: Float, old: Float, new: Float): Float {
@@ -56,7 +65,26 @@ object Rotations : Module() {
     fun shouldUseRealisticMode() = realistic.get() && shouldRotate()
 
     /**
+     * Smooth out rotations between two points
+     */
+    private fun smoothRotation(from: Rotation, to: Rotation): Rotation {
+        val diffYaw = to.yaw - from.yaw
+        val diffPitch = to.pitch - from.pitch
+
+        val smoothedYaw = from.yaw + diffYaw * Smoothing.get()
+        val smoothedPitch = from.pitch + diffPitch * Smoothing.get()
+
+        return Rotation(smoothedYaw, smoothedPitch)
+    }
+
+    /**
      * Which rotation should the module use?
      */
-    fun getRotation(useServerRotation: Boolean) = if (useServerRotation) serverRotation else targetRotation
+    fun getRotation(): Rotation? {
+        return if (smooth.get() && lastRotation != null && targetRotation != null) {
+            smoothRotation(lastRotation!!, targetRotation!!)
+        } else {
+            targetRotation
+        }
+    }
 }

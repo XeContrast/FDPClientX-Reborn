@@ -19,7 +19,6 @@ public enum FontType {
 	TahomaBold("Tahoma-Bold.ttf"),
 	SFTHIN("SFREGULAR.ttf"),
 	MAINMENU("mainmenu.ttf"),
-	GOOBOTO("gooboto.ttf"),
 	OXIDE("oxide.ttf");
 
 

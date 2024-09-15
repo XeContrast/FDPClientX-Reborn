@@ -90,12 +90,6 @@ public class Fonts {
     @FontDetails(fontName = "SFUI24", fontSize = 10)
     public static GameFontRenderer SFUI24;
 
-    @FontDetails(fontName = "Gooboto24", fontSize = 24)
-    public static GameFontRenderer Gooboto24;
-
-    @FontDetails(fontName = "Gooboto40", fontSize = 40)
-    public static GameFontRenderer Gooboto40;
-
     @FontDetails(fontName = "Icon",fontSize = 18)
     public static GameFontRenderer icon18;
 
@@ -159,8 +153,6 @@ public class Fonts {
         fontBold35 = new GameFontRenderer(getFont("Roboto-Bold.ttf", 35));
         fontTahomaSmall = new TTFFontRenderer(getFont("Tahoma.ttf", 11));
         fontVerdana = new TTFFontRenderer(getFont("Verdana.ttf", 7));
-        Gooboto24 = new GameFontRenderer(getFont("gooboto.ttf",24));
-        Gooboto40 = new GameFontRenderer(getFont("gooboto.ttf",40));
         // fonts above here may not work as this is a test
         fontBangers = new GameFontRenderer(getFontcustom(45, "Bangers"));
         icon18 = new GameFontRenderer(getFontcustom(18,"Icon"));

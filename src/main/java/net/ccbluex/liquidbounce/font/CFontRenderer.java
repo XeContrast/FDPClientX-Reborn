@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.lib.Opcodes;
+import org.objectweb.asm.Opcodes;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -92,9 +92,9 @@ public class CFontRenderer extends CFont {
             if (s.contains("§") && iF + 1 <= str.length()) {
                 iF++;
             } else if (isChinese(s.charAt(0))) {
-                x += (float)font.getStringWidth(s);
+                x += font.getStringWidth(s);
             } else {
-                x += (float)Fonts.font35.getStringWidth(s);
+                x += Fonts.font35.getStringWidth(s);
             }
         }
         return x+5;
@@ -111,9 +111,9 @@ public class CFontRenderer extends CFont {
             if (s.contains("§") && iF + 1 <= str.length()) {
                 iF++;
             } else if (isChinese(s.charAt(0))) {
-                x += (float)font.getStringWidth(s);
+                x += font.getStringWidth(s);
             } else {
-                x += (float)Fonts.font35.getStringWidth(s);
+                x += Fonts.font35.getStringWidth(s);
             }
         }
         return x+5;
@@ -322,7 +322,7 @@ public class CFontRenderer extends CFont {
         int i = 0;
         while (i < size) {
             char character = text.charAt(i);
-            if (character == '\u00a7') {
+            if (character == '§') {
                 int colorIndex = 21;
                 try {
                     colorIndex = "0123456789abcdefklmnor".indexOf(text.charAt(i + 1));
@@ -388,7 +388,7 @@ public class CFontRenderer extends CFont {
                 if (underline) {
                     drawLine(c, (y2 + ((double) currentData[character].height)) - 2.0d, (c + ((double) currentData[character].width)) - 8.0d, (y2 + ((double) currentData[character].height)) - 2.0d);
                 }
-                c += (double) ((currentData[character].width - 8) + this.charOffset);
+                c += (char) ((currentData[character].width - 8) + this.charOffset);
             }
             i++;
         }
@@ -432,7 +432,7 @@ public class CFontRenderer extends CFont {
         int i = 0;
         while (i < size) {
             char character = text.charAt(i);
-            if (character == '\u00a7') {
+            if (character == '§') {
                 int colorIndex = 21;
                 try {
                     colorIndex = "0123456789abcdefklmnor".indexOf(text.charAt(i + 1));
@@ -498,7 +498,7 @@ public class CFontRenderer extends CFont {
                 if (underline) {
                     drawLine(c, (y2 + ((double) currentData[character].height)) - 2.0d, (c + ((double) currentData[character].width)) - 8.0d, (y2 + ((double) currentData[character].height)) - 2.0d);
                 }
-                c += (double) ((currentData[character].width - 8) + this.charOffset);
+                c += (char) ((currentData[character].width - 8) + this.charOffset);
             }
             i++;
         }
@@ -514,16 +514,11 @@ public class CFontRenderer extends CFont {
         }
         int width = 0;
         CFont.CharData[] currentData = this.charData;
-        boolean bold = false;
-        boolean italic = false;
         int size = text.length();
         int i = 0;
         while (i < size) {
             char character = text.charAt(i);
-            if (character == '\u00a7') {
-                int colorIndex = "0123456789abcdefklmnor".indexOf(character);
-                bold = false;
-                italic = false;
+            if (character == '§') {
                 i++;
             } else if (character < currentData.length) {
                 width += (currentData[character].width - 8) + this.charOffset;
@@ -570,26 +565,26 @@ public class CFontRenderer extends CFont {
         ArrayList<String> finalWords = new ArrayList<>();
         if (((double) getStringWidth(text)) > width) {
             String[] words = text.split(" ");
-            String currentWord = "";
+            StringBuilder currentWord = new StringBuilder();
             char c = '\uffff';
             for (String word : words) {
                 for (int i = 0; i < word.toCharArray().length; i++) {
-                    if (word.toCharArray()[i] == '\u00a7' && i < word.toCharArray().length - 1) {
+                    if (word.toCharArray()[i] == '§' && i < word.toCharArray().length - 1) {
                         c = word.toCharArray()[i + 1];
                     }
                 }
                 if (((double) getStringWidth(currentWord + word + " ")) < width) {
-                    currentWord = currentWord + word + " ";
+                    currentWord.append(word).append(" ");
                 } else {
-                    finalWords.add(currentWord);
-                    currentWord = '\u00a7' + c + word + " ";
+                    finalWords.add(currentWord.toString());
+                    currentWord = new StringBuilder('§' + c + word + " ");
                 }
             }
             if (currentWord.length() > 0) {
-                if (((double) getStringWidth(currentWord)) < width) {
-                    finalWords.add('\u00a7' + c + currentWord + " ");
+                if (((double) getStringWidth(currentWord.toString())) < width) {
+                    finalWords.add('§' + c + currentWord.toString() + " ");
                 } else {
-                    finalWords.addAll(formatString(currentWord, width));
+                    finalWords.addAll(formatString(currentWord.toString(), width));
                 }
             }
         } else {
@@ -600,23 +595,23 @@ public class CFontRenderer extends CFont {
 
     public List<String> formatString(String string, double width) {
         ArrayList<String> finalWords = new ArrayList<>();
-        String currentWord = "";
+        StringBuilder currentWord = new StringBuilder();
         int lastColorCode = 65535;
         char[] chars = string.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
-            if (c == '\u00a7' && i < chars.length - 1) {
+            if (c == '§' && i < chars.length - 1) {
                 lastColorCode = chars[i + 1];
             }
-            if (((double) getStringWidth(currentWord + c)) < width) {
-                currentWord = currentWord + c;
+            if (((double) getStringWidth(currentWord.toString() + c)) < width) {
+                currentWord.append(c);
             } else {
-                finalWords.add(currentWord);
-                currentWord = String.valueOf(167 + lastColorCode) + c;
+                finalWords.add(currentWord.toString());
+                currentWord = new StringBuilder(String.valueOf(167 + lastColorCode) + c);
             }
         }
         if (currentWord.length() > 0) {
-            finalWords.add(currentWord);
+            finalWords.add(currentWord.toString());
         }
         return finalWords;
     }

@@ -47,12 +47,12 @@ class Effects : Element() {
     private val potionMap: MutableMap<Potion, PotionData> = HashMap()
 
     private fun draw(): Border? {
-        when (modeValue.get().lowercase()) {
+        return when (modeValue.get().lowercase()) {
             "vanilla" -> drawVanilla()
             "fdp" -> drawFDP()
             "default" -> drawDefault()
+            else -> null
         }
-        return null
     }
 
     private fun drawDefault() : Border {

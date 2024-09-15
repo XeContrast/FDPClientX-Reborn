@@ -375,8 +375,8 @@ object FightBot : Module() {
             var i = 0
             GL11.glLineWidth(2F)
             GL11.glBegin(GL11.GL_LINE_STRIP)
-            var last: Vec3? =null;
-            var last2: Vec3? =null;
+            var last: Vec3? =null
+            var last2: Vec3? =null
             for (vec in path) {
                 i += 100
                 RenderUtils.glColor(ColorManager.astolfoRainbow(50, 10-(i/2), i))
