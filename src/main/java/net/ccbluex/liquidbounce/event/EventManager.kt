@@ -85,6 +85,8 @@ class EventManager : MinecraftInstance() {
                     }
 
                     invokableEventTarget.method.invoke(invokableEventTarget.eventClass, event)
+                } catch (nullPointerException: NullPointerException) {
+                    nullPointerException.printStackTrace()
                 } catch (throwable: Throwable) {
                     throwable.printStackTrace()
                 }

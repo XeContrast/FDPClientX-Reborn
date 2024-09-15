@@ -85,6 +85,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
      * @author CoDynamic
      * Modified by Co Dynamic
      * Date: 2023/02/15
+     * @reason UPDATE
      */
     @Overwrite
     protected void jump() {
@@ -92,10 +93,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             return;
         }
         
-        /**
-         * Jump Process Fix
-         * use updateFixState to reset Jump Fix state
-         * @param fixedYaw  The yaw player should have (NOT RotationYaw)
+        /*
+          Jump Process Fix
+          use updateFixState to reset Jump Fix state
+          @param fixedYaw  The yaw player should have (NOT RotationYaw)
          * @param strafeFix StrafeFix Module
          */
 
@@ -195,6 +196,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     /**
      * @author Liuli
+     * @reason getArm
      */
     @Overwrite
     private int getArmSwingAnimationEnd() {

@@ -69,6 +69,12 @@ object EntityUtils : MinecraftInstance() {
         }
         return false
     }
+    fun addVelocity(x: Double, y: Double, z: Double) {
+        mc.thePlayer.motionX += x
+        mc.thePlayer.motionY += y
+        mc.thePlayer.motionZ += z
+        mc.thePlayer.isAirBorne = true
+    }
     fun isLookingOnEntities(entity: Entity, maxAngleDifference: Double): Boolean {
         val player = mc.thePlayer ?: return false
         val playerRotation = player.rotationYawHead

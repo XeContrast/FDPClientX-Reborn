@@ -1,32 +1,32 @@
 /*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
  */
 package net.ccbluex.liquidbounce.features.module.modules.other
 
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.UpdateEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.minecraft.client.gui.GuiGameOver
 import net.minecraft.network.login.server.S00PacketDisconnect
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S01PacketJoinGame
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.util.BlockPos
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "FlagCheck", category = ModuleCategory.OTHER)
+@ModuleInfo("FlagCheck", category = ModuleCategory.OTHER)
 object FlagCheck : Module() {
 
-    private val resetFlagCounterTicks = IntegerValue("ResetCounterTicks", 600, 100, 1000)
+    private val resetFlagCounterTicks = IntegerValue("ResetCounterTicks", 5000, 1000,10000)
     private val rubberbandCheck = BoolValue("RubberbandCheck", false)
     private val rubberbandThreshold = FloatValue("RubberBandThreshold", 5.0f, 0.05f,10.0f).displayable { rubberbandCheck.get() }
 
@@ -34,13 +34,17 @@ object FlagCheck : Module() {
     private var lastYaw = 0F
     private var lastPitch = 0F
 
+    private var blockPlacementAttempts = mutableMapOf<BlockPos, Long>()
+    private var successfulPlacements = mutableSetOf<BlockPos>()
+
     private fun clearFlags() {
         flagCount = 0
+        blockPlacementAttempts.clear()
+        successfulPlacements.clear()
     }
 
     private var lagbackDetected = false
     private var forceRotateDetected = false
-    private var ghostBlockDetected = false
 
     private var lastMotionX = 0.0
     private var lastMotionY = 0.0
@@ -50,7 +54,10 @@ object FlagCheck : Module() {
     private var lastPosY = 0.0
     private var lastPosZ = 0.0
 
+    private var resetTicks = 0
+
     override fun onDisable() {
+        resetTicks = 0
         clearFlags()
     }
 
@@ -72,25 +79,15 @@ object FlagCheck : Module() {
             if (deltaYaw > 90 || deltaPitch > 90) {
                 forceRotateDetected = true
                 flagCount++
-                ClientUtils.displayChatMessage("§7(§9FlagCheck§7) §dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
+                Chat.print("§dDetected §3Force-Rotate §e(${deltaYaw.roundToLong()}° | ${deltaPitch.roundToLong()}°) §b(§c${flagCount}x§b)")
             } else {
                 forceRotateDetected = false
             }
 
-            // Idk still testing :/
-            // TODO: Make better check for ghostblock
-            if (player.onGround && mc.gameSettings.keyBindUseItem.isKeyDown && !mc.thePlayer.isUsingItem && player.lookVec.rotatePitch(-90f) != null) {
-                ghostBlockDetected = true
-                flagCount++
-                ClientUtils.displayChatMessage("§7(§9FlagCheck§7) §dDetected §3GhostBlock §b(§eS08Packet§b) §b(§c${flagCount}x§b)")
-            } else {
-                ghostBlockDetected = false
-            }
-
-            if (!forceRotateDetected && !ghostBlockDetected) {
+            if (!forceRotateDetected) {
                 lagbackDetected = true
                 flagCount++
-                ClientUtils.displayChatMessage("§7(§9FlagCheck§7) §dDetected §3Lagback §b(§c${flagCount}x§b)")
+                Chat.print("§dDetected §3Lagback §b(§c${flagCount}x§b)")
             }
 
             if (mc.thePlayer.ticksExisted % 3 == 0) {
@@ -99,6 +96,12 @@ object FlagCheck : Module() {
 
             lastYaw = mc.thePlayer.rotationYawHead
             lastPitch = mc.thePlayer.rotationPitch
+        }
+
+        if (packet is C08PacketPlayerBlockPlacement) {
+            val blockPos = packet.position
+            blockPlacementAttempts[blockPos] = System.currentTimeMillis()
+            successfulPlacements.add(blockPos)
         }
 
         when (packet) {
@@ -116,16 +119,31 @@ object FlagCheck : Module() {
     }
 
     /**
-     * Rubberband Checks (Still Under Testing)
+     * Rubberband, Invalid Health/Hunger & GhostBlock Checks
      */
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         val player = mc.thePlayer ?: return
+        val world = mc.theWorld ?: return
 
-        if (!rubberbandCheck.get() || player.ticksExisted <= 100)
+        if (player.isDead || mc.currentScreen is GuiGameOver || player.ticksExisted <= 100) {
             return
+        }
 
-        if (player.isDead || (player.capabilities.isFlying && player.capabilities.disableDamage && !player.onGround))
+        // Invalid Health/Hunger bar Checks (This is a known lagback by Intave AC)
+        val invalidReason = mutableListOf<String>()
+        if (player.health <= 0.0f) invalidReason.add("Health")
+        if (player.foodStats.foodLevel <= 0) invalidReason.add("Hunger")
+
+        if (invalidReason.isNotEmpty()) {
+            flagCount++
+            val reasonString = invalidReason.joinToString(" §8|§e ")
+            Chat.print("§dDetected §3Invalid §e$reasonString §b(§c${flagCount}x§b)")
+            invalidReason.clear()
+        }
+
+        // Rubberband Checks
+        if (!rubberbandCheck.get() || (player.capabilities.isFlying && player.capabilities.disableDamage && !player.onGround))
             return
 
         val motionX = player.motionX
@@ -153,7 +171,8 @@ object FlagCheck : Module() {
         if (rubberbandReason.isNotEmpty()) {
             flagCount++
             val reasonString = rubberbandReason.joinToString(" §8|§e ")
-            ClientUtils.displayChatMessage("§7(§9FlagCheck§7) §dDetected §3Rubberband §8(§e$reasonString§8) §b(§c${flagCount}x§b)")
+            Chat.print("§dDetected §3Rubberband §8(§e$reasonString§8) §b(§c${flagCount}x§b)")
+            rubberbandReason.clear()
         }
 
         // Update last position and motion
@@ -164,10 +183,21 @@ object FlagCheck : Module() {
         lastMotionX = motionX
         lastMotionY = motionY
         lastMotionZ = motionZ
+    }
 
-        // Automatically clear flags (Default: 10 minutes)
-        if (player.ticksExisted % (resetFlagCounterTicks.get() * 20) == 0) {
+    @EventTarget
+    fun onTick(event: GameTickEvent) {
+        if (mc.thePlayer == null || mc.theWorld == null)
+            return
+
+        if (resetTicks >= resetFlagCounterTicks.get()) {
             clearFlags()
+            resetTicks = 0
+            return
+        }
+
+        if (mc.thePlayer.ticksExisted > 100) {
+            resetTicks++
         }
     }
 

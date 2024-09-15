@@ -6,7 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 
-import com.sun.org.apache.xpath.internal.operations.Bool
+import kevin.utils.component1
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -39,6 +39,7 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.item.*
 import net.minecraft.network.play.client.*
@@ -90,8 +91,7 @@ object KillAura : Module() {
 
     private val attackTimingValue =
         ListValue("AttackTiming", arrayOf("All", "Pre", "Post"), "All").displayable { attackDisplay.get() }
-    val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion","Normal"),"KeepSprint").displayable { attackDisplay.get() }
-    val stopsprint = BoolValue("StopSprintWhenC02",false).displayable { !sprintmode.equals("StopSprint") }
+    val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion","AttackSlow"),"KeepSprint").displayable { attackDisplay.get() }
 
     private val hitselectValue = BoolValue("HitSelect", false).displayable { attackDisplay.get() }
     private val hitselectRangeValue = FloatValue(
@@ -110,7 +110,7 @@ object KillAura : Module() {
     // Range
     private val rangeDisplay = BoolValue("Range-Options", true)
 
-    val rangeValue: FloatValue = object : FloatValue("Target-Range", 3.0f, 0f, 8f) {
+    private val rangeValue: FloatValue = object : FloatValue("Target-Range", 3.0f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = discoverRangeValue.get()
             if (i < newValue) set(i)
@@ -426,7 +426,7 @@ object KillAura : Module() {
     private var hitable = false
     private var packetSent = false
     private val prevTargetEntities = mutableListOf<Int>()
-    val discoveredTargets = mutableListOf<EntityLivingBase>()
+    private val discoveredTargets = mutableListOf<EntityLivingBase>()
     private val inRangeDiscoveredTargets = mutableListOf<EntityLivingBase>()
     private val canFakeBlock: Boolean
         get() = inRangeDiscoveredTargets.isNotEmpty()
@@ -773,17 +773,12 @@ object KillAura : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        if (stopsprint.get() && !sprintmode.equals("StopSprint")) {
-            attack = packet is C02PacketUseEntity
-        }
-    }
-
-    @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (rotationStrafeValue.equals("Vanilla") && discoveredTargets.isNotEmpty()) {
-            event.yaw = RotationUtils.targetRotation!!.yaw
+        if (currentTarget != null && RotationUtils.targetRotation != null) {
+            if (rotationStrafeValue.equals("Vanilla")) {
+                val (yaw) = RotationUtils.targetRotation ?: return
+                event.yaw = yaw
+            }
         }
     }
 
@@ -802,7 +797,7 @@ object KillAura : Module() {
                     canHitselect = true
                     hitselectTimer.reset()
                 }
-                inRangeDiscoveredTargets.forEachIndexed { index, entity ->
+                inRangeDiscoveredTargets.forEachIndexed { _, entity ->
                     if (mc.thePlayer.getDistanceToEntityBox(
                             entity
                         ) < hitselectRangeValue.get()
@@ -852,7 +847,6 @@ object KillAura : Module() {
                                     return
                                 }
 
-                                else -> null
                             }
                         }
 
@@ -873,7 +867,6 @@ object KillAura : Module() {
                                         return
                                     }
 
-                                    else -> null
                                 }
                             } else {
                                 if (blockingStatus || wasBlink) {
@@ -886,8 +879,6 @@ object KillAura : Module() {
                         }
                     }
                 }
-
-                else -> null
             }
 
         }
@@ -1097,7 +1088,6 @@ object KillAura : Module() {
     private fun preAttack() {
         if (mc.thePlayer.isBlocking || blockingStatus) {
             when (autoBlockPacketValue.get().lowercase()) {
-                "vanilla","hypixel" -> null
                 "afterattack", "delayed" -> stopBlocking()
                 "oldintave" -> {
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
@@ -1106,8 +1096,6 @@ object KillAura : Module() {
                 }
 
                 "keyblock" -> mc.gameSettings.keyBindUseItem.pressed = false
-                "legit", "test", "holdkey", "Legit2" -> null
-                else -> null
             }
         }
     }
@@ -1128,33 +1116,33 @@ object KillAura : Module() {
                     )
 
                     "delayed", "keyblock" -> delayBlockTimer.reset()
-                    "legit", "test", "holdkey", "Legit2" -> null
-                    else -> null
                 }
             }
         }
     }
 
     private fun swingKeepSprint(entity: EntityLivingBase) {
-        if (!FDPClient.moduleManager[KeepSprint::class.java]!!.state) {
-            val thePlayer = mc.thePlayer
-            if (sprintmode.equals("KeepSprint")) {
-                if (thePlayer.fallDistance > 0F && !thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isPotionActive(
-                        Potion.blindness
-                    ) && !thePlayer.isRiding
-                ) {
-                    thePlayer.onCriticalHit(entity)
-                }
+        when (sprintmode.get().lowercase()) {
+            "keepsprint" -> {
+                if (!FDPClient.moduleManager[KeepSprint::class.java]!!.state) {
+                    val thePlayer = mc.thePlayer
+                    if (thePlayer.fallDistance > 0F && !thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isPotionActive(
+                            Potion.blindness
+                        ) && !thePlayer.isRiding
+                    ) {
+                        thePlayer.onCriticalHit(entity)
+                    }
 
-                // Enchant Effect
-                if (EnchantmentHelper.getModifierForCreature(thePlayer.heldItem, entity.creatureAttribute) > 0F) {
-                    thePlayer.onEnchantmentCritical(entity)
+                    // Enchant Effect
+                    if (EnchantmentHelper.getModifierForCreature(thePlayer.heldItem, entity.creatureAttribute) > 0F) {
+                        thePlayer.onEnchantmentCritical(entity)
+                    }
                 }
             }
-        }
-        if (sprintmode.equals("StopMotion")) {
-            if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+            "stopmotion" -> {
+                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+                    mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+                }
             }
         }
     }

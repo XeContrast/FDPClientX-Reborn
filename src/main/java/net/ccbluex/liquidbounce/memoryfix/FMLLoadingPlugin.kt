@@ -1,38 +1,30 @@
-package net.ccbluex.liquidbounce.memoryfix;
+package net.ccbluex.liquidbounce.memoryfix
 
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
-
-import java.util.Map;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex
 
 @MCVersion("1.8.9")
 @SortingIndex(1001)
-public class FMLLoadingPlugin implements IFMLLoadingPlugin {
-
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[]{
-                ClassTransformer.class.getName()
-        };
+class FMLLoadingPlugin : IFMLLoadingPlugin {
+    override fun getASMTransformerClass(): Array<String> {
+        return arrayOf(
+            ClassTransformer::class.java.name
+        )
     }
 
-    @Override
-    public String getModContainerClass() {
-        return null;
+    override fun getModContainerClass(): String? {
+        return null
     }
 
-    @Override
-    public String getSetupClass() {
-        return null;
+    override fun getSetupClass(): String? {
+        return null
     }
 
-    @Override
-    public void injectData(Map<String, Object> data) {
+    override fun injectData(data: Map<String, Any>) {
     }
 
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
+    override fun getAccessTransformerClass(): String? {
+        return null
     }
 }

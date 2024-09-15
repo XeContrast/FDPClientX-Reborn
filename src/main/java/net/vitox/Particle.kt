@@ -1,11 +1,9 @@
-package net.vitox;
+package net.vitox
 
-import net.ccbluex.liquidbounce.injection.access.StaticStorage;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
-
-import java.util.Random;
+import net.ccbluex.liquidbounce.injection.access.StaticStorage
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.Minecraft
+import java.util.*
 
 /**
  * Particle API
@@ -15,108 +13,75 @@ import java.util.Random;
  * @author Vitox
  * @version 3.0
  */
-class Particle {
+internal class Particle(x: Int, y: Int) {
+    var x: Float
+    var y: Float
+    val size: Float
+    private val ySpeed = Random().nextInt(5).toFloat()
+    private val xSpeed = Random().nextInt(5).toFloat()
+    var height: Int = 0
+    var width: Int = 0
 
-    public float x;
-    public float y;
-    public final float size;
-    private final float ySpeed = new Random().nextInt(5);
-    private final float xSpeed = new Random().nextInt(5);
-    private int height;
-    private int width;
-
-    Particle(int x, int y) {
-        this.x = x;
-        this.y = y;
-        this.size = genRandom();
+    init {
+        this.x = x.toFloat()
+        this.y = y.toFloat()
+        this.size = genRandom()
     }
 
-    private float lint1(float f) {
-        return (1.02F * (1.0F - f)) + f;
+    private fun lint1(f: Float): Float {
+        return (1.02f * (1.0f - f)) + f
     }
 
-    private float lint2(float f) {
-        return 1.02F + f * (1.0F - 1.02F);
+    private fun lint2(f: Float): Float {
+        return 1.02f + f * (1.0f - 1.02f)
     }
 
-    void connect(float x, float y) {
-        RenderUtils.connectPoints(getX(), getY(), x, y);
+    fun connect(x: Float, y: Float) {
+        RenderUtils.connectPoints(this.x, this.y, x, y)
     }
 
-    public int getHeight() {
-        return height;
+    fun setX(x: Int) {
+        this.x = x.toFloat()
     }
 
-    public void setHeight(int height) {
-        this.height = height;
+    fun setY(y: Int) {
+        this.y = y.toFloat()
     }
 
-    public int getWidth() {
-        return width;
-    }
+    fun interpolation() {
+        for (n in 0..64) {
+            val f = n / 64.0f
+            val p1 = lint1(f)
+            val p2 = lint2(f)
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    void interpolation() {
-        for(int n = 0; n <= 64; ++n) {
-            final float f = n / 64.0f;
-            final float p1 = lint1(f);
-            final float p2 = lint2(f);
-
-            if(p1 != p2) {
-                y -= f;
-                x -= f;
+            if (p1 != p2) {
+                y -= f
+                x -= f
             }
         }
     }
 
-    void fall() {
+    fun fall() {
         try {
-            final Minecraft mc = Minecraft.getMinecraft();
-            if(mc == null)
-            		return;
-            final ScaledResolution scaledResolution = StaticStorage.scaledResolution;
-            if(scaledResolution == null)
-            		return;
-            y = (y + ySpeed);
-            x = (x + xSpeed);
+            val mc = Minecraft.getMinecraft() ?: return
+            val scaledResolution = StaticStorage.scaledResolution ?: return
+            y = (y + ySpeed)
+            x = (x + xSpeed)
 
-            if (y > mc.displayHeight)
-                y = 1;
+            if (y > mc.displayHeight) y = 1f
 
-            if (x > mc.displayWidth)
-                x = 1;
+            if (x > mc.displayWidth) x = 1f
 
-            if (x < 1)
-                x = scaledResolution.getScaledWidth();
+            if (x < 1) x = scaledResolution.scaledWidth.toFloat()
 
-            if (y < 1)
-                y = scaledResolution.getScaledHeight();
-        }catch (Exception E){
-            E.printStackTrace();
+            if (y < 1) y = scaledResolution.scaledHeight.toFloat()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    private float genRandom() {
-        return (0.3f + (float) Math.random() * (0.6f - 0.3f + 1.0F));
+    private fun genRandom(): Float {
+        return (0.3f + Math.random().toFloat() * (0.6f - 0.3f + 1.0f))
     }
 }
 

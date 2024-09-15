@@ -20,12 +20,6 @@ object Rotations : Module() {
     private val realistic = BoolValue("Realistic", false)
     private val body = BoolValue("Body", true).displayable { !realistic.get() }
 
-    val debugRotations = BoolValue("DebugRotations", false)
-    val experimentalCurve = BoolValue("ExperimentalLinearCurveRotation", false)
-    val startSecondRotationSlow = BoolValue("StartSecondRotationSlow", false)
-    val slowDownOnDirectionChange = BoolValue("SlowDownOnDirectionChange", false)
-    val useStraightLinePath = BoolValue("UseStraightLinePath", false)
-
     var prevHeadPitch = 0f
     var headPitch = 0f
 

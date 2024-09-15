@@ -2,54 +2,43 @@
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
+package net.ccbluex.liquidbounce.memoryfix
 
-package net.ccbluex.liquidbounce.memoryfix;
+import net.minecraft.client.entity.AbstractClientPlayer
+import net.minecraft.client.renderer.IImageBuffer
+import net.minecraft.client.renderer.ImageBufferDownload
+import net.minecraft.util.ResourceLocation
+import java.awt.image.BufferedImage
+import java.lang.ref.WeakReference
 
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ImageBufferDownload;
-import net.minecraft.util.ResourceLocation;
+class CapeImageBuffer(player: AbstractClientPlayer?, private val resourceLocation: ResourceLocation) : IImageBuffer {
+    var imageBufferDownload: ImageBufferDownload = ImageBufferDownload()
+    private val playerRef: WeakReference<AbstractClientPlayer?> = WeakReference(player)
 
-import java.awt.image.BufferedImage;
-import java.lang.ref.WeakReference;
-
-public class CapeImageBuffer implements IImageBuffer {
-    public ImageBufferDownload imageBufferDownload;
-    public final WeakReference<AbstractClientPlayer> playerRef;
-    public final ResourceLocation resourceLocation;
-
-    public CapeImageBuffer(AbstractClientPlayer player, ResourceLocation resourceLocation) {
-        this.playerRef = new WeakReference(player);
-        this.resourceLocation = resourceLocation;
-        this.imageBufferDownload = new ImageBufferDownload();
+    fun func_78432_a(image: BufferedImage): BufferedImage? {
+        return parseCape(image)
     }
 
-    public BufferedImage func_78432_a(BufferedImage image) {
-        return parseCape(image);
-    }
-
-    private static BufferedImage parseCape(BufferedImage image) {
-        return null;
-    }
-
-    public void func_152634_a() {
-        AbstractClientPlayer player = (AbstractClientPlayer)this.playerRef.get();
+    fun func_152634_a() {
+        val player = playerRef.get()
         if (player != null) {
-            setLocationOfCape(player, this.resourceLocation);
+            setLocationOfCape(player, this.resourceLocation)
+        }
+    }
+
+    override fun parseUserSkin(bufferedImage: BufferedImage): BufferedImage? {
+        return null
+    }
+
+    override fun skinAvailable() {
+    }
+
+    companion object {
+        private fun parseCape(image: BufferedImage): BufferedImage? {
+            return null
         }
 
-    }
-
-    private static void setLocationOfCape(AbstractClientPlayer player, ResourceLocation resourceLocation) {
-    }
-
-    @Override
-    public BufferedImage parseUserSkin(BufferedImage bufferedImage) {
-        return null;
-    }
-
-    @Override
-    public void skinAvailable() {
-
+        private fun setLocationOfCape(player: AbstractClientPlayer, resourceLocation: ResourceLocation) {
+        }
     }
 }

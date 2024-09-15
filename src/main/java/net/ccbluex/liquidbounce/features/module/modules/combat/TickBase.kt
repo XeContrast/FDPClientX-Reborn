@@ -224,7 +224,7 @@ object TickBase : Module() {
      * Check if player is moving
      */
     private fun isPlayerMoving(): Boolean {
-        return mc.thePlayer.moveForward != 0f || mc.thePlayer.moveStrafing != 0f
+        return mc.thePlayer != null && (mc.thePlayer.moveForward != 0f || mc.thePlayer.moveStrafing != 0f)
     }
 
     /**

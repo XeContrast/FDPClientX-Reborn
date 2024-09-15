@@ -1,25 +1,27 @@
-package net.ccbluex.liquidbounce.features.command.rawinput
+package com.kuri0.rawinput
 
-import net.ccbluex.liquidbounce.utils.RawInputHandler
 import net.minecraft.command.CommandBase
 import net.minecraft.command.CommandException
 import net.minecraft.command.ICommandSender
+import net.minecraft.util.ChatComponentText
+import net.minecraft.util.EnumChatFormatting
 
-class ToggleCommand : CommandBase() {
+class RescanCommand : CommandBase() {
     override fun getCommandName(): String {
-        return "rawinput"
+        return "rescan"
     }
 
     override fun getCommandUsage(sender: ICommandSender): String {
-        return "Toggles Raw Input (/rawinput)"
+        return "Rescans input devices: /rescan"
     }
 
     @Throws(CommandException::class)
     override fun processCommand(sender: ICommandSender, args: Array<String>) {
-        RawInputHandler.toggleRawInput()
+        sender.addChatMessage(ChatComponentText(EnumChatFormatting.GOLD.toString() + "[RawInput] Rescanning input devices..."))
+        RawInput.mouse = null
     }
 
     override fun getRequiredPermissionLevel(): Int {
-        return -1
+        return 0
     }
 }

@@ -122,6 +122,8 @@ object AntiVoid : Module() {
 
     @EventTarget
     fun onWorld(event: WorldEvent) {
+        if (mc.thePlayer == null) return
+
         if (lastRecY == 0.0) {
             lastRecY = mc.thePlayer.posY
         }

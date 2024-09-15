@@ -2,30 +2,26 @@
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
+package net.ccbluex.liquidbounce.memoryfix
 
-package net.ccbluex.liquidbounce.memoryfix;
+import java.awt.image.BufferedImage
+import java.awt.image.ImageObserver
+import java.io.IOException
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.IOException;
+object ResourcePackImageScaler {
+    const val SIZE: Int = 64
 
-public class ResourcePackImageScaler {
-    public static final int SIZE = 64;
-
-    public ResourcePackImageScaler() {
-    }
-
-    public static BufferedImage scalePackImage(BufferedImage image) throws IOException {
+    @Throws(IOException::class)
+    fun scalePackImage(image: BufferedImage?): BufferedImage? {
         if (image == null) {
-            return null;
+            return null
         } else {
-            System.out.println("Scaling resource pack icon from " + image.getWidth() + " to " + 64);
-            BufferedImage smallImage = new BufferedImage(64, 64, 2);
-            Graphics graphics = smallImage.getGraphics();
-            graphics.drawImage(image, 0, 0, 64, 64, (ImageObserver)null);
-            graphics.dispose();
-            return smallImage;
+            println("Scaling resource pack icon from " + image.width + " to " + 64)
+            val smallImage = BufferedImage(64, 64, 2)
+            val graphics = smallImage.graphics
+            graphics.drawImage(image, 0, 0, 64, 64, null as ImageObserver?)
+            graphics.dispose()
+            return smallImage
         }
     }
 }

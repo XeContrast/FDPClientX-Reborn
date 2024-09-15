@@ -110,6 +110,7 @@ public abstract class MixinGuiSlot {
     protected abstract boolean isSelected(int slotIndex);
     /**
      * @author XiGua
+     * @reason drawSelection
      */
     @Inject(method = "drawSelectionBox", at = @At("HEAD"), cancellable = true)
     public void drawSelectionBoxs(int p_148120_1_, int p_148120_2_, int mouseXIn, int mouseYIn, CallbackInfo ci) {
@@ -151,6 +152,7 @@ public abstract class MixinGuiSlot {
 
     /**
      * @author CCBlueX
+     * @reason drawScreen
      */
     @Overwrite
     public void drawScreen(int mouseXIn, int mouseYIn, float p_148128_3_) {
@@ -242,6 +244,7 @@ public abstract class MixinGuiSlot {
 
     /**
      * @author CCBlueX
+     * @reason draw
      */
     @Overwrite
     protected int getScrollBarX() {

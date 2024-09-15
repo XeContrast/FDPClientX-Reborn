@@ -109,16 +109,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     public abstract boolean isSneaking();
 
     @Shadow
-    public double lastReportedPosX;
+    private double lastReportedPosX;
 
     @Shadow
     public int positionUpdateTicks;
 
     @Shadow
-    public double lastReportedPosY;
+    private double lastReportedPosY;
 
     @Shadow
-    public double lastReportedPosZ;
+    private double lastReportedPosZ;
 
     @Shadow
     private float lastReportedYaw;

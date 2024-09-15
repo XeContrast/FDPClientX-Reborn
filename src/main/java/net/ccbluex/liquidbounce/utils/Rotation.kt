@@ -90,8 +90,8 @@ data class Rotation(var yaw: Float, var pitch: Float) {
             val modifiedStrafe = ceil(abs(strafe)) * strafe.sign
 
             // Remake the rotation-based input using the modified inputs
-            calcForward = round(modifiedForward * cos(diff) + modifiedStrafe * sin(diff))
-            calcStrafe = round(modifiedStrafe * cos(diff) - modifiedForward * sin(diff))
+            calcForward = round(modifiedForward * MathHelper.cos(diff) + modifiedStrafe * MathHelper.sin(diff))
+            calcStrafe = round(modifiedStrafe * MathHelper.cos(diff) - modifiedForward * MathHelper.sin(diff))
 
             // Was the user sneaking? Blocking? Both? Neither?
             val f = if (event.forward != 0f) event.forward else event.strafe
@@ -113,8 +113,8 @@ data class Rotation(var yaw: Float, var pitch: Float) {
             calcForward *= d
 
             val yawRad = yaw.toRadians()
-            val yawSin = sin(yawRad)
-            val yawCos = cos(yawRad)
+            val yawSin = MathHelper.sin(yawRad)
+            val yawCos = MathHelper.cos(yawRad)
 
             player.motionX += calcStrafe * yawCos - calcForward * yawSin
             player.motionZ += calcForward * yawCos + calcStrafe * yawSin

@@ -82,7 +82,7 @@ object AutoProjectile : Module() {
                     facingEntity = raycastEntity(range.get().toDouble()) { isSelected(it, true) }
                 }
 
-                if (isSelected(facingEntity!!, true)) {
+                if (facingEntity?.let { isSelected(it, true) } == true) {
                     throwProjectile = true
                 }
             } else {
@@ -92,7 +92,7 @@ object AutoProjectile : Module() {
             if (throwProjectile) {
                 if (mode.get() == "Normal" && throwTimer.hasTimePassed(throwDelay.get().toLong())) {
                     if (mc.thePlayer.heldItem?.item != snowball && mc.thePlayer.heldItem?.item != egg) {
-                        val projectile = findProjectile(36, 45)
+                        val projectile = findProjectile()
 
                         if (projectile == -1) {
                             return
@@ -110,7 +110,7 @@ object AutoProjectile : Module() {
                 val randomThrowDelay = RandomUtils.nextInt(minThrowDelay.get(), maxThrowDelay.get())
                 if (mode.get() == "Smart" && throwTimer.hasTimePassed(randomThrowDelay.toLong())) {
                     if (mc.thePlayer.heldItem?.item != snowball && mc.thePlayer.heldItem?.item != egg) {
-                        val projectile = findProjectile(36, 45)
+                        val projectile = findProjectile()
 
                         if (projectile == -1) {
                             return
@@ -132,7 +132,7 @@ object AutoProjectile : Module() {
      * Throw projectile (snowball/egg)
      */
     private fun throwProjectile() {
-        val projectile = findProjectile(36, 45)
+        val projectile = findProjectile()
 
         mc.thePlayer.inventory.currentItem = projectile - 36
 
@@ -145,8 +145,8 @@ object AutoProjectile : Module() {
     /**
      * Find projectile (snowball/egg) in inventory
      */
-    private fun findProjectile(startSlot: Int, endSlot: Int): Int {
-        for (i in startSlot until endSlot) {
+    private fun findProjectile(): Int {
+        for (i in 36 until 45) {
             val stack = mc.thePlayer?.inventoryContainer?.getSlot(i)?.stack
             if (stack != null) {
                 if (stack.item == snowball || stack.item == egg) {

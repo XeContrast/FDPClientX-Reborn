@@ -87,8 +87,8 @@ object HUDModule : Module() {
             else -> {}
         }
         if (eatbar.get()) {
-            if (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem
-                    .item is ItemPotion
+            if (mc.thePlayer.heldItem.item != null && (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem
+                    .item is ItemPotion)
             ) {
                 val scaledResolution = StaticStorage.scaledResolution
                 val math: Double
@@ -235,7 +235,7 @@ object HUDModule : Module() {
         if (mc.theWorld == null || mc.thePlayer == null) return
         if (state && blurValue.get() && !mc.entityRenderer.isShaderActive && event.guiScreen != null &&
             !(event.guiScreen is GuiChat || event.guiScreen is GuiHudDesigner)) mc.entityRenderer.loadShader(
-            ResourceLocation(CLIENT_NAME.lowercase() + "/blur.json")
+            ResourceLocation("fdpclient/blur.json")
         ) else if (mc.entityRenderer.shaderGroup != null &&
             "fdpclient/blur.json" in mc.entityRenderer.shaderGroup.shaderGroupName) mc.entityRenderer.stopUseShader()
     }

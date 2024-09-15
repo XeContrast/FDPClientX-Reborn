@@ -20,6 +20,10 @@ import java.util.Objects;
 
 @Mixin(BlockLilyPad.class)
 public abstract class MixinBlockLilyPad extends BlockBush {
+    /**
+     * @author Xe
+     * @reason getCollision
+     */
     @Overwrite
     public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
         if (Objects.requireNonNull(FDPClient.moduleManager.getModule(ViaVersionFix.class)).getState())

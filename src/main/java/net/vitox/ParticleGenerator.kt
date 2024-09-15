@@ -1,11 +1,8 @@
-package net.vitox;
+package net.vitox
 
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.minecraft.client.Minecraft;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.Minecraft
+import java.util.*
 
 /**
  * Particle API This Api is free2use But u have to mention me.
@@ -13,53 +10,52 @@ import java.util.Random;
  * @author Vitox
  * @version 3.0
  */
-public class ParticleGenerator {
+class ParticleGenerator(private val amount: Int) {
+    private val particles: MutableList<Particle> = ArrayList()
 
-    private final List<Particle> particles = new ArrayList<>();
-    private final int amount;
+    private var prevWidth = 0
+    private var prevHeight = 0
 
-    private int prevWidth;
-    private int prevHeight;
-
-    public ParticleGenerator(final int amount) {
-        this.amount = amount;
-    }
-
-    public void draw(final int mouseX, final int mouseY) {
-        if(Minecraft.getMinecraft() == null)
-        	return;
-        if(particles.isEmpty() || prevWidth != Minecraft.getMinecraft().displayWidth || prevHeight != Minecraft.getMinecraft().displayHeight) {
-            particles.clear();
-            create();
+    fun draw(mouseX: Int, mouseY: Int) {
+        if (Minecraft.getMinecraft() == null) return
+        if (particles.isEmpty() || prevWidth != Minecraft.getMinecraft().displayWidth || prevHeight != Minecraft.getMinecraft().displayHeight) {
+            particles.clear()
+            create()
         }
 
-        prevWidth = Minecraft.getMinecraft().displayWidth;
-        prevHeight = Minecraft.getMinecraft().displayHeight;
+        prevWidth = Minecraft.getMinecraft().displayWidth
+        prevHeight = Minecraft.getMinecraft().displayHeight
 
-        for(final Particle particle : particles) {
-            particle.fall();
-            particle.interpolation();
+        for (particle in particles) {
+            particle.fall()
+            particle.interpolation()
 
-            int range = 50;
-            final boolean mouseOver = (mouseX >= particle.x - range) && (mouseY >= particle.y - range) && (mouseX <= particle.x + range) && (mouseY <= particle.y + range);
+            val range = 50
+            val mouseOver =
+                (mouseX >= particle.x - range) && (mouseY >= particle.y - range) && (mouseX <= particle.x + range) && (mouseY <= particle.y + range)
 
-            if(mouseOver) {
+            if (mouseOver) {
                 particles.stream()
-                        .filter(part -> (part.getX() > particle.getX() && part.getX() - particle.getX() < range
-                                && particle.getX() - part.getX() < range)
-                                && (part.getY() > particle.getY() && part.getY() - particle.getY() < range
-                                || particle.getY() > part.getY() && particle.getY() - part.getY() < range))
-                        .forEach(connectable -> particle.connect(connectable.getX(), connectable.getY()));
+                    .filter { part: Particle ->
+                        ((part.x > particle.x && part.x - particle.x < range && particle.x - part.x < range)
+                                && (part.y > particle.y && part.y - particle.y < range
+                                || particle.y > part.y && particle.y - part.y < range))
+                    }
+                    .forEach { connectable: Particle -> particle.connect(connectable.x, connectable.y) }
             }
 
-            RenderUtils.drawCircle(particle.getX(), particle.getY(), particle.size, 0xffFFFFFF);
+            RenderUtils.drawCircle(particle.x, particle.y, particle.size, -0x1)
         }
     }
 
-    private void create() {
-        final Random random = new Random();
+    private fun create() {
+        val random = Random()
 
-        for(int i = 0; i < amount; i++)
-            particles.add(new Particle(random.nextInt(Minecraft.getMinecraft().displayWidth), random.nextInt(Minecraft.getMinecraft().displayHeight)));
+        for (i in 0 until amount) particles.add(
+            Particle(
+                random.nextInt(Minecraft.getMinecraft().displayWidth),
+                random.nextInt(Minecraft.getMinecraft().displayHeight)
+            )
+        )
     }
 }

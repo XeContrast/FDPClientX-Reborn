@@ -13,8 +13,9 @@ import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.toRadians
 import net.minecraft.util.MathHelper
-import kotlin.math.abs
+import kotlin.math.*
 
 @ModuleInfo(name = "StrafeFix", category = ModuleCategory.MOVEMENT)
 object StrafeFix : Module() {

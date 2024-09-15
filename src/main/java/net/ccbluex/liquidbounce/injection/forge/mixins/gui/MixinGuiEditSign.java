@@ -96,6 +96,7 @@ public class MixinGuiEditSign extends GuiScreen {
 
     /**
      * @author CCBlueX
+     * @reason keyTyped
      */
     @Overwrite
     protected void keyTyped(char typedChar, int keyCode) throws IOException {

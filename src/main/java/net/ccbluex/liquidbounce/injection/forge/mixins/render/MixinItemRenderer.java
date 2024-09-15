@@ -84,6 +84,7 @@ public abstract class MixinItemRenderer {
 
     /**
      * @author Liuli
+     * @reason 我想你了琉璃
      */
     @Overwrite
     private void transformFirstPersonItem(float equipProgress, float swingProgress) {
@@ -136,6 +137,7 @@ public abstract class MixinItemRenderer {
 
     /**
      * @author Liuli
+     * @reason 回来吧我的琉璃
      */
     @Overwrite
     public void renderItemInFirstPerson(float partialTicks) {
