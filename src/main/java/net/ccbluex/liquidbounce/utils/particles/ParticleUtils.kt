@@ -3,15 +3,15 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.particles;
+package net.ccbluex.liquidbounce.utils.particles
 
-import net.vitox.ParticleGenerator;
+import net.vitox.ParticleGenerator
 
-public final class ParticleUtils {
+object ParticleUtils {
+    private val particleGenerator = ParticleGenerator(100)
 
-    private static final ParticleGenerator particleGenerator = new ParticleGenerator(100);
-
-    public static void drawParticles(int mouseX, int mouseY) {
-        particleGenerator.draw(mouseX, mouseY);
+    @JvmStatic
+    fun drawParticles(mouseX: Int, mouseY: Int) {
+        particleGenerator.draw(mouseX, mouseY)
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -417,7 +418,7 @@ public class Fonts {
 
     private static Font getFont(final String fontName, final int size) {
         try {
-            final InputStream inputStream = new FileInputStream(new File(FDPClient.fileManager.getFontsDir(), fontName));
+            final InputStream inputStream = Files.newInputStream(new File(FDPClient.fileManager.getFontsDir(), fontName).toPath());
             Font awtClientFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);
             awtClientFont = awtClientFont.deriveFont(Font.PLAIN, size);
             inputStream.close();

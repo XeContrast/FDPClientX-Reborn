@@ -3,108 +3,116 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils;
+package net.ccbluex.liquidbounce.utils
 
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
-public final class AnimationUtils {
-    public static double animate(double target, double current, double speed) {
-        if (current == target) return current;
+object AnimationUtils {
+    fun animate(target: Double, current: Double, speed: Double): Double {
+        var current = current
+        var speed = speed
+        if (current == target) return current
 
-        boolean larger = target > current;
+        val larger = target > current
         if (speed < 0.0) {
-            speed = 0.0;
+            speed = 0.0
         } else if (speed > 1.0) {
-            speed = 1.0;
+            speed = 1.0
         }
 
-        double dif = Math.max(target, current) - Math.min(target, current);
-        double factor = dif * speed;
+        val dif = max(target, current) - min(target, current)
+        var factor = dif * speed
         if (factor < 0.1) {
-            factor = 0.1;
+            factor = 0.1
         }
 
         if (larger) {
-            current += factor;
-            if (current >= target) current = target;
+            current += factor
+            if (current >= target) current = target
         } else if (target < current) {
-            current -= factor;
-            if (current <= target) current = target;
+            current -= factor
+            if (current <= target) current = target
         }
 
-        return current;
+        return current
     }
 
-    public static float animate(float target, float current, float speed) {
-        if (current == target) return current;
+    fun animate(target: Float, current: Float, speed: Float): Float {
+        var current = current
+        var speed = speed
+        if (current == target) return current
 
-        boolean larger = target > current;
-        if (speed < 0.0F) {
-            speed = 0.0F;
-        } else if (speed > 1.0F) {
-            speed = 1.0F;
+        val larger = target > current
+        if (speed < 0.0f) {
+            speed = 0.0f
+        } else if (speed > 1.0f) {
+            speed = 1.0f
         }
 
-        double dif = Math.max(target, (double)current) - Math.min(target, (double)current);
-        double factor = dif * (double)speed;
+        val dif = max(target.toDouble(), current.toDouble()) - min(target.toDouble(), current.toDouble())
+        var factor = dif * speed.toDouble()
         if (factor < 0.1) {
-            factor = 0.1;
+            factor = 0.1
         }
 
         if (larger) {
-            current += (float)factor;
-            if (current >= target) current = target;
+            current += factor.toFloat()
+            if (current >= target) current = target
         } else if (target < current) {
-            current -= (float)factor;
-            if (current <= target) current = target;
+            current -= factor.toFloat()
+            if (current <= target) current = target
         }
 
-        return current;
+        return current
     }
 
-    public static float lstransition(float now, float desired, double speed) {
-        final double dif = Math.abs(desired - now);
-        float a = (float) Math.abs((desired - (desired - (Math.abs(desired - now)))) / (100 - (speed * 10)));
-        float x = now;
+    fun lstransition(now: Float, desired: Float, speed: Double): Float {
+        val dif = abs((desired - now).toDouble())
+        val a = abs((desired - (desired - (abs((desired - now).toDouble())))) / (100 - (speed * 10)))
+            .toFloat()
+        var x = now
 
         if (dif > 0) {
-            if (now < desired)
-                x += a * RenderUtils.deltaTime;
-            else if (now > desired)
-                x -= a * RenderUtils.deltaTime;
-        } else
-            x = desired;
+            if (now < desired) x += a * RenderUtils.deltaTime
+            else if (now > desired) x -= a * RenderUtils.deltaTime
+        } else x = desired
 
-        if(Math.abs(desired - x) < 10.0E-3 && x != desired)
-            x = desired;
+        if (abs((desired - x).toDouble()) < 10.0E-3 && x != desired) x = desired
 
-        return x;
+        return x
     }
 
-    public static double changer(double current, double add, double min, double max) {
-        current += add;
+    fun changer(current: Double, add: Double, min: Double, max: Double): Double {
+        var current = current
+        current += add
         if (current > max) {
-            current = max;
+            current = max
         }
         if (current < min) {
-            current = min;
+            current = min
         }
 
-        return current;
+        return current
     }
 
-    public static float changer(float current, float add, float min, float max) {
-        current += add;
+    fun changer(current: Float, add: Float, min: Float, max: Float): Float {
+        var current = current
+        current += add
         if (current > max) {
-            current = max;
+            current = max
         }
         if (current < min) {
-            current = min;
+            current = min
         }
 
-        return current;
+        return current
     }
-    public static float easeOut(float t, float d) {
-        return (t = t / d - 1) * t * t + 1;
+
+    fun easeOut(t: Float, d: Float): Float {
+        var t = t
+        return ((t / d - 1).also { t = it }) * t * t + 1
     }
 }

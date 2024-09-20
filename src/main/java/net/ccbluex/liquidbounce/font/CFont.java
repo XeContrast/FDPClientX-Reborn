@@ -6,6 +6,7 @@
 
 package net.ccbluex.liquidbounce.font;
 
+import lombok.Getter;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;
 
@@ -14,11 +15,13 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class CFont {
+    @Getter
     protected Font font;
+    @Getter
     protected boolean antiAlias;
+    @Getter
     protected boolean fractionalMetrics;
     protected DynamicTexture tex;
-    private final float imgSize = 512.0f;
     protected final CharData[] charData = new CharData[256];
     protected int fontHeight = -1;
     protected final int charOffset = 0;
@@ -125,10 +128,6 @@ public class CFont {
         return width / 2;
     }
 
-    public boolean isAntiAlias() {
-        return this.antiAlias;
-    }
-
     public void setAntiAlias(boolean antiAlias) {
         if (this.antiAlias != antiAlias) {
             this.antiAlias = antiAlias;
@@ -136,19 +135,11 @@ public class CFont {
         }
     }
 
-    public boolean isFractionalMetrics() {
-        return this.fractionalMetrics;
-    }
-
     public void setFractionalMetrics(boolean fractionalMetrics) {
         if (this.fractionalMetrics != fractionalMetrics) {
             this.fractionalMetrics = fractionalMetrics;
             this.tex = setupTexture(this.font, this.antiAlias, fractionalMetrics, this.charData);
         }
-    }
-
-    public Font getFont() {
-        return this.font;
     }
 
     public void setFont(Font font) {

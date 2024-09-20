@@ -23,7 +23,7 @@ public class Settings extends Setting {
         float x = startX + 310;
         int l   = font.getStringWidth(listValue.get());
         
-        font.drawString(listValue.getName(), startX + 210, mY + 1, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
+        font.drawString(listValue.getName(), startX + 210, mY + 1, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
         
         
         if (listValue.openList) {
@@ -55,15 +55,15 @@ public class Settings extends Setting {
                     RenderUtils.drawRoundedRect2(x + 88, mY - 6 + i * (font.FONT_HEIGHT + 2), x + 197, mY - 2 + font.FONT_HEIGHT + i * (font.FONT_HEIGHT + 2), 2, new Color(200, 200, 200, 255).getRGB());
                 }
                 
-                font.drawString(listValue.getValues()[i], x + 91, mY - 2 + i * (font.FONT_HEIGHT + 2), new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
+                font.drawString(listValue.getValues()[i], x + 91, mY - 2 + i * (font.FONT_HEIGHT + 2), new Color(80, 80, 80, alphaAnim.alpha).getRGB());
 
             }
                                                       
         } else {
             RenderUtils.drawRoundedRect2(x + 61 - l, mY - 3, x + 81, mY + 11, 2, new Color(230, 230, 230, 200).getRGB());
             RenderUtils.drawRoundedRect2(x + 60 - l, mY - 4, x + 80, mY + 10, 2, new Color(250, 250, 250, 250).getRGB());
-            font.drawString(listValue.get(), x + 70 - l, mY + 1, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
-            font.drawString("<", x + 73, mY + 1, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
+            font.drawString(listValue.get(), x + 70 - l, mY + 1, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
+            font.drawString("<", x + 73, mY + 1, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
         }
 
         
@@ -114,13 +114,13 @@ public class Settings extends Setting {
                 - floatValue.getMinimum())
                 + 1);
         RenderUtils.drawRect( x - 6, mY + 2, (float) ((double) x + 75), mY + 3,
-                (new Color(200, 200, 200,alphaAnim.getAlpha())).getRGB());
+                (new Color(200, 200, 200, alphaAnim.alpha)).getRGB());
         RenderUtils.drawRect( x - 6, mY + 2, (float) ((double) x + render + 6.5D), mY + 3,
-                (new Color(61, 141, 255,alphaAnim.getAlpha())).getRGB());
-        RenderUtils.circle((float) ((double) x + render + 4D), mY + 2.5F, 2, new Color(61, 141, 255,alphaAnim.getAlpha()));
+                (new Color(61, 141, 255, alphaAnim.alpha)).getRGB());
+        RenderUtils.circle((float) ((double) x + render + 4D), mY + 2.5F, 2, new Color(61, 141, 255, alphaAnim.alpha));
         font.drawString(String.valueOf(floatValue.get()),
-                (float) ((double) x + render - 5), mY - 7, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
-        font.drawString(floatValue.getName(), startX + 210, mY, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
+                (float) ((double) x + render - 5), mY - 7, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
+        font.drawString(floatValue.getName(), startX + 210, mY, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
         if (buttonDown && Mouse.isButtonDown(0)) {
             if (!previousMouse && Mouse.isButtonDown(0)) {
                 render = floatValue.getMinimum();
@@ -149,10 +149,10 @@ public class Settings extends Setting {
                 (new Color(200, 200, 200)).getRGB());
         RenderUtils.drawRect( x - 6, mY + 2, (float) ((double) x + render + 6.5D), mY + 3,
                 (new Color(61, 141, 255)).getRGB());
-        RenderUtils.circle((float) ((double) x + render + 4D), mY + 2.5F, 2, new Color(61, 141, 255,alphaAnim.getAlpha()));
+        RenderUtils.circle((float) ((double) x + render + 4D), mY + 2.5F, 2, new Color(61, 141, 255, alphaAnim.alpha));
         font.drawString(String.valueOf(integerValue.get()),
                 (float) ((double) x + render - 5), mY - 7, new Color(80, 80, 80).getRGB());
-        font.drawString(integerValue.getName(), startX + 210, mY, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB());
+        font.drawString(integerValue.getName(), startX + 210, mY, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
 
         if (buttonDown && Mouse.isButtonDown(0)) {
             if (!previousMouse && Mouse.isButtonDown(0)) {
@@ -172,10 +172,10 @@ public class Settings extends Setting {
     @Override
     public void drawBoolValue(boolean mouse,int mouseX,int mouseY,float startX,float mY,BoolValue boolValue) {
         float x = startX + 325;
-        font.drawString(boolValue.getName(), startX + 210, mY, new Color(80, 80, 80,alphaAnim.getAlpha()).getRGB()); 
-        RenderUtils.drawRoundedRect2(x + 28, mY - 4, x + 52, mY + 10, 5, boolValue.get() ? new Color(66, 134, 245,alphaAnim.getAlpha()).getRGB() : new Color(114, 118, 125,alphaAnim.getAlpha()).getRGB() );
+        font.drawString(boolValue.getName(), startX + 210, mY, new Color(80, 80, 80, alphaAnim.alpha).getRGB());
+        RenderUtils.drawRoundedRect2(x + 28, mY - 4, x + 52, mY + 10, 5, boolValue.get() ? new Color(66, 134, 245, alphaAnim.alpha).getRGB() : new Color(114, 118, 125, alphaAnim.alpha).getRGB() );
         RenderUtils.drawRoundedRect2(x + 30, mY - 2, x + 50, mY + 8, 4, new Color(250, 250, 250, 255).getRGB());
-        RenderUtils.circle(x + 40 + boolValue.getAnimation().getAnimationX(), mY + 3, 4, boolValue.get() ? new Color(66, 134, 245,alphaAnim.getAlpha()).getRGB() : new Color(174, 174, 174,alphaAnim.getAlpha()).getRGB());
+        RenderUtils.circle(x + 40 + boolValue.getAnimation().animationX, mY + 3, 4, boolValue.get() ? new Color(66, 134, 245, alphaAnim.alpha).getRGB() : new Color(174, 174, 174, alphaAnim.alpha).getRGB());
         if (boolValue.get()) {
             boolValue.getAnimation().animationX += (5F - boolValue.getAnimation().animationX) / 2.5;
         } else {

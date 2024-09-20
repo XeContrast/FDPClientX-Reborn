@@ -367,7 +367,7 @@ object AntiVoid : Module() {
             ) return
             if (!voidOnlyValue.get() || checkVoid()) {
                 if (mc.thePlayer.fallDistance > maxFallDistValue.get()) {
-                    if (mc.thePlayer.heldItem!!.item is ItemEnderPearl) {
+                    if (mc.thePlayer.heldItem?.item is ItemEnderPearl && mc.thePlayer.heldItem.item != null) {
                         if (freezeValue.equals("Cancel")) {
                             event.cancelEvent()
                         } else {

@@ -313,7 +313,7 @@ class Scaffold2 : Module() {
     private val timer = TickTimer()
 
     fun onStrafe(event: StrafeEvent) {
-        if (sprintValue.equals("Smart")) {
+        if (speedTelly.get()) {
             RotationUtils.targetRotation!!.applyStrafeToPlayer(event,false)
             event.cancelEvent()
         }

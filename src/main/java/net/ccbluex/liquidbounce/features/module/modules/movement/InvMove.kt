@@ -14,7 +14,9 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.minecraft.client.gui.GuiChat
+import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.gui.inventory.GuiContainer
+import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
@@ -29,7 +31,7 @@ import org.lwjgl.input.Keyboard
 object InvMove : Module() {
 
     private val noDetectableValue = BoolValue("NoDetectable", false)
-    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv", "None"), "None")
+    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Jump","Intave", "None"), "None")
     private val rotateValue = BoolValue("Rotate", false)
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
     val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
@@ -164,6 +166,26 @@ object InvMove : Module() {
                     }
                 }
             }
+            "jump" -> {
+                if (lastInvOpen && mc.thePlayer.onGround) {
+                    mc.thePlayer.jump()
+                }
+            }
+        }
+    }
+
+    @EventTarget
+    private fun onStrafe(event: StrafeEvent) {
+        if ((mc.currentScreen is GuiChest || mc.currentScreen is GuiInventory) && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+            mc.gameSettings.keyBindSneak.pressed = true
+        }
+        if (!lastInvOpen) mc.gameSettings.keyBindSneak.pressed = false
+    }
+
+    @EventTarget
+    private fun onJump(event: JumpEvent) {
+        if ((mc.currentScreen is GuiChest || mc.currentScreen is GuiInventory) && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+            event.cancelEvent()
         }
     }
 
@@ -192,6 +214,9 @@ object InvMove : Module() {
         }
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSprint) || mc.currentScreen != null) {
             mc.gameSettings.keyBindSprint.pressed = false
+        }
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) || mc.currentScreen != null) {
+            mc.gameSettings.keyBindSneak.pressed = false
         }
 
         blinkPacketList.clear()

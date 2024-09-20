@@ -69,7 +69,7 @@ public class TransformerLoader implements IFMLLoadingPlugin {
      * "coremodList" : the list of coremods
      * "coremodLocation" : the file this coremod loaded from,
      *
-     * @param data
+     * @param data NoTime
      */
     @Override
     public void injectData(Map<String, Object> data) {

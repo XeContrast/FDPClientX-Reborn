@@ -3,22 +3,13 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.particles;
+package net.ccbluex.liquidbounce.utils.particles
 
-import java.util.LinkedList;
+import java.util.*
 
-public final class EvictingList<T> extends LinkedList<T> {
-
-    private final int maxSize;
-
-    public EvictingList(final int maxSize) {
-        this.maxSize = maxSize;
+class EvictingList<T>(private val maxSize: Int) : LinkedList<T>() {
+    override fun add(element: T): Boolean {
+        if (size >= maxSize) removeFirst()
+        return super.add(element)
     }
-
-    @Override
-    public boolean add(final T t) {
-        if (size() >= maxSize) removeFirst();
-        return super.add(t);
-    }
-
 }

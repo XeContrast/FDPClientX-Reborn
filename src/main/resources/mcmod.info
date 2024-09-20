@@ -4,7 +4,7 @@
     "name": "FDPClient",
     "description": "Minecraft 1.8 Utility mod",
     "version": "${version}",
-    "mcversion": "${mcversion}",
+    "mcversion": "1.8.9",
     "url": "https://fdpinfo.github.io",
     "updateUrl": "",
     "authorList": ["CCBlueX", "Xebook1", "zywl && SkidderMC"],

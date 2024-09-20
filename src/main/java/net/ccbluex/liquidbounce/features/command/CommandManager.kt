@@ -72,7 +72,7 @@ class CommandManager {
     /**
      * Get command instance by given [name]
      */
-    fun getCommand(name: String): Command? {
+    private fun getCommand(name: String): Command? {
         return commands[name.lowercase()]
     }
 

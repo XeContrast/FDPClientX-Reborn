@@ -24,7 +24,7 @@ import java.awt.Color
 class ModuleElement(val module: Module): MinecraftInstance() {
 
     companion object {
-        protected val expandIcon = ResourceLocation("liquidbounce+/expand.png") }
+        protected val expandIcon = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }
 
     private val toggleSwitch = ToggleSwitch()
     private val valueElements = mutableListOf<ValueElement<*>>()

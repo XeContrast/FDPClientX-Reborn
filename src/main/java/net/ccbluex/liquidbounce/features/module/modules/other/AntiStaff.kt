@@ -363,4 +363,7 @@ object AntiStaff : Module() {
             }
         }
     }
+
+    override val tag: String
+        get() = mode.get().toString()
 }

@@ -23,8 +23,8 @@ class ConfigManager {
 
     var nowConfig = "default"
     private var nowConfigInFile = "default"
-    var configFile = File(FDPClient.fileManager.configsDir, "$nowConfig.json")
-    var needSave = false
+    private var configFile = File(FDPClient.fileManager.configsDir, "$nowConfig.json")
+    private var needSave = false
 
     init {
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.sections", ConfigSection::class.java)
@@ -39,7 +39,7 @@ class ConfigManager {
     fun load(name: String, save: Boolean = true) {
         FDPClient.isLoadingConfig = true
         if (save && nowConfig != name) {
-            save(true, true) // 保存老配置
+            save(true, forceSave = true) // 保存老配置
         }
 
         nowConfig = name
@@ -210,7 +210,7 @@ class ConfigManager {
 
         val oldSettingDir = File(FDPClient.fileManager.dir, "settings")
         if (oldSettingDir.exists()) {
-            oldSettingDir.listFiles().forEach {
+            oldSettingDir.listFiles()?.forEach {
                 if (it.isFile) {
                     val name = nowConfig
                     ClientUtils.logWarn("Converting legacy setting \"${it.name}\"")
@@ -218,7 +218,7 @@ class ConfigManager {
                     nowConfig = it.name
                     configFile = File(FDPClient.fileManager.configsDir, "$nowConfig.json")
                     executeScript(String(Files.readAllBytes(it.toPath())))
-                    save(false, true)
+                    save(saveConfigSet = false, forceSave = true)
                     // set data back
                     nowConfig = name
                     configFile = File(FDPClient.fileManager.configsDir, "$nowConfig.json")
@@ -244,7 +244,7 @@ class ConfigManager {
     /**
      * Register [section]
      */
-    fun registerSection(section: ConfigSection) = sections.add(section)
+    private fun registerSection(section: ConfigSection) = sections.add(section)
 
     /**
      * Register [sectionClass]

@@ -3,88 +3,86 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.timer;
+package net.ccbluex.liquidbounce.utils.timer
 
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils;
-import net.minecraft.util.MathHelper;
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
+import net.minecraft.util.MathHelper
 
-public final class TimerUtils {
+class TimerUtils {
+    private var lastMS = 0L
+    private var previousTime: Long
 
-    private long lastMS;
-    private long previousTime;
-
-    public TimerUtils() {
-        this.lastMS = 0L;
-        this.previousTime = -1L;
+    init {
+        this.previousTime = -1L
     }
 
 
-    public static long randomDelay(final int minDelay, final int maxDelay) {
-        return RandomUtils.nextInt(minDelay, maxDelay);
-    }
+    private val currentMS: Long
+        get() = System.nanoTime() / 1000000L
 
-    public static long randomClickDelay(final int minCPS, final int maxCPS) {
-        return (long) ((Math.random() * (1000 / minCPS - 1000 / maxCPS + 1)) + 1000 / maxCPS);
-    }
-
-    private long getCurrentMS() {
-        return System.nanoTime() / 1000000L;
-    }
-
-    public boolean hasReached(double milliseconds) {
-        if ((double)(this.getCurrentMS() - this.lastMS) >= milliseconds) {
-            return true;
+    fun hasReached(milliseconds: Double): Boolean {
+        if ((this.currentMS - this.lastMS).toDouble() >= milliseconds) {
+            return true
         }
-        return false;
+        return false
     }
 
-    public boolean delay(float milliSec) {
-        if ((float)(this.getTime() - this.lastMS) >= milliSec) {
-            return true;
+    fun delay(milliSec: Float): Boolean {
+        if ((this.time - this.lastMS).toFloat() >= milliSec) {
+            return true
         }
-        return false;
+        return false
     }
 
-    public long getTime() {
-        return System.nanoTime() / 1000000L;
+    var time: Long
+        get() = System.nanoTime() / 1000000L
+        set(time) {
+            this.lastMS = time
+        }
+
+    fun hasTimeElapsed(time: Long): Boolean {
+        return System.currentTimeMillis() - lastMS > time
     }
 
-    public boolean hasTimeElapsed(long time) {
-        return System.currentTimeMillis() - lastMS > time;
+    fun check(milliseconds: Float): Boolean {
+        return System.currentTimeMillis() - previousTime >= milliseconds
     }
 
-    public boolean check(float milliseconds) {
-        return System.currentTimeMillis() - previousTime >= milliseconds;
+    fun delay(milliseconds: Double): Boolean {
+        return MathHelper.clamp_float((currentMS - lastMS).toFloat(), 0f, milliseconds.toFloat()) >= milliseconds
     }
 
-    public boolean delay(double milliseconds) {
-        return MathHelper.clamp_float(getCurrentMS() - lastMS, 0, (float) milliseconds) >= milliseconds;
+    fun reset() {
+        this.previousTime = System.currentTimeMillis()
+        this.lastMS = this.currentMS
     }
 
-    public void reset() {
-        this.previousTime = System.currentTimeMillis();
-        this.lastMS = getCurrentMS();
-    }
-
-    public long time() {
-        return System.nanoTime() / 1000000L - lastMS;
+    fun time(): Long {
+        return System.nanoTime() / 1000000L - lastMS
     }
 
 
-    public boolean delay(long nextDelay) {
-        return System.currentTimeMillis() - lastMS >= nextDelay;
+    fun delay(nextDelay: Long): Boolean {
+        return System.currentTimeMillis() - lastMS >= nextDelay
     }
 
-    public boolean delay(float nextDelay, boolean reset) {
+    fun delay(nextDelay: Float, reset: Boolean): Boolean {
         if (System.currentTimeMillis() - lastMS >= nextDelay) {
             if (reset) {
-                this.reset();
+                this.reset()
             }
-            return true;
+            return true
         }
-        return false;
+        return false
     }
-    public void setTime(final long time) {
-        this.lastMS = time;
+
+    companion object {
+        fun randomDelay(minDelay: Int, maxDelay: Int): Long {
+            return nextInt(minDelay, maxDelay).toLong()
+        }
+
+        fun randomClickDelay(minCPS: Int, maxCPS: Int): Long {
+            return ((Math.random() * (1000 / minCPS - 1000 / maxCPS + 1)) + 1000 / maxCPS).toLong()
+        }
     }
 }

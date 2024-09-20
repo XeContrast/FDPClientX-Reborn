@@ -1,10 +1,10 @@
 package net.ccbluex.liquidbounce.utils.animations;
 
-import net.ccbluex.liquidbounce.utils.timer.TimerUtil;
+import net.ccbluex.liquidbounce.utils.timer.MSTimer;
 
 public abstract class Animation {
 
-    public TimerUtil timerUtil = new TimerUtil();
+    public MSTimer timerUtil = new MSTimer();
     protected int duration;
     protected double endPoint;
     protected Direction direction;
@@ -41,7 +41,7 @@ public abstract class Animation {
     }
 
     public boolean isDone() {
-        return timerUtil.hasTimeElapsed(duration);
+        return timerUtil.hasTimePassed(duration);
     }
 
     public void changeDirection() {

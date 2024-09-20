@@ -113,6 +113,12 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             FontLoaders.F18.drawCenteredString(
                 FDPClient.CLIENT_VERSION,
                 (width.toFloat() / 2.0f).toDouble(),
+                (height.toFloat() / 2.0f - 20.0f).toDouble(),
+                Color(255, 255, 255).rgb
+            )
+            FontLoaders.F18.drawCenteredString(
+                FDPClient.moduleManager.modules.size.toString() + " Module",
+                (width.toFloat() / 2.0f).toDouble(),
                 (height.toFloat() / 2.0f - 30.0f).toDouble(),
                 Color(255, 255, 255).rgb
             )

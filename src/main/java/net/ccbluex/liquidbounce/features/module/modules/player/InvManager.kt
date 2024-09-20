@@ -68,7 +68,7 @@ object InvManager : Module() {
     private val itemDelayValue = IntegerValue("ItemDelay", 0, 0, 5000)
     private val swingValue = BoolValue("Swing", true)
     private val nbtGoalValue =
-        ListValue("NBTGoal", ItemUtils.EnumNBTPriorityType.values().map { it.toString() }.toTypedArray(), "NONE")
+        ListValue("NBTGoal", ItemUtils.EnumNBTPriorityType.entries.map { it.toString() }.toTypedArray(), "NONE")
     private val nbtItemNotGarbage = BoolValue("NBTItemNotGarbage", true).displayable { !nbtGoalValue.equals("NONE") }
     private val nbtArmorPriority =
         FloatValue("NBTArmorPriority", 0f, 0f, 5f).displayable { !nbtGoalValue.equals("NONE") }
@@ -338,7 +338,7 @@ object InvManager : Module() {
                     }
                 }
             } else if (item is ItemFlintAndSteel) {
-                val currDamage = item.getDamage(itemStack);
+                val currDamage = item.getDamage(itemStack)
                 items().none { (_, stack) ->
                     itemStack != stack && stack.item is ItemFlintAndSteel && currDamage >= stack.item.getDamage(stack)
                 }
