@@ -2,11 +2,9 @@ package net.ccbluex.liquidbounce.handler.combat
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
-import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura
 import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -18,7 +16,7 @@ class CombatManager : Listenable, MinecraftInstance() {
         private set
     var target: EntityLivingBase? = null
         private set
-    val attackedEntityList = mutableListOf<EntityLivingBase>()
+    private val attackedEntityList = mutableListOf<EntityLivingBase>()
     val focusedPlayerList = mutableListOf<EntityPlayer>()
 
     @EventTarget

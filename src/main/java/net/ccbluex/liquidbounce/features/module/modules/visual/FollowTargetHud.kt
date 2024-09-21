@@ -177,8 +177,7 @@ class FollowTargetHud : Module() {
         // Enable blend
         enableGlCap(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        
-        val name = entity.displayName.unformattedText
+
         var healthPercent = entity.health / entity.maxHealth
         // render hp bar
         if (healthPercent> 1) {
@@ -277,11 +276,11 @@ class FollowTargetHud : Module() {
                     if (!fdpText.get()) addedLen = 110f
                     
                     if (fdpRed.get()) {
-                        RenderUtils.drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(212, 63, 63, 90).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(245, 52, 27, 90).rgb)
+                        drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(212, 63, 63, 90).rgb)
+                        drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(245, 52, 27, 90).rgb)
                     } else {
-                        RenderUtils.drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(0, 0, 0, 120).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(0, 0, 0, 90).rgb)
+                        drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(0, 0, 0, 120).rgb)
+                        drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(0, 0, 0, 90).rgb)
                     }
 
                     drawShadow(0f, 0f, addedLen + xChange, 47f)
@@ -293,11 +292,11 @@ class FollowTargetHud : Module() {
                     }
                 } else {
                     if (fdpRed.get()) {
-                        RenderUtils.drawRect(0f + xChange, 0f, 47f + xChange, 120f + xChange, Color(212, 63, 63, 90).rgb)
-                        RenderUtils.drawRoundedCornerRect(healthPercent*120f + xChange, 0f, 47f + xChange, 0f, 3f, Color(245, 52, 27, 90).rgb)
+                        drawRect(0f + xChange, 0f, 47f + xChange, 120f + xChange, Color(212, 63, 63, 90).rgb)
+                        drawRoundedCornerRect(healthPercent*120f + xChange, 0f, 47f + xChange, 0f, 3f, Color(245, 52, 27, 90).rgb)
                     } else {
-                        RenderUtils.drawRect(0f + xChange, 0f, 47f + xChange, 120f, Color(0, 0, 0, 120).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, 47f + xChange, healthPercent * 120f, 3f, Color(0, 0, 0, 90).rgb)
+                        drawRect(0f + xChange, 0f, 47f + xChange, 120f, Color(0, 0, 0, 120).rgb)
+                        drawRoundedCornerRect(0f + xChange, 0f, 47f + xChange, healthPercent * 120f, 3f, Color(0, 0, 0, 90).rgb)
                     }
                 }
                 

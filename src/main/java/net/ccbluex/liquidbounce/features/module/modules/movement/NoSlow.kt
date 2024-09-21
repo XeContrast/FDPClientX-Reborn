@@ -215,7 +215,7 @@ object NoSlow : Module() {
         }
     }
 
-    private fun sendPacket2(packetType: String) {
+    private fun sendPacket2(packetType: String,event: MotionEvent) {
         val isUsingItem = usingItemFunc()
         when (packetType.lowercase()) {
             "aac5" -> {
@@ -271,7 +271,7 @@ object NoSlow : Module() {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
             }
             "intave" -> {
-                if (start) PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,BlockPos.ORIGIN,EnumFacing.UP))
+                if (event.eventState == EventState.PRE) mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,BlockPos.ORIGIN,EnumFacing.UP))
             }
             "uncp" -> {
                 if (start && (shouldSwap)) {
@@ -315,7 +315,7 @@ object NoSlow : Module() {
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
             if ((consumeTimingValue.equals("Pre") && event.eventState == EventState.PRE) || (consumeTimingValue.equals("Post") && event.eventState == EventState.POST)) {
                 if (!consumePacketValue.equals("Bug")) {
-                    sendPacket2(consumePacketValue.get())
+                    sendPacket2(consumePacketValue.get(),event)
                 }
                 if (consumePacketValue.equals("Bug")) {
                         if (conmode.equals("C07")) {
@@ -341,7 +341,7 @@ object NoSlow : Module() {
 
         if (bowModifyValue.get() && mc.thePlayer.isUsingItem && heldItem is ItemBow) {
             if ((bowTimingValue.equals("Pre") && event.eventState == EventState.PRE) || (bowTimingValue.equals("Post") && event.eventState == EventState.POST)) {
-                sendPacket2(bowPacketValue.get())
+                sendPacket2(bowPacketValue.get(),event)
             }
         }
 
@@ -451,7 +451,7 @@ object NoSlow : Module() {
                     mc.thePlayer.closeScreen()
                 }
                 "intave" -> {
-                    if (start) PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+                    if (event.eventState == EventState.PRE) mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
                 }
                 "invalidc08" -> {
                     val heldItem = mc.thePlayer.heldItem
@@ -668,18 +668,20 @@ object NoSlow : Module() {
         stop = packet is C07PacketPlayerDigging && packet.status == (C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
             if (consumePacketValue.equals("Grim")) {
-                if (packet is S30PacketWindowItems) {
-                    event.cancelEvent()
-                    eatslow = false
-                }
-                if (packet is S2FPacketSetSlot) {
-                    event.cancelEvent()
-                }
-                if (packet is C08PacketPlayerBlockPlacement) {
-                    eatslow = true
-                }
-                if (packet is C07PacketPlayerDigging && packet.status == (C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)) {
-                    eatslow = true
+                when (packet) {
+                    is S30PacketWindowItems -> {
+                        event.cancelEvent()
+                        eatslow = false
+                    }
+                    is S2FPacketSetSlot -> {
+                        event.cancelEvent()
+                    }
+                    is C08PacketPlayerBlockPlacement -> eatslow = true
+                    is C07PacketPlayerDigging -> {
+                        if (packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) {
+                            eatslow = true
+                        }
+                    }
                 }
             }
         }
@@ -687,7 +689,7 @@ object NoSlow : Module() {
             is C08PacketPlayerBlockPlacement -> {
                 if (packet.stack?.item != null && mc.thePlayer.heldItem?.item != null && packet.stack.item == mc.thePlayer.heldItem?.item) {
                     if ((consumePacketValue.get() == "UNCP" && (packet.stack.item is ItemFood || packet.stack.item is ItemPotion || packet.stack.item is ItemBucketMilk)) || (bowPacketValue.get() == "UNCP" && packet.stack.item is ItemBow)) {
-                        shouldSwap = true;
+                        shouldSwap = true
                     }
                 }
             }

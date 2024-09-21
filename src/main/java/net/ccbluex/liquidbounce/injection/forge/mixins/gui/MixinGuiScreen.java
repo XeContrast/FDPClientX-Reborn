@@ -7,7 +7,9 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
+import net.ccbluex.liquidbounce.font.FontLoaders;
 import net.ccbluex.liquidbounce.ui.client.GuiBackground;
+import net.ccbluex.liquidbounce.ui.client.hud.HUD;
 import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -20,6 +22,7 @@ import net.minecraft.util.ChatStyle;
 import net.minecraft.util.IChatComponent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,6 +82,39 @@ public abstract class MixinGuiScreen {
             final int width = scaledResolution.getScaledWidth();
             final int height = scaledResolution.getScaledHeight();
             net.ccbluex.liquidbounce.utils.render.ParticleUtils.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
+        }
+
+        try {
+            if(mc.thePlayer != null) {
+                int defaultHeight1 = (this.height);
+                int defaultWidth1 = (this.width);
+                GL11.glPushMatrix();
+                GL11.glPopMatrix();
+                GL11.glPushMatrix();
+                FontLoaders.F30.DisplayFont2(FontLoaders.F30, FDPClient.CLIENT_NAME,defaultWidth1 - 12f - FontLoaders.F14.DisplayFontWidths(FontLoaders.F14, FDPClient.CLIENT_VERSION) - FontLoaders.F30.DisplayFontWidths(FontLoaders.F30, FDPClient.CLIENT_NAME) ,defaultHeight1 - 23.5f,new Color(255,255,255,140).getRGB(),true);
+                FontLoaders.F30.DisplayFont2(FontLoaders.F14, FDPClient.CLIENT_VERSION,defaultWidth1 - 10f - FontLoaders.F14.DisplayFontWidths(FontLoaders.F14, FDPClient.CLIENT_VERSION) ,defaultHeight1 - 15f,new Color(255,255,255,140).getRGB(),true);
+                GL11.glPopMatrix();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Inject(method = "drawWorldBackground", at = @At("RETURN"))
+    private void drawWorldBackground2(final CallbackInfo callbackInfo) {
+        try {
+            if(mc.thePlayer != null) {
+                int defaultHeight1 = (this.height);
+                int defaultWidth1 = (this.width);
+                GL11.glPushMatrix();
+                GL11.glPopMatrix();
+                GL11.glPushMatrix();
+                FontLoaders.F30.DisplayFont2(FontLoaders.F30, FDPClient.CLIENT_NAME,defaultWidth1 - 12f - FontLoaders.F14.DisplayFontWidths(FontLoaders.F14, FDPClient.CLIENT_VERSION) - FontLoaders.F30.DisplayFontWidths(FontLoaders.F30, FDPClient.CLIENT_NAME) ,defaultHeight1 - 23.5f,new Color(255,255,255,140).getRGB(),true);
+                FontLoaders.F30.DisplayFont2(FontLoaders.F14, FDPClient.CLIENT_VERSION,defaultWidth1 - 10f - FontLoaders.F14.DisplayFontWidths(FontLoaders.F14, FDPClient.CLIENT_VERSION) ,defaultHeight1 - 15f,new Color(255,255,255,140).getRGB(),true);
+                GL11.glPopMatrix();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

@@ -88,7 +88,6 @@ class BowJump : Module() {
                     forceDisable = true
                     bowState = 5
                 } else if (lastPlayerTick == -1L) {
-                    val stack = mc.thePlayer.inventoryContainer.getSlot(slot + 36).stack
 
                     if (lastSlot != slot) sendPacketNoEvent(C09PacketHeldItemChange(slot))
                     sendPacketNoEvent(

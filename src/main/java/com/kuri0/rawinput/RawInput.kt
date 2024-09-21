@@ -1,6 +1,5 @@
 package com.kuri0.rawinput
 
-import com.kuri0.rawinput.RawInput
 import net.java.games.input.Controller
 import net.java.games.input.ControllerEnvironment
 import net.java.games.input.Mouse

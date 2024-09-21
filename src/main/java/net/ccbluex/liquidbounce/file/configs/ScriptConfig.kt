@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 class ScriptConfig(file: File) : FileConfig(file) {
-    val subscripts = mutableListOf<Subscript>()
+    private val subscripts = mutableListOf<Subscript>()
 
     override fun loadConfig(config: String) {
         clearSubscripts()
@@ -45,12 +45,12 @@ class ScriptConfig(file: File) : FileConfig(file) {
         return true
     }
 
-    fun isSubscript(url: String): Boolean {
+    private fun isSubscript(url: String): Boolean {
         for (subscript in subscripts) if (subscript.url == url) return true
         return false
     }
 
-    fun clearSubscripts() {
+    private fun clearSubscripts() {
         subscripts.clear()
     }
 

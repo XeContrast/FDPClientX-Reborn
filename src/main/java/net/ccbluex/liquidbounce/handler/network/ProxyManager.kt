@@ -14,12 +14,7 @@ object ProxyManager {
     val proxyInstance: Proxy
         get() = proxy.split(":").let { Proxy(proxyType, InetSocketAddress(it.first(), it.last().toInt())) }
 
-    class ProxyOioChannelFactory(proxy: Proxy) : ChannelFactory<OioSocketChannel> {
-        private val proxy: Proxy
-
-        init {
-            this.proxy = proxy
-        }
+    class ProxyOioChannelFactory(private val proxy: Proxy) : ChannelFactory<OioSocketChannel> {
 
         override fun newChannel(): OioSocketChannel {
             return OioSocketChannel(Socket(this.proxy))

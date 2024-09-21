@@ -52,11 +52,11 @@ object Flight : Module() {
     private val viewBobbingYawValue = FloatValue("ViewBobbingYaw", 0.1f, 0f, 0.5f).displayable { viewBobbingValue.get() }
     val legacyWarningValue = BoolValue("LegacyWarn", false)
 
-    var launchX = 0.0
+    private var launchX = 0.0
     var launchY = 0.0
-    var launchZ = 0.0
-    var launchYaw = 0f
-    var launchPitch = 0f
+    private var launchZ = 0.0
+    private var launchYaw = 0f
+    private var launchPitch = 0f
 
     var antiDesync = false
 

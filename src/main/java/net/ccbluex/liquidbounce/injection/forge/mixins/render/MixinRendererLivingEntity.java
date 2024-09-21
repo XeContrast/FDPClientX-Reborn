@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.awt.*;
+import java.util.Objects;
 
 @Mixin(RendererLivingEntity.class)
 public abstract class MixinRendererLivingEntity extends MixinRender {
@@ -64,31 +65,31 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
     }
 
 
-    @Inject(method = "doRender", at = @At("HEAD"))
+    @Inject(method = "doRender*", at = @At("HEAD"))
     private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = FDPClient.moduleManager.getModule(Chams.class);
 
-        if (chams.getState() && chams.getTargetsValue().get() && chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && entity == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(entity, false))) {
+        if (Objects.requireNonNull(chams).getState() && chams.getTargetsValue().get() && chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && entity == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(entity, false))) {
             GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
             GL11.glPolygonOffset(1.0F, -1000000F);
         }
     }
 
-    @Inject(method = "doRender", at = @At("RETURN"))
+    @Inject(method = "doRender*", at = @At("RETURN"))
     private <T extends EntityLivingBase> void injectChamsPost(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
         final Chams chams = FDPClient.moduleManager.getModule(Chams.class);
 
-        if (chams.getState() && chams.getTargetsValue().get() && chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && entity == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(entity, false))
+        if (Objects.requireNonNull(chams).getState() && chams.getTargetsValue().get() && chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && entity == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(entity, false))
         ) {
             GL11.glPolygonOffset(1.0F, 1000000F);
             GL11.glDisable(GL11.GL_POLYGON_OFFSET_FILL);
         }
     }
 
-    @Inject(method = "canRenderName", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "canRenderName*", at = @At("HEAD"), cancellable = true)
     private <T extends EntityLivingBase> void canRenderName(T entity, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
 
-        if ((FDPClient.moduleManager.getModule(NameTags.class).getState() && EntityUtils.INSTANCE.isSelected(entity, false)))
+        if ((Objects.requireNonNull(FDPClient.moduleManager.getModule(NameTags.class)).getState() && EntityUtils.INSTANCE.isSelected(entity, false)))
             callbackInfoReturnable.setReturnValue(false);
     }
 
@@ -100,8 +101,8 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
         boolean visible = !p_renderModel_1_.isInvisible();
         final Chams chams = FDPClient.moduleManager.getModule(Chams.class);
         final TrueSight trueSight = FDPClient.moduleManager.getModule(TrueSight.class);
-        boolean chamsFlag = (chams.getState() && chams.getTargetsValue().get() && !chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && p_renderModel_1_ == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(p_renderModel_1_, false)));
-        boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer) || (trueSight.getState() && trueSight.getEntitiesValue().get()));
+        boolean chamsFlag = (Objects.requireNonNull(chams).getState() && chams.getTargetsValue().get() && !chams.getLegacyMode().get() && ((chams.getLocalPlayerValue().get() && p_renderModel_1_ == Minecraft.getMinecraft().thePlayer) || EntityUtils.INSTANCE.isSelected(p_renderModel_1_, false)));
+        boolean semiVisible = !visible && (!p_renderModel_1_.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer) || (Objects.requireNonNull(trueSight).getState() && trueSight.getEntitiesValue().get()));
 
         if(visible || semiVisible) {
             if(!this.bindEntityTexture(p_renderModel_1_))

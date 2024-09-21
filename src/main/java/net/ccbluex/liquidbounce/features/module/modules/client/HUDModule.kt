@@ -134,7 +134,7 @@ object HUDModule : Module() {
         )
         width += mc.fontRendererObj.getStringWidth("FDP")
         mc.fontRendererObj.drawStringWithShadow(
-            "CLIENT",
+            "ClientX",
             width.toFloat(),
             3.0f,
             colors[1].rgb

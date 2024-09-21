@@ -9,14 +9,16 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class MatrixVelocity : VelocityMode("Matrix") {
-    private val mode = ListValue("Mode", arrayOf(
-        "Ground",
-        "Reduce",
-        "Reverse",
-        "Simple",
-        "Spoof",
-        "Clip"
-    ),"Ground")
+    private val mode = ListValue(
+        "Mode", arrayOf(
+            "Ground",
+            "Reduce",
+            "Reverse",
+            "Simple",
+            "Spoof",
+            "Clip"
+        ), "Ground"
+    )
     private var flag = false
     private var isMatrixOnGround = false
 
@@ -35,6 +37,7 @@ class MatrixVelocity : VelocityMode("Matrix") {
                     mc.thePlayer.motionZ = 0.0
                 }
             }
+
             "reduce" -> {
                 if (mc.thePlayer.hurtTime > 0) {
                     if (mc.thePlayer.onGround) {
@@ -58,15 +61,21 @@ class MatrixVelocity : VelocityMode("Matrix") {
     @EventTarget
     override fun onVelocityPacket(event: PacketEvent) {
         val packet = event.packet
-        when (mode.get().lowercase()) {
-            "spoof" -> {
-                if(packet is S12PacketEntityVelocity) {
+        if (packet is S12PacketEntityVelocity) {
+            when (mode.get().lowercase()) {
+                "spoof" -> {
                     event.cancelEvent()
-                    mc.netHandler.addToSendQueue(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX + packet.motionX / - 24000.0, mc.thePlayer.posY + packet.motionY / -24000.0, mc.thePlayer.posZ + packet.motionZ / 8000.0, false))
+                    mc.netHandler.addToSendQueue(
+                        C03PacketPlayer.C04PacketPlayerPosition(
+                            mc.thePlayer.posX + packet.motionX / -24000.0,
+                            mc.thePlayer.posY + packet.motionY / -24000.0,
+                            mc.thePlayer.posZ + packet.motionZ / 8000.0,
+                            false
+                        )
+                    )
                 }
-            }
-            "simple" -> {
-                if(packet is S12PacketEntityVelocity) {
+
+                "simple" -> {
                     packet.motionX = (packet.getMotionX() * 0.36).toInt()
                     packet.motionZ = (packet.getMotionZ() * 0.36).toInt()
                     if (mc.thePlayer.onGround) {
@@ -74,9 +83,8 @@ class MatrixVelocity : VelocityMode("Matrix") {
                         packet.motionZ = (packet.getMotionZ() * 0.9).toInt()
                     }
                 }
-            }
-            "reverse" -> {
-                if (packet is S12PacketEntityVelocity) {
+
+                "reverse" -> {
                     if (packet.entityID == mc.thePlayer.entityId) {
                         if (!flag) {
                             event.cancelEvent()
@@ -88,9 +96,8 @@ class MatrixVelocity : VelocityMode("Matrix") {
                         }
                     }
                 }
-            }
-            "ground" -> {
-                if(packet is S12PacketEntityVelocity) {
+
+                "ground" -> {
                     packet.motionX = (packet.getMotionX() * 0.36).toInt()
                     packet.motionZ = (packet.getMotionZ() * 0.36).toInt()
                     if (isMatrixOnGround) {

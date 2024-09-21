@@ -109,6 +109,7 @@ object InvMove : Module() {
         }
         if (packet is S2EPacketCloseWindow || packet is C0DPacketCloseWindow) {
             invOpen = false
+            if (bypassValue.get() == "Intave") mc.gameSettings.keyBindSneak.pressed = false
             if (noSprintValue.equals("PacketSpoof")) {
                 if (mc.thePlayer.isSprinting) {
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
@@ -168,7 +169,7 @@ object InvMove : Module() {
             }
             "jump" -> {
                 if (lastInvOpen && mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
+                    mc.gameSettings.keyBindJump.pressed = true
                 }
             }
         }
@@ -179,7 +180,6 @@ object InvMove : Module() {
         if ((mc.currentScreen is GuiChest || mc.currentScreen is GuiInventory) && bypassValue.get() == "Intave" && mc.currentScreen != null) {
             mc.gameSettings.keyBindSneak.pressed = true
         }
-        if (!lastInvOpen) mc.gameSettings.keyBindSneak.pressed = false
     }
 
     @EventTarget

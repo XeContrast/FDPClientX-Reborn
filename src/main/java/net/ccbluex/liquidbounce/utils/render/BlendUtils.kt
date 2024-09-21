@@ -3,86 +3,87 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.render;
+package net.ccbluex.liquidbounce.utils.render
 
-import java.awt.*;
+import java.awt.Color
 
-public enum BlendUtils {
+enum class BlendUtils {
     ;
-    BlendUtils() {
 
-    }
-
-    public static Color getHealthColor(float health, float maxHealth) {
-        float[] fractions = new float[]{0.0F, 0.5F, 1.0F};
-        Color[] colors = new Color[]{new Color(108, 0, 0), new Color(255, 51, 0), Color.GREEN};
-        float progress = health / maxHealth;
-        return blendColors(fractions, colors, progress).brighter();
-    }
-
-    public static Color blendColors(float[] fractions, Color[] colors, float progress) {
-        if (fractions.length == colors.length) {
-            int[] indices = getFractionIndices(fractions, progress);
-            float[] range = new float[]{fractions[indices[0]], fractions[indices[1]]};
-            Color[] colorRange = new Color[]{colors[indices[0]], colors[indices[1]]};
-            float max = range[1] - range[0];
-            float value = progress - range[0];
-            float weight = value / max;
-            return blend(colorRange[0], colorRange[1], (double)(1.0F - weight));
-        } else {
-            throw new IllegalArgumentException("Fractions and colours must have equal number of elements");
-        }
-    }
-
-    public static int[] getFractionIndices(float[] fractions, float progress) {
-        int[] range = new int[2];
-
-        int startPoint;
-        for(startPoint = 0; startPoint < fractions.length && fractions[startPoint] <= progress; ++startPoint) {
+    companion object {
+        fun getHealthColor(health: Float, maxHealth: Float): Color {
+            val fractions = floatArrayOf(0.0f, 0.5f, 1.0f)
+            val colors = arrayOf(Color(108, 0, 0), Color(255, 51, 0), Color.GREEN)
+            val progress = health / maxHealth
+            return blendColors(fractions, colors, progress)!!.brighter()
         }
 
-        if (startPoint >= fractions.length) {
-            startPoint = fractions.length - 1;
+        fun blendColors(fractions: FloatArray, colors: Array<Color>, progress: Float): Color? {
+            if (fractions.size == colors.size) {
+                val indices = getFractionIndices(fractions, progress)
+                val range = floatArrayOf(fractions[indices[0]], fractions[indices[1]])
+                val colorRange = arrayOf(colors[indices[0]], colors[indices[1]])
+                val max = range[1] - range[0]
+                val value = progress - range[0]
+                val weight = value / max
+                return blend(colorRange[0], colorRange[1], (1.0f - weight).toDouble())
+            } else {
+                throw IllegalArgumentException("Fractions and colours must have equal number of elements")
+            }
         }
 
-        range[0] = startPoint - 1;
-        range[1] = startPoint;
-        return range;
-    }
+        fun getFractionIndices(fractions: FloatArray, progress: Float): IntArray {
+            val range = IntArray(2)
 
-    public static Color blend(Color color1, Color color2, double ratio) {
-        float r = (float)ratio;
-        float ir = 1.0F - r;
-        float[] rgb1 = color1.getColorComponents(new float[3]);
-        float[] rgb2 = color2.getColorComponents(new float[3]);
-        float red = rgb1[0] * r + rgb2[0] * ir;
-        float green = rgb1[1] * r + rgb2[1] * ir;
-        float blue = rgb1[2] * r + rgb2[2] * ir;
-        if (red < 0.0F) {
-            red = 0.0F;
-        } else if (red > 255.0F) {
-            red = 255.0F;
+            var startPoint: Int
+            startPoint = 0
+            while (startPoint < fractions.size && fractions[startPoint] <= progress) {
+                ++startPoint
+            }
+
+            if (startPoint >= fractions.size) {
+                startPoint = fractions.size - 1
+            }
+
+            range[0] = startPoint - 1
+            range[1] = startPoint
+            return range
         }
 
-        if (green < 0.0F) {
-            green = 0.0F;
-        } else if (green > 255.0F) {
-            green = 255.0F;
+        fun blend(color1: Color, color2: Color, ratio: Double): Color? {
+            val r = ratio.toFloat()
+            val ir = 1.0f - r
+            val rgb1 = color1.getColorComponents(FloatArray(3))
+            val rgb2 = color2.getColorComponents(FloatArray(3))
+            var red = rgb1[0] * r + rgb2[0] * ir
+            var green = rgb1[1] * r + rgb2[1] * ir
+            var blue = rgb1[2] * r + rgb2[2] * ir
+            if (red < 0.0f) {
+                red = 0.0f
+            } else if (red > 255.0f) {
+                red = 255.0f
+            }
+
+            if (green < 0.0f) {
+                green = 0.0f
+            } else if (green > 255.0f) {
+                green = 255.0f
+            }
+
+            if (blue < 0.0f) {
+                blue = 0.0f
+            } else if (blue > 255.0f) {
+                blue = 255.0f
+            }
+
+            var color3: Color? = null
+
+            try {
+                color3 = Color(red, green, blue)
+            } catch (ignored: IllegalArgumentException) {
+            }
+
+            return color3
         }
-
-        if (blue < 0.0F) {
-            blue = 0.0F;
-        } else if (blue > 255.0F) {
-            blue = 255.0F;
-        }
-
-        Color color3 = null;
-
-        try {
-            color3 = new Color(red, green, blue);
-        } catch (IllegalArgumentException ignored) {
-        }
-
-        return color3;
     }
 }

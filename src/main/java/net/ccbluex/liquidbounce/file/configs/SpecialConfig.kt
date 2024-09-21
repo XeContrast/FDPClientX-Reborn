@@ -8,14 +8,13 @@ import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.handler.network.AutoReconnect
 import net.ccbluex.liquidbounce.handler.network.ClientFixes
 import net.ccbluex.liquidbounce.handler.network.ProxyManager
-import net.ccbluex.liquidbounce.handler.other.ServerSpoof
 import net.ccbluex.liquidbounce.ui.client.GuiBackground
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
 import java.io.File
 import java.net.Proxy
 
 class SpecialConfig(file: File) : FileConfig(file) {
-    var useGlyphFontRenderer = true
+    private var useGlyphFontRenderer = true
 
     override fun loadConfig(config: String) {
         val json = JsonParser().parse(config).asJsonObject
@@ -65,7 +64,7 @@ class SpecialConfig(file: File) : FileConfig(file) {
                 ClientFixes.blockResourcePackExploit = jsonValue.get("FixResourcePackExploit").asBoolean
             }
             if (jsonValue.has("ClientBrand")) {
-            ClientFixes.clientBrand = jsonValue.get("ClientBrand").getAsString();
+            ClientFixes.clientBrand = jsonValue.get("ClientBrand").asString
             }
         }
         if (json.has("proxy")) {

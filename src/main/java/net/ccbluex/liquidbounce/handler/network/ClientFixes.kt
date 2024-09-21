@@ -16,7 +16,7 @@ import net.minecraft.network.PacketBuffer
 import net.minecraft.network.play.client.C17PacketCustomPayload
 
 object ClientFixes : MinecraftInstance(), Listenable {
-    @kotlin.jvm.JvmField
+    @JvmField
     var fmlFixesEnabled = true
 
     var blockFML = true

@@ -304,7 +304,7 @@ object ESP : Module() {
                 shader.stopDraw(color, radius, 1f)
 
                 // hurt
-                if (hurtingEntities.size > 0) {
+                if (hurtingEntities.isNotEmpty()) {
                     shader.startDraw(partialTicks)
                     for (entity in hurtingEntities) {
                         mc.renderManager.renderEntityStatic(entity, partialTicks, true)
