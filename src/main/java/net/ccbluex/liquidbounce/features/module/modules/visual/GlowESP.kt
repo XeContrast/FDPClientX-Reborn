@@ -43,25 +43,25 @@ import java.util.function.Consumer
 @ModuleInfo(name = "GlowESP", category = ModuleCategory.VISUAL)
 class GlowESP : Module() {
     val radius: FloatValue = FloatValue("Radius", 2f, 1f, 30f)
-    val exposure: FloatValue = FloatValue("Exposure", 2.2f, 1f, 3.5f)
-    val seperate: BoolValue = BoolValue("Seperate Texture", false)
-    val Players: BoolValue = BoolValue("Players", false)
-    val Animals: BoolValue = BoolValue("Animals", false)
-    val Mobs: BoolValue = BoolValue("Mobs", false)
+    private val exposure: FloatValue = FloatValue("Exposure", 2.2f, 1f, 3.5f)
+    private val seperate: BoolValue = BoolValue("Seperate Texture", false)
+    private val Players: BoolValue = BoolValue("Players", false)
+    private val Animals: BoolValue = BoolValue("Animals", false)
+    private val Mobs: BoolValue = BoolValue("Mobs", false)
 
-    val colorMode: ListValue = ListValue(
+    private val colorMode: ListValue = ListValue(
         "ColorMode",
         arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"),
         "Light Rainbow"
     )
-    val movingcolors: BoolValue = BoolValue("MovingColors", false)
-    val hueInterpolation: BoolValue = BoolValue("hueInterpolation", false)
+    private val movingcolors: BoolValue = BoolValue("MovingColors", false)
+    private val hueInterpolation: BoolValue = BoolValue("hueInterpolation", false)
     private val outlineShader = ShaderUtil("shaders/outline.frag")
     private val glowShader = ShaderUtil("shaders/glow.frag")
 
     var framebuffer: Framebuffer? = null
-    var outlineFrameBuffer: Framebuffer? = null
-    var glowFrameBuffer: Framebuffer? = null
+    private var outlineFrameBuffer: Framebuffer? = null
+    private var glowFrameBuffer: Framebuffer? = null
     private val frustum = Frustum()
     private val frustum2 = Frustum()
 
@@ -77,7 +77,7 @@ class GlowESP : Module() {
         fadeIn = DecelerateAnimation(250, 1.0)
     }
 
-    fun createFrameBuffers() {
+    private fun createFrameBuffers() {
         framebuffer = RenderUtils.createFrameBuffer(framebuffer)
         outlineFrameBuffer = RenderUtils.createFrameBuffer(outlineFrameBuffer)
         glowFrameBuffer = RenderUtils.createFrameBuffer(glowFrameBuffer)
@@ -143,7 +143,7 @@ class GlowESP : Module() {
     }
 
 
-    fun setupGlowUniforms(dir1: Float, dir2: Float) {
+    private fun setupGlowUniforms(dir1: Float, dir2: Float) {
         val color = color
         glowShader.setUniformi("texture", 0)
         if (seperate.get()) {
@@ -166,7 +166,7 @@ class GlowESP : Module() {
     }
 
 
-    fun setupOutlineUniforms(dir1: Float, dir2: Float) {
+    private fun setupOutlineUniforms(dir1: Float, dir2: Float) {
         val color = color
         outlineShader.setUniformi("texture", 0)
         outlineShader.setUniformf("radius", radius.get() / 1.5f)
@@ -175,7 +175,7 @@ class GlowESP : Module() {
         outlineShader.setUniformf("color", color!!.red / 255f, color.green / 255f, color.blue / 255f)
     }
 
-    fun renderEntities(ticks: Float) {
+    private fun renderEntities(ticks: Float) {
         entities.forEach(Consumer { entity: Entity? ->
             renderNameTags = false
             mc.renderManager.renderEntityStatic(entity, ticks, false)
@@ -193,7 +193,7 @@ class GlowESP : Module() {
             }
         }
 
-    fun collectEntities() {
+    private fun collectEntities() {
         entities.clear()
         for (entity in mc.theWorld.getLoadedEntityList()) {
             if (!isInView(entity)) continue
@@ -212,7 +212,7 @@ class GlowESP : Module() {
         }
     }
 
-    val clientColors: Array<Color?>
+    private val clientColors: Array<Color?>
         get() {
             val firstColor: Color?
             val secondColor: Color?

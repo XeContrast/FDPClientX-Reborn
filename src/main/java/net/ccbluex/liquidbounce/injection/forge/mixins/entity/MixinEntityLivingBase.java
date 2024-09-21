@@ -100,7 +100,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
          * @param strafeFix StrafeFix Module
          */
 
-        final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion(),0f);
+        final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion(),this.rotationYaw);
         FDPClient.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
@@ -135,7 +135,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         final LiquidSpeed jesus = FDPClient.moduleManager.getModule(LiquidSpeed.class);
 
         if (Objects.requireNonNull(jesus).getState() && !isJumping && !isSneaking() && isInWater() &&
-                jesus.getModeValue().equals("Legit")) {
+                jesus.getModeValue().get() == "Legit") {
             this.updateAITick();
         }
     }

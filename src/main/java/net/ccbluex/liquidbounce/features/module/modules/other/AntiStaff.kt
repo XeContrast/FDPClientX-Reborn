@@ -251,9 +251,7 @@ object AntiStaff : Module() {
             "evenfai " +
             "hlazny " +
             "valrm"
-    private var kkStaff : String = "Creeper_Hello" +
-            "Kun_God" +
-            "hanhan_api"
+    private var kkStaff : String = "Creeper_Hello  Kun_God  hanhan_api  Regotly_Long"
     private var bmcStaff : String = " iDhoom " +
             "Jinaaan " +
             "Eissaa " +

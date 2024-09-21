@@ -30,6 +30,8 @@ import org.lwjgl.input.Keyboard
 @ModuleInfo(name = "InvMove", category = ModuleCategory.MOVEMENT)
 object InvMove : Module() {
 
+    private val chest = BoolValue("Chest",true)
+    private val inv = BoolValue("Inv",true)
     private val noDetectableValue = BoolValue("NoDetectable", false)
     private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Jump","Intave", "None"), "None")
     private val rotateValue = BoolValue("Rotate", false)
@@ -76,6 +78,7 @@ object InvMove : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
+        if ((!chest.get() && mc.currentScreen is GuiChest) || (!inv.get() && mc.currentScreen is GuiInventory)) return
         updateKeyState()
     }
 
@@ -122,29 +125,31 @@ object InvMove : Module() {
 
         when (bypassValue.get().lowercase()) {
             "packetinv" -> {
-                if (packet is C16PacketClientStatus && packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) {
-                    event.cancelEvent()
-                    isInv = true
-                }
-                if (packet is C0DPacketCloseWindow) {
-                    event.cancelEvent()
-                    isInv = false
-                }
-
-                if (packet is C0EPacketClickWindow) {
-                    if (isInv) return
-                    packetListYes.clear()
-                    packetListYes.add(packet)
-                    
-                    event.cancelEvent()
-                    
-                    PacketUtils.sendPacketNoEvent(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
-                    packetListYes.forEach {
-                        PacketUtils.sendPacketNoEvent(it)
+                when (packet) {
+                    is C16PacketClientStatus -> {
+                        if (packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) {
+                            event.cancelEvent()
+                            isInv = true
+                        }
                     }
-                    packetListYes.clear()
-                    PacketUtils.sendPacketNoEvent(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId))
-                    
+                    is C0DPacketCloseWindow -> {
+                        event.cancelEvent()
+                        isInv = false
+                    }
+                    is C0EPacketClickWindow -> {
+                        if (isInv) return
+                        packetListYes.clear()
+                        packetListYes.add(packet)
+
+                        event.cancelEvent()
+
+                        PacketUtils.sendPacketNoEvent(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
+                        packetListYes.forEach {
+                            PacketUtils.sendPacketNoEvent(it)
+                        }
+                        packetListYes.clear()
+                        PacketUtils.sendPacketNoEvent(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId))
+                    }
                 }
             }
             "noopenpacket" -> {
@@ -168,35 +173,34 @@ object InvMove : Module() {
                 }
             }
             "jump" -> {
-                if (lastInvOpen && mc.thePlayer.onGround) {
-                    mc.gameSettings.keyBindJump.pressed = true
-                }
+                if (mc.currentScreen is GuiChest && mc.thePlayer.onGround && lastInvOpen) mc.thePlayer.jump()
             }
         }
     }
 
     @EventTarget
     private fun onStrafe(event: StrafeEvent) {
-        if ((mc.currentScreen is GuiChest || mc.currentScreen is GuiInventory) && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+        if (lastInvOpen && bypassValue.get() == "Intave" && mc.currentScreen != null) {
             mc.gameSettings.keyBindSneak.pressed = true
         }
     }
 
     @EventTarget
     private fun onJump(event: JumpEvent) {
-        if ((mc.currentScreen is GuiChest || mc.currentScreen is GuiInventory) && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+        if (lastInvOpen && bypassValue.get() == "Intave" && mc.currentScreen != null) {
             event.cancelEvent()
         }
     }
 
     @EventTarget
     fun onWorld(event: WorldEvent) {
+        reset()
         blinkPacketList.clear()
         invOpen = false
         lastInvOpen = false
     }
 
-    override fun onDisable() {
+    private fun reset() {
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindForward) || mc.currentScreen != null) {
             mc.gameSettings.keyBindForward.pressed = false
         }
@@ -218,6 +222,10 @@ object InvMove : Module() {
         if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) || mc.currentScreen != null) {
             mc.gameSettings.keyBindSneak.pressed = false
         }
+    }
+
+    override fun onDisable() {
+        reset()
 
         blinkPacketList.clear()
         lastInvOpen = false

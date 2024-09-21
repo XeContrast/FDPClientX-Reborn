@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.client.SoundModule;
 import net.ccbluex.liquidbounce.features.module.modules.combat.AutoClicker;
+import net.ccbluex.liquidbounce.features.module.modules.combat.TimerRange;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions;
 import net.ccbluex.liquidbounce.injection.access.StaticStorage;
 import net.ccbluex.liquidbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
@@ -28,13 +29,15 @@ import net.minecraft.client.main.GameConfiguration;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Util;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.util.*;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -49,6 +52,8 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+import static net.minecraft.client.Minecraft.getSystemTime;
+
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
 
@@ -62,16 +67,26 @@ public abstract class MixinMinecraft {
     public int leftClickCounter;
 
     @Shadow
+    private NetworkManager myNetworkManager;
+
+    @Shadow
     public MovingObjectPosition objectMouseOver;
 
     @Shadow
     public WorldClient theWorld;
 
     @Shadow
+    public EntityRenderer entityRenderer;
+
+    @Shadow
     public EntityPlayerSP thePlayer;
 
     @Shadow
     public EffectRenderer effectRenderer;
+
+    @Final
+    @Shadow
+    public Profiler mcProfiler;
 
     @Shadow
     public PlayerControllerMP playerController;
@@ -81,6 +96,12 @@ public abstract class MixinMinecraft {
 
     @Shadow
     public GameSettings gameSettings;
+
+    @Shadow
+    private boolean isGamePaused;
+
+    @Shadow
+    private int joinPlayerCounter;
 
     @Shadow
     @Final
@@ -93,6 +114,10 @@ public abstract class MixinMinecraft {
     public int displayHeight;
     @Shadow
     private boolean fullscreen;
+    @Shadow
+    public final Timer timer = new Timer(20.0F);
+    @Shadow
+    private long debugCrashKeyPressTime = -1L;
 
     @Unique
     public boolean fDP1$sendClickBlockToController;
@@ -148,7 +173,23 @@ public abstract class MixinMinecraft {
         final int deltaTime = (int) (currentTime - fDPClient$lastFrame);
         fDPClient$lastFrame = currentTime;
 
+        long i = System.nanoTime();
         RenderUtils.deltaTime = deltaTime;
+
+        for (int j = 0; j < this.timer.elapsedTicks; ++j)
+        {
+            if (TimerRange.handleTick()) continue;
+            this.runTick(callbackInfo);
+        }
+
+        if (!this.skipRenderWorld && !TimerRange.freezeAnimation())
+        {
+            FMLCommonHandler.instance().onRenderTickStart(this.timer.renderPartialTicks);
+            this.mcProfiler.endStartSection("gameRenderer");
+            this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
+            this.mcProfiler.endSection();
+            FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
+        }
     }
 
     @Inject(method = "runTick", at = @At("HEAD"))

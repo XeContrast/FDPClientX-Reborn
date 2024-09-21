@@ -73,7 +73,6 @@ object Criticals : Module() {
     fun onUpdate(event: UpdateEvent) {
         if(!state) return
         when (CritTiming.get().lowercase()) {
-            "always" -> null
             "onground" -> if (!mc.thePlayer.onGround) return
             "offground" -> if (mc.thePlayer.onGround) return
         }
@@ -84,7 +83,6 @@ object Criticals : Module() {
     fun onMotion(event: MotionEvent) {
         if(!state) return
         when (CritTiming.get().lowercase()) {
-            "always" -> null
             "onground" -> if (!mc.thePlayer.onGround) return
             "offground" -> if (mc.thePlayer.onGround) return
         }
@@ -97,7 +95,6 @@ object Criticals : Module() {
     fun onAttack(event: AttackEvent) {
         if(!state) return
         when (CritTiming.get().lowercase()) {
-            "always" -> null
             "onground" -> if (!mc.thePlayer.onGround) return
             "offground" -> if (mc.thePlayer.onGround) return
         }

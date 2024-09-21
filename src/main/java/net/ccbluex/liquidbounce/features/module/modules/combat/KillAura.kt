@@ -6,7 +6,6 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 
-import kevin.utils.component1
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -39,7 +38,6 @@ import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.item.*
 import net.minecraft.network.play.client.*
@@ -561,12 +559,7 @@ object KillAura : Module() {
             val blockingStatus = mc.thePlayer.isBlocking
             val maxRange = this.maxRange
 
-
-            val reach = if (currentTarget != null) {
-                mc.thePlayer.getDistanceToEntityBox(currentTarget!!)
-            } else {
-                0.0
-            }
+            val reach = mc.thePlayer.getDistanceToEntityBox(currentTarget!!)
 
             val formattedReach = String.format("%.2f", reach)
 

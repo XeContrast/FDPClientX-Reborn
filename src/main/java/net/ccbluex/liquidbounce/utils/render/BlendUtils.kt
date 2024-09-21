@@ -14,8 +14,8 @@ enum class BlendUtils {
         fun getHealthColor(health: Float, maxHealth: Float): Color {
             val fractions = floatArrayOf(0.0f, 0.5f, 1.0f)
             val colors = arrayOf(Color(108, 0, 0), Color(255, 51, 0), Color.GREEN)
-            val progress = health / maxHealth
-            return blendColors(fractions, colors, progress)!!.brighter()
+            val progress = if (maxHealth != 0f) health / maxHealth else 1f
+            return blendColors(fractions, colors, progress)?.brighter()!!
         }
 
         fun blendColors(fractions: FloatArray, colors: Array<Color>, progress: Float): Color? {
@@ -32,7 +32,7 @@ enum class BlendUtils {
             }
         }
 
-        fun getFractionIndices(fractions: FloatArray, progress: Float): IntArray {
+        private fun getFractionIndices(fractions: FloatArray, progress: Float): IntArray {
             val range = IntArray(2)
 
             var startPoint: Int

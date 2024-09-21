@@ -24,7 +24,7 @@ class AACHop3313Speed : SpeedMode("AACHop3.3.13") {
                 mc.thePlayer.motionX -= (MathHelper.sin(yawRad) * 0.202f).toDouble()
                 mc.thePlayer.motionZ += (MathHelper.cos(yawRad) * 0.202f).toDouble()
                 mc.thePlayer.motionY = 0.405
-                FDPClient.eventManager.callEvent(JumpEvent(0.405f,0F))
+                FDPClient.eventManager.callEvent(JumpEvent(0.405f,mc.thePlayer.rotationYaw))
                 MovementUtils.strafe()
             }
 

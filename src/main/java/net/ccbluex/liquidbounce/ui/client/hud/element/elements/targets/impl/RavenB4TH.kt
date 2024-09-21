@@ -20,6 +20,7 @@ import java.awt.Color
 class RavenB4TH(inst: Targets) : TargetStyle("RavenB4", inst, true) {
     private val rm = BoolValue("Modern", true).displayable { targetInstance.styleValue.get().equals("ravenb4", true) }
     override fun drawTarget(entity: EntityLivingBase) {
+        if (entity.maxHealth == 0f) return
         if (!rm.get()) {
             val font = mc.fontRendererObj
             val healthString = decimalFormat2.format(entity.health)
