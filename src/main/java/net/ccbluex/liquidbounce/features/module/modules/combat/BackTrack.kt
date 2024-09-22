@@ -313,8 +313,8 @@ object BackTrack : Module() {
                         255,
                         32,
                         32,
-                        35
-                    ) else RenderUtils.glColor(32, 255, 32, 35)
+                        100
+                    ) else RenderUtils.glColor(255, 255, 255, 100)
                     RenderUtils.drawFilledBox(bb)
                 }
             }
@@ -326,8 +326,8 @@ object BackTrack : Module() {
                 val z = entity.serverPosZ.toDouble() / 32.0 - renderManager.renderPosZ
                 if (entity is EntityPlayer) {
                     if (entity.hurtTime > 0) {
-                        RenderUtils.glColor(255, 32, 32, 35)
-                    } else RenderUtils.glColor(32, 255, 32, 35)
+                        RenderUtils.glColor(255, 32, 32, 100)
+                    } else RenderUtils.glColor(255, 255, 255, 100)
                     RenderUtils.drawFilledBox(AxisAlignedBB(x - 0.4F, y, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F))
                 }
             }

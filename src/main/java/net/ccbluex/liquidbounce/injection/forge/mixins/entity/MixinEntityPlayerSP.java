@@ -309,7 +309,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (abs(this.movementInput.moveForward) > 0.05f || abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
         boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
         boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
-        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && this.isRiding();
+        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && !this.isRiding();
         boolean isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (Objects.requireNonNull(killAura).getBlockingStatus() || this.isUsingItem());
         
         baseSprintState = baseSprintState && !(Objects.requireNonNull(inventoryMove).getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
@@ -378,7 +378,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
         noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
         
-        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && this.isRiding();
+        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && !this.isRiding();
         isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (Objects.requireNonNull(killAura).getBlockingStatus() || this.isUsingItem());
 
         if (isCurrentUsingItem) {
