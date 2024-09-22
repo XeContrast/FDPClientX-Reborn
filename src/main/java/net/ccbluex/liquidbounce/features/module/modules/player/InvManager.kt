@@ -95,6 +95,8 @@ object InvManager : Module() {
     )
     private val maxmiss = IntegerValue("MaxMissile", 128, 0, 999)
     private val maxblock = IntegerValue("MaxBlock", 128, 0, 999)
+    private val maxarrow = IntegerValue("MaxArrow", 128, 0, 999)
+    private val maxfood = IntegerValue("MaxFood", 128, 0, 999)
     private val sortSlot1Value = ListValue("SortSlot-1", items, "Sword").displayable { sortValue.get() }
     private val sortSlot2Value = ListValue("SortSlot-2", items, "Gapple").displayable { sortValue.get() }
     private val sortSlot3Value = ListValue("SortSlot-3", items, "Potion").displayable { sortValue.get() }
@@ -346,9 +348,9 @@ object InvManager : Module() {
                 items(0, 45).none { (_, stack) -> itemStack != stack && stack.unlocalizedName == "item.compass" }
             } else {
                 (nbtItemNotGarbage.get() && ItemUtils.hasNBTGoal(itemStack, goal)) ||
-                        (item is ItemSnowball && missAmount <= maxmiss.get()) || (item is ItemEgg && missAmount <= maxmiss.get()) ||
-                        item is ItemFood || itemStack.unlocalizedName == "item.arrow" ||
-                        (item is ItemBlock && !InventoryUtils.isBlockListBlock(item) && blocksAmount <= maxblock.get()) ||
+                        (item is ItemSnowball && amount[0] <= maxmiss.get()) || (item is ItemEgg && amount[0] <= maxmiss.get()) ||
+                        (item is ItemFood && amount[3] <= maxfood.get()) || (itemStack.unlocalizedName == "item.arrow" && amount[2] <= maxarrow.get()) ||
+                        (item is ItemBlock && !InventoryUtils.isBlockListBlock(item) && amount[1] <= maxblock.get()) ||
                         item is ItemBed || (item is ItemPotion && (!onlyPositivePotionValue.get() || InventoryUtils.isPositivePotion(
                     item,
                     itemStack
@@ -635,26 +637,35 @@ object InvManager : Module() {
         else -> ""
     }
 
-    private val blocksAmount: Int
+    private val amount: IntArray
         get() {
-            var amount = 0
-            for (i in 0..44) {
+            var missileAmount = 0
+            var blockAmount = 0
+            var arrowAmount = 0
+            var foodAmount = 0
+            for (i in 0..36) {
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (itemStack != null && itemStack.item is ItemBlock && InventoryUtils.canPlaceBlock((itemStack.item as ItemBlock).block)) {
-                    amount += itemStack.stackSize
+                if (itemStack != null) {
+                    when (itemStack.item) {
+                        is ItemSnowball, is ItemEgg -> {
+                            missileAmount += itemStack.stackSize
+                        }
+
+                        is ItemBlock -> {
+                            if (InventoryUtils.canPlaceBlock((itemStack.item as ItemBlock).block)) {
+                                blockAmount += itemStack.stackSize
+                            }
+                        }
+
+                        is ItemFood -> {
+                            foodAmount += itemStack.stackSize
+                        }
+                    }
+                    if (itemStack.unlocalizedName == "item.arrow") {
+                        arrowAmount += itemStack.stackSize
+                    }
                 }
             }
-            return amount
-        }
-    private val missAmount: Int
-        get() {
-            var amount = 0
-            for (i in 0..44) {
-                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (itemStack != null && (itemStack.item is ItemSnowball || itemStack.item is ItemEgg)) {
-                    amount += itemStack.stackSize
-                }
-            }
-            return amount
+            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount)
         }
 }
