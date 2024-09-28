@@ -1,4 +1,4 @@
-package com.kuri0.rawinput
+package net.ccbluex.liquidbounce.rawinput
 
 import net.java.games.input.Controller
 import net.java.games.input.ControllerEnvironment
@@ -119,12 +119,12 @@ class RawInput {
         @Throws(ReflectiveOperationException::class)
         private fun createDefaultEnvironment(): ControllerEnvironment {    // Find constructor (class is package private, so we can't access it directly)
             val constructor =
-                Class.forName("net.java.games.input.DefaultControllerEnvironment").declaredConstructors[0] as Constructor<ControllerEnvironment>
+                Class.forName("net.java.games.input.DefaultControllerEnvironment").declaredConstructors[0]
 
             // Constructor is package private, so we have to deactivate access control checks
             constructor.isAccessible = true
             // Create object with default constructor
-            return constructor.newInstance()
+            return constructor.newInstance() as ControllerEnvironment
         }
     }
 }

@@ -477,7 +477,6 @@ class Scaffold2 : Module() {
             keepRotationValue.set(false)
             keepLengthValue.set(10)
             rotationsValue.set("Normal")
-            sprintValue.set("OnGround")
             jumpDelay.set(0)
             if (!mc.thePlayer.onGround) mc.thePlayer.jumpTicks = 2
         }

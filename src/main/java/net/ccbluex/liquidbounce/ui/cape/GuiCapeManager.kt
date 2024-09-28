@@ -27,14 +27,14 @@ object GuiCapeManager : GuiScreen() {
     private val embeddedCapes = mutableListOf<ICape>()
 
     var nowCape: ICape?
-    val capeList = mutableListOf<ICape>()
+    private val capeList = mutableListOf<ICape>()
 
     init {
         arrayOf("classic", "classic2", "aurora", "forest", "rose", "lavender", "ocean", "modern1", "modern2", "lava", "citrus", "fire", "nightlife", "abstract", "blur", "owner").forEach {
             try {
                 embeddedCapes.add(loadCapeFromResource(it, "assets/minecraft/fdpclient/cape/$it.png"))
             } catch (e: Throwable){
-                System.out.println("Failed to load Capes")
+                println("Failed to load Capes")
             }
         }
         nowCape = embeddedCapes.random()
@@ -51,7 +51,7 @@ object GuiCapeManager : GuiScreen() {
         pushEmbeddedCape()
 
         // add capes from files
-        for (file in FDPClient.fileManager.capesDir.listFiles()) {
+        for (file in FDPClient.fileManager.capesDir.listFiles()!!) {
             if (file.isFile && !file.name.equals(jsonFile.name)) {
                 try {
                     val args = file.name.split(".").toTypedArray()
@@ -95,7 +95,9 @@ object GuiCapeManager : GuiScreen() {
 
     private fun loadCapeFromFile(name: String, file: File) = SingleImageCape(name, ImageIO.read(file))
 
-    private fun loadGifCapeFromResource(name: String, loc: String) = GifCape(name, GuiCapeManager::class.java.classLoader.getResourceAsStream(loc))
+    private fun loadGifCapeFromResource(name: String, loc: String) = GifCape(name,
+        GuiCapeManager::class.java.classLoader.getResourceAsStream(loc)!!
+    )
 
     private fun loadGifCapeFromFile(name: String, file: File) = GifCape(name, FileInputStream(file))
 

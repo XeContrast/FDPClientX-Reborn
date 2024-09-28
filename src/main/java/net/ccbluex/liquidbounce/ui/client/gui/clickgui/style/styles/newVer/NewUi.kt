@@ -2,10 +2,9 @@ package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.CategoryElement
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption.clickGuiConfig
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
@@ -89,14 +88,14 @@ class NewUi private constructor() : GuiScreen() {
 
 
     init {
-        ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
+        ModuleCategory.entries.forEach { categoryElements.add(CategoryElement(it)) }
         searchElement = SearchElement(windowXStart + searchXOffset, windowYStart + searchYOffset, searchWidth, searchHeight)
         categoryElements[0].focused = true
     }
 
     private fun reload() {
         categoryElements.clear()
-        ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
+        ModuleCategory.entries.forEach { categoryElements.add(CategoryElement(it)) }
         categoryElements[0].focused = true
     }
 

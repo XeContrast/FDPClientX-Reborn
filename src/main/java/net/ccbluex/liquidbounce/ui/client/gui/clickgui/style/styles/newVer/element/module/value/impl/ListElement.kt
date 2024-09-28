@@ -1,7 +1,7 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value.impl
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
@@ -16,7 +16,7 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
     private var expandHeight = 0F
     private var expansion = false
 
-    private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it) }.sorted().firstOrNull() ?: 0F).toFloat() + 20F
+    private val maxSubWidth = -(saveValue.values.minOfOrNull { -Fonts.font40.getStringWidth(it) } ?: 0F).toFloat() + 20F
 
     companion object {
         val expanding = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }

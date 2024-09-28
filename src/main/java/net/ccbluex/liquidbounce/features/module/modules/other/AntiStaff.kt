@@ -251,7 +251,7 @@ object AntiStaff : Module() {
             "evenfai " +
             "hlazny " +
             "valrm"
-    private var kkStaff : String = "Creeper_Hello  Kun_God  hanhan_api  Regotly_Long"
+    private var kkStaff : String = "Creeper_Hello Kun_God hanhan_api Regotly_Long"
     private var bmcStaff : String = " iDhoom " +
             "Jinaaan " +
             "Eissaa " +
@@ -363,5 +363,5 @@ object AntiStaff : Module() {
     }
 
     override val tag: String
-        get() = mode.get().toString()
+        get() = mode.get()
 }

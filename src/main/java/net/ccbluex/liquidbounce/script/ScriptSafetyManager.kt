@@ -30,7 +30,7 @@ object ScriptSafetyManager {
     }
 
     init {
-        ClientUtils.logInfo("[FDPScriptAPI] Script safety level: ${ProtectionLevel.values().find { it.level == level }?.name}($level)") // maybe we should think about performance here?
+        ClientUtils.logInfo("[FDPScriptAPI] Script safety level: ${ProtectionLevel.entries.find { it.level == level }?.name}($level)") // maybe we should think about performance here?
 
         val restrictedClasses = mutableMapOf<Class<*>, Int>()
         val restrictedChilds = mutableMapOf<Class<*>, Pair<String, Int>>()

@@ -37,11 +37,11 @@ class Script(private val scriptFile: File) : MinecraftInstance() {
     private val registeredModules = mutableListOf<Module>()
     private val registeredCommands = mutableListOf<Command>()
     fun getState(): Boolean {
-        return isEnable;
+        return isEnable
     }
 
     fun getRegisteredModules(): MutableList<Module> {
-        return registeredModules;
+        return registeredModules
     }
 
     init {

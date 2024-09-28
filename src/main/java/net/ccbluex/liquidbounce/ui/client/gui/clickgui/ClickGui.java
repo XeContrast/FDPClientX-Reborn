@@ -74,7 +74,7 @@ public class ClickGui extends GuiScreen {
         if (progress < 1) progress += 0.1 * (1 - partialTicks);
         else progress = 1;
 
-        switch (Objects.requireNonNull(FDPClient.moduleManager.getModule(ClickGUIModule.class)).INSTANCE.getAnimationValue().get().toLowerCase()) {
+        switch (ClickGUIModule.INSTANCE.getAnimationValue().get().toLowerCase()) {
             case "liquidbounce":
             case "ziul":
                 slide = EaseUtils.easeOutBack(progress);
@@ -94,13 +94,13 @@ public class ClickGui extends GuiScreen {
 
         AWTFontRenderer.Companion.setAssumeNonVolatile(true);
 
-        mouseX /= scale;
-        mouseY /= scale;
+        mouseX /= (int) scale;
+        mouseY /= (int) scale;
 
         this.mouseX = mouseX;
         this.mouseY = mouseY;
 
-        switch (Objects.requireNonNull(FDPClient.moduleManager.getModule(ClickGUIModule.class)).INSTANCE.getBackgroundValue().get()) {
+        switch (ClickGUIModule.INSTANCE.getBackgroundValue().get()) {
             case "Default":
                 drawDefaultBackground();
                 break;
@@ -115,7 +115,7 @@ public class ClickGui extends GuiScreen {
         int defaultHeight1 = (this.height);
         int defaultWidth1 = (this.width);
 
-        switch (Objects.requireNonNull(FDPClient.moduleManager.getModule(ClickGUIModule.class)).INSTANCE.getAnimationValue().get().toLowerCase()) {
+        switch (ClickGUIModule.INSTANCE.getAnimationValue().get().toLowerCase()) {
             case "bread":
                 GlStateManager.translate(0, (1.0 - slide) * height * 2.0, 0);
                 GlStateManager.scale(scale, scale + (1.0 - slide) * 2.0, scale);
@@ -211,8 +211,8 @@ public class ClickGui extends GuiScreen {
         }
         final double scale = trueCguiScale;
 
-        mouseX /= scale;
-        mouseY /= scale;
+        mouseX /= (int) scale;
+        mouseY /= (int) scale;
 
         for (final Panel panel : panels) {
             panel.mouseClicked(mouseX, mouseY, mouseButton);
@@ -247,8 +247,8 @@ public class ClickGui extends GuiScreen {
         }
         final double scale = trueCguiScale;
 
-        mouseX /= scale;
-        mouseY /= scale;
+        mouseX /= (int) scale;
+        mouseY /= (int) scale;
 
         for (Panel panel : panels) {
             panel.mouseReleased(mouseX, mouseY, state);

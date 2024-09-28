@@ -1,4 +1,4 @@
-package com.kuri0.rawinput
+package net.ccbluex.liquidbounce.rawinput
 
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ChatComponentText

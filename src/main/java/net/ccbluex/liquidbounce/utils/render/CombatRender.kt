@@ -11,20 +11,24 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.col
 import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.colorRedValue
 import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.start
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.render.DrRenderUtils.resetColor
+import net.ccbluex.liquidbounce.utils.MathUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.*
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.GlStateManager.popMatrix
 import net.minecraft.client.renderer.GlStateManager.pushMatrix
 import net.minecraft.client.renderer.RenderGlobal
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.glu.Cylinder
 import java.awt.Color
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 object CombatRender: MinecraftInstance() {
@@ -331,5 +335,85 @@ object CombatRender: MinecraftInstance() {
         glDisable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
         glPopMatrix()
+    }
+
+    val PI2: Float = (Math.PI * 2.0).roundToInt().toFloat()
+    var ticks: Double = 0.0
+    private var lastFrame: Long = 0
+
+    fun drawCircle(entity: Entity, partialTicks: Float, rad: Double, color: Int, alpha: Float) {
+        /*Got this from the people i made the Gui for*/
+        ticks += .004 * (System.currentTimeMillis() - lastFrame)
+
+        lastFrame = System.currentTimeMillis()
+
+        glPushMatrix()
+        glDisable(GL_TEXTURE_2D)
+        glEnable(GL_BLEND)
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDisable(GL_DEPTH_TEST)
+        glDepthMask(false)
+        glShadeModel(GL_SMOOTH)
+        GlStateManager.disableCull()
+
+        val x = interpolate(
+            entity.lastTickPosX,
+            entity.posX,
+            mc.timer.renderPartialTicks.toDouble()
+        ) - mc.renderManager.renderPosX
+        val y = interpolate(
+            entity.lastTickPosY,
+            entity.posY,
+            mc.timer.renderPartialTicks.toDouble()
+        ) - mc.renderManager.renderPosY + sin(ticks) + 1
+        val z = interpolate(
+            entity.lastTickPosZ,
+            entity.posZ,
+            mc.timer.renderPartialTicks.toDouble()
+        ) - mc.renderManager.renderPosZ
+
+        glBegin(GL_TRIANGLE_STRIP)
+
+        run {
+            var i = 0f
+            while (i < (Math.PI * 2)) {
+                val vecX = x + rad * cos(i.toDouble())
+                val vecZ = z + rad * sin(i.toDouble())
+
+                color(color, 0f)
+
+                glVertex3d(vecX, y - sin(ticks + 1) / 2.7f, vecZ)
+
+                color(color, .52f * alpha)
+
+
+                glVertex3d(vecX, y, vecZ)
+                i += ((Math.PI * 2) / 64f).toFloat()
+            }
+        }
+
+        glEnd()
+
+
+        glEnable(GL_LINE_SMOOTH)
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
+        glLineWidth(1.5f)
+        glBegin(GL_LINE_STRIP)
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        color(color, .5f * alpha)
+        for (i in 0..180) {
+            glVertex3d(x - sin((i * (Math.PI * 2.0).roundToInt() / 90).toDouble()) * rad, y, z + cos((i * (Math.PI * 2.0).roundToInt() / 90).toDouble()) * rad)
+        }
+        glEnd()
+
+        glShadeModel(GL_FLAT)
+        glDepthMask(true)
+        glEnable(GL_DEPTH_TEST)
+        GlStateManager.enableCull()
+        glDisable(GL_LINE_SMOOTH)
+        glEnable(GL_TEXTURE_2D)
+        glPopMatrix()
+        glColor4f(1f, 1f, 1f, 1f)
     }
 }

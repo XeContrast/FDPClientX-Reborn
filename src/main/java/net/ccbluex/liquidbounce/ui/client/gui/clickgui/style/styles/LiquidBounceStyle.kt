@@ -3,287 +3,465 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles;
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles
 
-import net.ccbluex.liquidbounce.FDPClient;
-import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement;
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style;
-import net.ccbluex.liquidbounce.ui.font.Fonts;
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer;
-import net.ccbluex.liquidbounce.ui.i18n.LanguageManager;
-import net.ccbluex.liquidbounce.utils.block.BlockUtils;
-import net.ccbluex.liquidbounce.utils.render.RenderUtils;
-import net.ccbluex.liquidbounce.features.value.*;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
-import org.lwjgl.input.Mouse;
+import net.ccbluex.liquidbounce.FDPClient
+import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
+import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule.generateColor
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.Panel
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ButtonElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.elements.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.Style
+import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.font.GameFontRenderer
+import net.ccbluex.liquidbounce.ui.i18n.LanguageManager.get
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.MathHelper
+import net.minecraft.util.ResourceLocation
+import net.minecraft.util.StringUtils
+import org.lwjgl.input.Mouse
+import java.awt.Color
+import java.math.BigDecimal
+import java.math.RoundingMode
 
-import java.awt.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
+class LiquidBounceStyle : Style() {
+    private var mouseDown = false
+    private var rightMouseDown = false
 
-public class LiquidBounceStyle extends Style {
+    override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel) {
+        RenderUtils.drawBorderedRect(
+            panel.getX().toFloat() - (if (panel.scrollbar) 4 else 0),
+            panel.getY().toFloat(),
+            panel.getX().toFloat() + panel.width,
+            panel.getY().toFloat() + 19 + panel.fade,
+            1f,
+            Color(255, 255, 255, 90).rgb,
+            Int.MIN_VALUE
+        )
+        val textWidth = Fonts.font35.getStringWidth(
+            "§f" + StringUtils.stripControlCodes(
+                get(panel.name.replace("%".toRegex(), ""))
+            )
+        ).toFloat()
+        Fonts.font35.drawString(
+            "§f" + get(panel.name.replace("%".toRegex(), "")),
+            (panel.getX() - (textWidth - 100.0f) / 2f).toInt(),
+            panel.getY() + 7,
+            -16777216
+        )
 
-    private boolean mouseDown;
-    private boolean rightMouseDown;
-
-    @Override
-    public void drawPanel(int mouseX, int mouseY, Panel panel) {
-        RenderUtils.drawBorderedRect((float) panel.getX() - (panel.getScrollbar() ? 4 : 0), (float) panel.getY(), (float) panel.getX() + panel.getWidth(), (float) panel.getY() + 19 + panel.getFade(), 1F, new Color(255, 255, 255, 90).getRGB(), Integer.MIN_VALUE);
-        float textWidth = Fonts.font35.getStringWidth("§f" + StringUtils.stripControlCodes(LanguageManager.INSTANCE.get(panel.getName().replaceAll("%",""))));
-        Fonts.font35.drawString("§f" + LanguageManager.INSTANCE.get(panel.getName().replaceAll("%","")), (int) (panel.getX() - (textWidth - 100.0F) / 2F), panel.getY() + 7, -16777216);
-
-        if(panel.getScrollbar() && panel.getFade() > 0) {
-            RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 21, panel.getX(), panel.getY() + 16 + panel.getFade(), Integer.MAX_VALUE);
-            RenderUtils.drawRect(panel.getX() - 2, panel.getY() + 30 + (panel.getFade() - 24F) / (panel.getElements().size() - FDPClient.moduleManager.getModule(ClickGUIModule.class).getMaxElementsValue().get()) * panel.getDragged() - 10.0f, panel.getX(), panel.getY() + 40 + (panel.getFade() - 24.0f) / (panel.getElements().size() - FDPClient.moduleManager.getModule(ClickGUIModule.class).getMaxElementsValue().get()) * panel.getDragged(), Integer.MIN_VALUE);
+        if (panel.scrollbar && panel.fade > 0) {
+            RenderUtils.drawRect(
+                (panel.getX() - 2).toFloat(),
+                (panel.getY() + 21).toFloat(),
+                panel.getX().toFloat(),
+                (panel.getY() + 16 + panel.fade).toFloat(),
+                Int.MAX_VALUE
+            )
+            RenderUtils.drawRect(
+                (panel.getX() - 2).toFloat(),
+                panel.getY() + 30 + (panel.fade - 24f) / (panel.elements.size - FDPClient.moduleManager.getModule(
+                    ClickGUIModule::class.java
+                )!!.maxElementsValue.get()) * panel.dragged - 10.0f,
+                panel.getX().toFloat(),
+                panel.getY() + 40 + (panel.fade - 24.0f) / (panel.elements.size - FDPClient.moduleManager.getModule(
+                    ClickGUIModule::class.java
+                )!!.maxElementsValue.get()) * panel.dragged,
+                Int.MIN_VALUE
+            )
         }
     }
 
-    @Override
-    public void drawDescription(int mouseX, int mouseY, String text) {
-        int textWidth = Fonts.font35.getStringWidth(LanguageManager.INSTANCE.get(text.replaceAll("%","")));
+    override fun drawDescription(mouseX: Int, mouseY: Int, text: String) {
+        val textWidth = Fonts.font35.getStringWidth(get(text.replace("%".toRegex(), "")))
 
-        RenderUtils.drawBorderedRect(mouseX + 9, mouseY, mouseX + textWidth + 14, mouseY + Fonts.font35.FONT_HEIGHT + 3, 1, new Color(255, 255, 255, 90).getRGB(), Integer.MIN_VALUE);
-        GlStateManager.resetColor();
-        Fonts.font35.drawString(LanguageManager.INSTANCE.get(text.replaceAll("%","")), mouseX + 12, mouseY + (Fonts.font35.FONT_HEIGHT) / 2, Integer.MAX_VALUE);
+        RenderUtils.drawBorderedRect(
+            (mouseX + 9).toFloat(),
+            mouseY.toFloat(),
+            (mouseX + textWidth + 14).toFloat(),
+            (mouseY + Fonts.font35.FONT_HEIGHT + 3).toFloat(),
+            1f,
+            Color(255, 255, 255, 90).rgb,
+            Int.MIN_VALUE
+        )
+        GlStateManager.resetColor()
+        Fonts.font35.drawString(
+            get(text.replace("%".toRegex(), "")),
+            mouseX + 12,
+            mouseY + (Fonts.font35.FONT_HEIGHT) / 2,
+            Int.MAX_VALUE
+        )
     }
 
-    @Override
-    public void drawButtonElement(int mouseX, int mouseY, ButtonElement buttonElement) {
-        GlStateManager.resetColor();
-        Fonts.font35.drawString(LanguageManager.INSTANCE.get(buttonElement.getDisplayName().replaceAll("%","")), (int) (buttonElement.getX() - (Fonts.font35.getStringWidth(LanguageManager.INSTANCE.get(buttonElement.getDisplayName().replaceAll("%",""))) - 100.0f) / 2.0f), buttonElement.getY() + 6, buttonElement.getColor());
+    override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement) {
+        GlStateManager.resetColor()
+        Fonts.font35.drawString(
+            get(buttonElement.displayName.replace("%".toRegex(), "")), (buttonElement.x - (Fonts.font35.getStringWidth(
+                get(buttonElement.displayName.replace("%".toRegex(), ""))
+            ) - 100.0f) / 2.0f).toInt(), buttonElement.y + 6, buttonElement.color
+        )
     }
 
-    @Override
-    public void drawModuleElement(int mouseX, int mouseY, ModuleElement moduleElement) {
-        int guiColor = ClickGUIModule.INSTANCE.generateColor().getRGB();
-        GlStateManager.resetColor();
-        Fonts.font35.drawString(LanguageManager.INSTANCE.get(moduleElement.getDisplayName().replaceAll("%","")), (int) (moduleElement.getX() - (Fonts.font35.getStringWidth(LanguageManager.INSTANCE.get(moduleElement.getDisplayName().replaceAll("%",""))) - 100.0f) / 2.0f), moduleElement.getY() + 6, moduleElement.getModule().getState() ? guiColor : Integer.MAX_VALUE);
+    override fun drawModuleElement(mouseX: Int, mouseY: Int, moduleElement: ModuleElement) {
+        val guiColor = generateColor().rgb
+        GlStateManager.resetColor()
+        Fonts.font35.drawString(
+            get(moduleElement.displayName.replace("%".toRegex(), "")),
+            (moduleElement.x - (Fonts.font35.getStringWidth(
+                get(moduleElement.displayName.replace("%".toRegex(), ""))
+            ) - 100.0f) / 2.0f).toInt(),
+            moduleElement.y + 6,
+            if (moduleElement.module.state) guiColor else Int.MAX_VALUE
+        )
 
-        final List<Value<?>> moduleValues = moduleElement.getModule().getValues();
+        val moduleValues = moduleElement.module.values
 
-        if(!moduleValues.isEmpty()) {
-            Fonts.font35.drawString("+", moduleElement.getX() + moduleElement.getWidth() - 8, moduleElement.getY() + (moduleElement.getHeight() / 2), Color.WHITE.getRGB());
+        if (moduleValues.isNotEmpty()) {
+            Fonts.font35.drawString(
+                "+",
+                moduleElement.x + moduleElement.width - 8,
+                moduleElement.y + (moduleElement.height / 2),
+                Color.WHITE.rgb
+            )
 
-            if(moduleElement.isShowSettings()) {
-                int yPos = moduleElement.getY() + 4;
-                for(final Value value : moduleValues) {
-                    if(!value.getDisplayable())
-                        continue;
+            if (moduleElement.isShowSettings) {
+                var yPos = moduleElement.y + 4
+                for (value in moduleValues) {
+                    if (!value.displayable) continue
 
-                    if (value instanceof BoolValue) {
-                        final String text = value.getName();
-                        final float textWidth = Fonts.font35.getStringWidth(text);
+                    if (value is BoolValue) {
+                        val text = value.name
+                        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
 
-                        if (moduleElement.getSettingsWidth() < textWidth + 8)
-                            moduleElement.setSettingsWidth(textWidth + 8);
+                        if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
 
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 14).toFloat(),
+                            Int.MIN_VALUE
+                        )
 
-                        if (mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
+                        if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                             if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
-                                final BoolValue boolValue = (BoolValue) value;
 
-                                boolValue.set(!boolValue.get());
-                                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+                                value.set(!value.get())
+                                mc.soundHandler.playSound(
+                                    PositionedSoundRecord.create(
+                                        ResourceLocation("gui.button.press"),
+                                        1.0f
+                                    )
+                                )
                             }
                         }
 
-                        GlStateManager.resetColor();
-                        Fonts.font35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, ((BoolValue) value).get() ? guiColor : Integer.MAX_VALUE);
-                        yPos += 12;
-                    }else if(value instanceof ListValue) {
-                        ListValue listValue = (ListValue) value;
+                        GlStateManager.resetColor()
+                        Fonts.font35.drawString(
+                            text,
+                            moduleElement.x + moduleElement.width + 6,
+                            yPos + 4,
+                            if (value.get()) guiColor else Int.MAX_VALUE
+                        )
+                        yPos += 12
+                    } else if (value is ListValue) {
 
-                        final String text = value.getName();
-                        final float textWidth = Fonts.font35.getStringWidth(text);
+                        val text = value.name
+                        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
 
-                        if(moduleElement.getSettingsWidth() < textWidth + 16)
-                            moduleElement.setSettingsWidth(textWidth + 16);
+                        if (moduleElement.settingsWidth < textWidth + 16) moduleElement.settingsWidth = textWidth + 16
 
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
-                        GlStateManager.resetColor();
-                        Fonts.font35.drawString("§c" + text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, 0xffffff);
-                        Fonts.font35.drawString(listValue.openList ? "-" : "+", (int) (moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() - (listValue.openList ? 5 : 6)), yPos + 4, 0xffffff);
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 14).toFloat(),
+                            Int.MIN_VALUE
+                        )
+                        GlStateManager.resetColor()
+                        Fonts.font35.drawString(
+                            "§c$text",
+                            moduleElement.x + moduleElement.width + 6,
+                            yPos + 4,
+                            0xffffff
+                        )
+                        Fonts.font35.drawString(
+                            if (value.openList) "-" else "+",
+                            (moduleElement.x + moduleElement.width + moduleElement.settingsWidth - (if (value.openList) 5 else 6)).toInt(),
+                            yPos + 4,
+                            0xffffff
+                        )
 
-                        if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
-                            if(Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
-                                listValue.openList = !listValue.openList;
-                                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+                        if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
+                            if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
+                                value.openList = !value.openList
+                                mc.soundHandler.playSound(
+                                    PositionedSoundRecord.create(
+                                        ResourceLocation("gui.button.press"),
+                                        1.0f
+                                    )
+                                )
                             }
                         }
 
-                        yPos += 12;
+                        yPos += 12
 
-                        for(final String valueOfList : listValue.getValues()) {
-                            final float textWidth2 = Fonts.font35.getStringWidth(">" + valueOfList);
+                        for (valueOfList in value.values) {
+                            val textWidth2 = Fonts.font35.getStringWidth(
+                                ">$valueOfList"
+                            ).toFloat()
 
-                            if(moduleElement.getSettingsWidth() < textWidth2 + 8)
-                                moduleElement.setSettingsWidth(textWidth2 + 8);
+                            if (moduleElement.settingsWidth < textWidth2 + 8) moduleElement.settingsWidth =
+                                textWidth2 + 8
 
-                            if (listValue.openList) {
-                                RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
+                            if (value.openList) {
+                                RenderUtils.drawRect(
+                                    (moduleElement.x + moduleElement.width + 4).toFloat(),
+                                    (yPos + 2).toFloat(),
+                                    moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                                    (yPos + 14).toFloat(),
+                                    Int.MIN_VALUE
+                                )
 
-                                if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
-                                    if(Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
-                                        listValue.set(valueOfList);
-                                        mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+                                if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
+                                    if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
+                                        value.set(valueOfList)
+                                        mc.soundHandler.playSound(
+                                            PositionedSoundRecord.create(
+                                                ResourceLocation("gui.button.press"),
+                                                1.0f
+                                            )
+                                        )
                                     }
                                 }
 
-                                GlStateManager.resetColor();
-                                Fonts.font35.drawString(">", moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, Integer.MAX_VALUE);
-                                Fonts.font35.drawString(valueOfList, moduleElement.getX() + moduleElement.getWidth() + 14, yPos + 4, listValue.get() != null && listValue.get().equalsIgnoreCase(valueOfList) ? guiColor : Integer.MAX_VALUE);
-                                yPos += 12;
+                                GlStateManager.resetColor()
+                                Fonts.font35.drawString(
+                                    ">",
+                                    moduleElement.x + moduleElement.width + 6,
+                                    yPos + 4,
+                                    Int.MAX_VALUE
+                                )
+                                Fonts.font35.drawString(
+                                    valueOfList,
+                                    moduleElement.x + moduleElement.width + 14,
+                                    yPos + 4,
+                                    if (value.get()
+                                            .equals(valueOfList, ignoreCase = true)
+                                    ) guiColor else Int.MAX_VALUE
+                                )
+                                yPos += 12
                             }
                         }
-                    }else if(value instanceof FloatValue) {
-                        final FloatValue floatValue = (FloatValue) value;
-                        final String text = value.getName() + "§f: §c" + round(floatValue.get());
-                        final float textWidth = Fonts.font35.getStringWidth(text);
+                    } else if (value is FloatValue) {
+                        val text = value.name + "§f: §c" + round(value.get())
+                        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
 
-                        if(moduleElement.getSettingsWidth() < textWidth + 8)
-                            moduleElement.setSettingsWidth(textWidth + 8);
+                        if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
 
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 24, Integer.MIN_VALUE);
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 8, yPos + 18, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() - 4, yPos + 19, Integer.MAX_VALUE);
-                        final float sliderValue = moduleElement.getX() + moduleElement.getWidth() + ((moduleElement.getSettingsWidth() - 12) * (floatValue.get() - floatValue.getMinimum()) / (floatValue.getMaximum() - floatValue.getMinimum()));
-                        RenderUtils.drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor);
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 24).toFloat(),
+                            Int.MIN_VALUE
+                        )
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 8).toFloat(),
+                            (yPos + 18).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4,
+                            (yPos + 19).toFloat(),
+                            Int.MAX_VALUE
+                        )
+                        val sliderValue =
+                            moduleElement.x + moduleElement.width + ((moduleElement.settingsWidth - 12) * (value.get() - value.minimum) / (value.maximum - value.minimum))
+                        RenderUtils.drawRect(
+                            8 + sliderValue,
+                            (yPos + 15).toFloat(),
+                            sliderValue + 11,
+                            (yPos + 21).toFloat(),
+                            guiColor
+                        )
 
-                        if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() - 4 && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
-                            if(Mouse.isButtonDown(0)) {
-                                double i = MathHelper.clamp_double((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
-                                floatValue.set(round((float) (floatValue.getMinimum() + (floatValue.getMaximum() - floatValue.getMinimum()) * i)).floatValue());
-                            }
-                        }
-
-                        GlStateManager.resetColor();
-                        Fonts.font35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, 0xffffff);
-                        yPos += 22;
-                    }else if(value instanceof IntegerValue) {
-                        final IntegerValue integerValue = (IntegerValue) value;
-                        final String text = value.getName() + "§f: §c" + (value instanceof BlockValue ? BlockUtils.getBlockName(integerValue.get()) + " (" + integerValue.get() + ")" : integerValue.get());
-                        final float textWidth = Fonts.font35.getStringWidth(text);
-
-                        if(moduleElement.getSettingsWidth() < textWidth + 8)
-                            moduleElement.setSettingsWidth(textWidth + 8);
-
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 24, Integer.MIN_VALUE);
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 8, yPos + 18, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() - 4, yPos + 19, Integer.MAX_VALUE);
-                        final float sliderValue = moduleElement.getX() + moduleElement.getWidth() + ((moduleElement.getSettingsWidth() - 12) * (integerValue.get() - integerValue.getMinimum()) / (integerValue.getMaximum() - integerValue.getMinimum()));
-                        RenderUtils.drawRect(8 + sliderValue, yPos + 15, sliderValue + 11, yPos + 21, guiColor);
-
-                        if(mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
-                            if(Mouse.isButtonDown(0)) {
-                                double i = MathHelper.clamp_double((mouseX - moduleElement.getX() - moduleElement.getWidth() - 8) / (moduleElement.getSettingsWidth() - 12), 0, 1);
-                                integerValue.set((int) (integerValue.getMinimum() + (integerValue.getMaximum() - integerValue.getMinimum()) * i));
-                            }
-                        }
-
-                        GlStateManager.resetColor();
-                        Fonts.font35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, 0xffffff);
-                        yPos += 22;
-                    }else if(value instanceof FontValue) {
-                        final FontValue fontValue = (FontValue) value;
-                        final FontRenderer fontRenderer = fontValue.get();
-
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
-
-                        String displayString = "Font: Unknown";
-
-                        if (fontRenderer instanceof GameFontRenderer) {
-                            final GameFontRenderer liquidFontRenderer = (GameFontRenderer) fontRenderer;
-
-                            displayString = "Font: " + liquidFontRenderer.getDefaultFont().getFont().getName() + " - " + liquidFontRenderer.getDefaultFont().getFont().getSize();
-                        }else if(fontRenderer == Fonts.minecraftFont)
-                            displayString = "Font: Minecraft";
-                        else{
-                            final Object[] objects = Fonts.getFontDetails(fontRenderer);
-
-                            if(objects != null) {
-                                displayString = objects[0] + ((int) objects[1] != -1 ? " - " + objects[1] : "");
+                        if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4 && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
+                            if (Mouse.isButtonDown(0)) {
+                                val i = MathHelper.clamp_double(
+                                    ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(),
+                                    0.0,
+                                    1.0
+                                )
+                                value.set(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
                             }
                         }
 
-                        Fonts.font35.drawString(displayString, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, Color.WHITE.getRGB());
-                        int stringWidth = Fonts.font35.getStringWidth(displayString);
+                        GlStateManager.resetColor()
+                        Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
+                        yPos += 22
+                    } else if (value is IntegerValue) {
+                        val text =
+                            value.name + "§f: §c" + (if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get())
+                        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
 
-                        if(moduleElement.getSettingsWidth() < stringWidth + 8)
-                            moduleElement.setSettingsWidth(stringWidth + 8);
+                        if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
 
-                        if((Mouse.isButtonDown(0) && !mouseDown || Mouse.isButtonDown(1) && !rightMouseDown) && mouseX >= moduleElement.getX() + moduleElement.getWidth() + 4 && mouseX <= moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth() && mouseY >= yPos + 4 && mouseY <= yPos + 12) {
-                            final List<FontRenderer> fonts = Fonts.getFonts();
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 24).toFloat(),
+                            Int.MIN_VALUE
+                        )
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 8).toFloat(),
+                            (yPos + 18).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4,
+                            (yPos + 19).toFloat(),
+                            Int.MAX_VALUE
+                        )
+                        val sliderValue =
+                            moduleElement.x + moduleElement.width + ((moduleElement.settingsWidth - 12) * (value.get() - value.minimum) / (value.maximum - value.minimum))
+                        RenderUtils.drawRect(
+                            8 + sliderValue,
+                            (yPos + 15).toFloat(),
+                            sliderValue + 11,
+                            (yPos + 21).toFloat(),
+                            guiColor
+                        )
 
-                            if(Mouse.isButtonDown(0)) {
-                                for(int i = 0; i < fonts.size(); i++) {
-                                    final FontRenderer font = fonts.get(i);
+                        if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
+                            if (Mouse.isButtonDown(0)) {
+                                val i = MathHelper.clamp_double(
+                                    ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(),
+                                    0.0,
+                                    1.0
+                                )
+                                value.set((value.minimum + (value.maximum - value.minimum) * i).toInt())
+                            }
+                        }
 
-                                    if(font == fontRenderer) {
-                                        i++;
+                        GlStateManager.resetColor()
+                        Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
+                        yPos += 22
+                    } else if (value is FontValue) {
+                        val fontRenderer = value.get()
 
-                                        if(i >= fonts.size())
-                                            i = 0;
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 14).toFloat(),
+                            Int.MIN_VALUE
+                        )
 
-                                        fontValue.set(fonts.get(i));
-                                        break;
+                        var displayString = "Font: Unknown"
+
+                        if (fontRenderer is GameFontRenderer) {
+
+                            displayString =
+                                "Font: " + fontRenderer.defaultFont.font.name + " - " + fontRenderer.defaultFont.font.size
+                        } else if (fontRenderer === Fonts.minecraftFont) displayString = "Font: Minecraft"
+                        else {
+                            val objects = Fonts.getFontDetails(fontRenderer)
+
+                            if (objects != null) {
+                                displayString =
+                                    objects[0].toString() + (if (objects[1] as Int != -1) " - " + objects[1] else "")
+                            }
+                        }
+
+                        Fonts.font35.drawString(
+                            displayString,
+                            moduleElement.x + moduleElement.width + 6,
+                            yPos + 4,
+                            Color.WHITE.rgb
+                        )
+                        val stringWidth = Fonts.font35.getStringWidth(displayString)
+
+                        if (moduleElement.settingsWidth < stringWidth + 8) moduleElement.settingsWidth =
+                            (stringWidth + 8).toFloat()
+
+                        if ((Mouse.isButtonDown(0) && !mouseDown || Mouse.isButtonDown(1) && !rightMouseDown) && mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 4 && mouseY <= yPos + 12) {
+                            val fonts = Fonts.getFonts()
+
+                            if (Mouse.isButtonDown(0)) {
+                                var i = 0
+                                while (i < fonts.size) {
+                                    val font = fonts[i]
+
+                                    if (font === fontRenderer) {
+                                        i++
+
+                                        if (i >= fonts.size) i = 0
+
+                                        value.set(fonts[i])
+                                        break
                                     }
+                                    i++
                                 }
-                            }else{
-                                for(int i = fonts.size() - 1; i >= 0; i--) {
-                                    final FontRenderer font = fonts.get(i);
+                            } else {
+                                var i = fonts.size - 1
+                                while (i >= 0) {
+                                    val font = fonts[i]
 
-                                    if(font == fontRenderer) {
-                                        i--;
+                                    if (font === fontRenderer) {
+                                        i--
 
-                                        if(i >= fonts.size())
-                                            i = 0;
+                                        if (i >= fonts.size) i = 0
 
-                                        if(i < 0)
-                                            i = fonts.size() - 1;
+                                        if (i < 0) i = fonts.size - 1
 
-                                        fontValue.set(fonts.get(i));
-                                        break;
+                                        value.set(fonts[i])
+                                        break
                                     }
+                                    i--
                                 }
                             }
                         }
 
-                        yPos += 11;
-                    }else{
-                        String text = value.getName() + "§f: §c" + value.get();
-                        float textWidth = Fonts.font35.getStringWidth(text);
+                        yPos += 11
+                    } else {
+                        val text = value.name + "§f: §c" + value.get()
+                        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
 
-                        if (moduleElement.getSettingsWidth() < textWidth + 8)
-                            moduleElement.setSettingsWidth(textWidth + 8);
+                        if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
 
-                        RenderUtils.drawRect(moduleElement.getX() + moduleElement.getWidth() + 4, yPos + 2, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 14, Integer.MIN_VALUE);
-                        GlStateManager.resetColor();
-                        Fonts.font35.drawString(text, moduleElement.getX() + moduleElement.getWidth() + 6, yPos + 4, 0xffffff);
-                        yPos += 12;
+                        RenderUtils.drawRect(
+                            (moduleElement.x + moduleElement.width + 4).toFloat(),
+                            (yPos + 2).toFloat(),
+                            moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                            (yPos + 14).toFloat(),
+                            Int.MIN_VALUE
+                        )
+                        GlStateManager.resetColor()
+                        Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
+                        yPos += 12
                     }
                 }
 
-                moduleElement.updatePressed();
-                mouseDown = Mouse.isButtonDown(0);
-                rightMouseDown = Mouse.isButtonDown(1);
+                moduleElement.updatePressed()
+                mouseDown = Mouse.isButtonDown(0)
+                rightMouseDown = Mouse.isButtonDown(1)
 
-                if(moduleElement.getSettingsWidth() > 0F && yPos > moduleElement.getY() + 4)
-                    RenderUtils.drawBorderedRect(moduleElement.getX() + moduleElement.getWidth() + 4, moduleElement.getY() + 6, moduleElement.getX() + moduleElement.getWidth() + moduleElement.getSettingsWidth(), yPos + 2, 1F, Integer.MIN_VALUE, 0);
+                if (moduleElement.settingsWidth > 0f && yPos > moduleElement.y + 4) RenderUtils.drawBorderedRect(
+                    (moduleElement.x + moduleElement.width + 4).toFloat(),
+                    (moduleElement.y + 6).toFloat(),
+                    moduleElement.x + moduleElement.width + moduleElement.settingsWidth,
+                    (yPos + 2).toFloat(),
+                    1f,
+                    Int.MIN_VALUE,
+                    0
+                )
             }
         }
     }
 
-    private BigDecimal round(final float f) {
-        BigDecimal bd = new BigDecimal(Float.toString(f));
-        bd = bd.setScale(2, RoundingMode.HALF_UP);
-        return bd;
+    private fun round(f: Float): BigDecimal {
+        var bd = BigDecimal(f.toString())
+        bd = bd.setScale(2, RoundingMode.HALF_UP)
+        return bd
     }
 }

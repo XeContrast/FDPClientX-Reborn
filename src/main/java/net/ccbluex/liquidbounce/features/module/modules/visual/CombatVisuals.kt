@@ -19,15 +19,16 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
+import net.ccbluex.liquidbounce.utils.animations.impl.DecelerateAnimation
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.LiquidSlowly
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.fade
+import net.ccbluex.liquidbounce.utils.render.CombatRender.drawCircle
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawCrystal
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawEntityBoxESP
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawPlatformESP
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawZavz
-import net.ccbluex.liquidbounce.utils.render.CombatRender.drawjello
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
@@ -44,6 +45,7 @@ import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.util.*
+import kotlin.math.roundToInt
 
 @ModuleInfo("CombatVisuals", category = ModuleCategory.VISUAL)
 object CombatVisuals : Module() {
@@ -69,7 +71,6 @@ object CombatVisuals : Module() {
     val colorBlueTwoValue = IntegerValue("Mark-Blue 2", 255, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
 
     private val rainbow = BoolValue("Mark-RainBow", false).displayable { isMarkMode }
-    private val hurt = BoolValue("Mark-HurtTime", true).displayable { isMarkMode }
     private val boxOutline = BoolValue("Mark-Outline", true).displayable { isMarkMode && markValue.get() == "RoundBox" }
 
     // fake sharp
@@ -145,9 +146,8 @@ object CombatVisuals : Module() {
             )
 
             "jello" -> {
-                drawjello(
-                    getColor(combat.target)
-                )
+                val auraESPAnim = DecelerateAnimation(300, 1.0)
+                drawCircle(combat.target!!,event.partialTicks, 0.75,getColor(combat.target).rgb, auraESPAnim.output?.toFloat()!!)
             }
 
             "zavz" -> drawZavz(
@@ -199,7 +199,7 @@ object CombatVisuals : Module() {
 
     @EventTarget
     private fun attackEntity(entity: EntityLivingBase) {
-        val thePlayer = mc.thePlayer
+        val thePlayer = mc.thePlayer ?: return
 
         // Extra critical effects
         repeat(3) {

@@ -1,5 +1,6 @@
-package com.kuri0.rawinput
+package net.ccbluex.liquidbounce.rawinput
 
+import net.ccbluex.liquidbounce.rawinput.RawInput
 import net.minecraft.util.MouseHelper
 
 class RawMouseHelper : MouseHelper() {

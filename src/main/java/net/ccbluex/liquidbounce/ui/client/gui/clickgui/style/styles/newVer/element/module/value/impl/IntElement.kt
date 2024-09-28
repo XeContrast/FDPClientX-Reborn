@@ -1,8 +1,8 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.components.Slider
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.Slider
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils

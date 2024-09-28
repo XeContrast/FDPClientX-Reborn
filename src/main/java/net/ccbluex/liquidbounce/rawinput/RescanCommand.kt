@@ -1,5 +1,6 @@
-package com.kuri0.rawinput
+package net.ccbluex.liquidbounce.rawinput
 
+import net.ccbluex.liquidbounce.rawinput.RawInput
 import net.minecraft.command.CommandBase
 import net.minecraft.command.CommandException
 import net.minecraft.command.ICommandSender

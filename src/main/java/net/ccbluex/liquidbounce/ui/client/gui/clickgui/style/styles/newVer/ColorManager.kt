@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.newVer
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import java.awt.Color
 

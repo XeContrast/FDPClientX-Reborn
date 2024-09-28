@@ -31,7 +31,7 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
         description = moduleObject.getMember("description") as String
 
         val categoryString = moduleObject.getMember("category") as String
-        for (category in ModuleCategory.values())
+        for (category in ModuleCategory.entries)
             if (categoryString.equals(category.configName, true)) {
                 this.category = category
             }
