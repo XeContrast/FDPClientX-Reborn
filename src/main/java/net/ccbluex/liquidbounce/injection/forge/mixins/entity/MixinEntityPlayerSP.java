@@ -276,6 +276,25 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if (Objects.requireNonNull(scaffold2).getState()) {
             this.setSprinting(scaffold2.getCanSprint());
         }
+        if (Objects.requireNonNull(veloctiy).getState() && veloctiy.equals("Polar")) {
+            if (mc.objectMouseOver.typeOfHit.equals(MovingObjectPosition.MovingObjectType.ENTITY) && mc.thePlayer.hurtTime > 0 && !mc.thePlayer.isSwingInProgress) {
+                this.setSprinting(false);
+            }
+        }
+        if (Objects.requireNonNull(scaffold).getState()) {
+            this.setSprinting(scaffold.getCanSprint());
+        }
+        if ((killAura != null && killAura.getState()) && MovementUtils.INSTANCE.isMoving() && killAura.getCurrentTarget() != null) {
+            if (killAura.getSprintmode().equals("Ground")) {
+                this.setSprinting(mc.thePlayer.onGround);
+            }
+            if (Objects.equals(killAura.getSprintmode().get(), "StopSprint")) {
+                this.setSprinting(false);
+            }
+        }
+        if (Objects.requireNonNull(killAura).getState() && mc.thePlayer.isSprinting() && MovementUtils.INSTANCE.isMoving()) {
+            this.setSprinting(!killAura.getAttack());
+        }
         
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
@@ -409,31 +428,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.setSprinting(sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle);
         
         //Overwrite: Scaffold
-
-        if (Objects.requireNonNull(veloctiy).getState() && veloctiy.equals("Polar")) {
-            if (mc.objectMouseOver.typeOfHit.equals(MovingObjectPosition.MovingObjectType.ENTITY) && mc.thePlayer.hurtTime > 0 && !mc.thePlayer.isSwingInProgress) {
-                this.setSprinting(false);
-            }
-        }
-        if (Objects.requireNonNull(veloctiy).getState() && veloctiy.equals("IntaveSimple")) {
-            if (FDPClient.combatManager.getInCombat() && mc.thePlayer.hurtTime > 0) {
-                this.setSprinting(false);
-            }
-        }
-        if (Objects.requireNonNull(scaffold).getState()) {
-            this.setSprinting(scaffold.getCanSprint());
-        }
-        if ((killAura != null && killAura.getState()) && MovementUtils.INSTANCE.isMoving() && killAura.getCurrentTarget() != null) {
-            if (killAura.getSprintmode().equals("Ground")) {
-                this.setSprinting(mc.thePlayer.onGround);
-            }
-            if (Objects.equals(killAura.getSprintmode().get(), "StopSprint")) {
-                this.setSprinting(false);
-            }
-        }
-        if (Objects.requireNonNull(killAura).getState() && mc.thePlayer.isSprinting() && MovementUtils.INSTANCE.isMoving()) {
-            this.setSprinting(!killAura.getAttack());
-        }
 
         //aac may check it :(
         if (this.capabilities.allowFlying) {

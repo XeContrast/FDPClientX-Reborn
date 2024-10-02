@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: net.minecraftforge.fml.common.asm.transformers.AccessTransfo
+ rmer
+
