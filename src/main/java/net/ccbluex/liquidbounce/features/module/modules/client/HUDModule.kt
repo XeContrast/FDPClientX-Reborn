@@ -44,7 +44,6 @@ import kotlin.math.roundToInt
 
 @ModuleInfo(name = "HUD", category = ModuleCategory.CLIENT, array = false, defaultOn = true)
 object HUDModule : Module() {
-    val tabHead = BoolValue("Tab-HeadOverlay", true)
     val shadowValue = ListValue("TextShadowMode", arrayOf("LiquidBounce", "Outline", "Default", "Autumn"), "Default")
     private val clolormode = ListValue("ColorMode", arrayOf("Rainbow", "Light Rainbow", "Static", "Double Color", "Default"), "Light Rainbow")
     private val MusicDisplay = BoolValue("MusicDisplay",true)
@@ -54,7 +53,7 @@ object HUDModule : Module() {
     val inventoryParticle = BoolValue("InventoryParticle", false)
     private val blurValue = BoolValue("Blur", false)
     private val HealthValue = BoolValue("Health", true)
-    private val mark = ListValue("Mark", arrayOf("FDPCN","FDP","NeverLose", "None"),"FDP")
+    private val mark = ListValue("Mark", arrayOf("FDPCN","FDP","NeverLose","Icon", "None"),"FDP")
     val rainbowStartValue = FloatValue("RainbowStart", 0.55f, 0f, 1f)
     val rainbowStopValue = FloatValue("RainbowStop", 0.85f, 0f, 1f)
     val rainbowSaturationValue = FloatValue("RainbowSaturation", 0.45f, 0f, 1f)
@@ -84,6 +83,7 @@ object HUDModule : Module() {
             "fdp" -> renderWatermark()
             "fdpcn" -> renderfdpcn()
             "neverlose" -> neverlose()
+            "icon" -> RenderUtils.drawImage(ResourceLocation("fdpclient/misc/logo.png"),1,1,24,24)
             else -> {}
         }
         if (eatbar.get()) {

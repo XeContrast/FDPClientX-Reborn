@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.components
 
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animLinear
 import net.ccbluex.liquidbounce.utils.render.BlendUtils

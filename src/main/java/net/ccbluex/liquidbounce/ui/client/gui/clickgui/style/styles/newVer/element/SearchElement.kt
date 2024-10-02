@@ -1,10 +1,11 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
 
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.IconManager
+import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -103,10 +104,10 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
             else
                 scrollHeight -= 50F
         }
-        scrollHeight = if (lastHeight > height - (startYY + 10f))
-            scrollHeight.coerceIn(-lastHeight + height - (startYY + 10f), 0F)
+        if (lastHeight > height - (startYY + 10f))
+            scrollHeight = scrollHeight.coerceIn(-lastHeight + height - (startYY + 10f), 0F)
         else
-            0F
+            scrollHeight = 0F
         animScrollHeight = animScrollHeight.animSmooth(scrollHeight, 0.5F)
     }
 

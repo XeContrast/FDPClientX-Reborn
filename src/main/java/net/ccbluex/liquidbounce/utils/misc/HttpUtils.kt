@@ -11,7 +11,6 @@ import net.ccbluex.liquidbounce.utils.ClientUtils
 import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 

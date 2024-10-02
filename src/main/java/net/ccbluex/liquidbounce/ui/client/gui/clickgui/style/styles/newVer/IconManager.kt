@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
+package net.ccbluex.liquidbounce.ui.client.gui.newVer
 
 import net.minecraft.util.ResourceLocation
 

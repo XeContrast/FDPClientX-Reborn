@@ -56,7 +56,6 @@ def viaLibs = [
 ]
 
 dependencies {
-    include "org.bytedeco:javacv-platform:1.5.10"
     include 'org.projectlombok:lombok:1.18.34'
     include "com.google.zxing:core:3.5.3"
     include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
@@ -67,6 +66,33 @@ dependencies {
         exclude module: "launchwrapper"
         exclude module: "log4j-core"
         exclude module: "slf4j-api"
+    }
+
+    include ("org.bytedeco:javacv-platform:1.5.10") {
+        exclude module: "artoolkitplus"
+        exclude module: "flycapture"
+        exclude module: "leptonica"
+        exclude module: "libdc1394"
+        exclude module: "libfreenect2"
+        exclude module: "libfreenect"
+        exclude module: "librealsense2"
+        exclude module: "librealsense"
+        exclude module: "openblas"
+        exclude module: "opencv"
+        exclude module: "tesseract"
+        exclude module: "videoinput"
+        exclude module: "videoinput-platform"
+        exclude module: "tesseract-platform"
+        exclude module: "opencv-platform"
+        exclude module: "openblas-platform"
+        exclude module: "librealsense-platform"
+        exclude module: "librealsense2-platform"
+        exclude module: "libdc1394-platform"
+        exclude module: "leptonica-platform"
+        exclude module: "artoolkitplus-platform"
+        exclude module: "libfreenect-platform"
+        exclude module: "libfreenect2-platform"
+        exclude module: "flycapture-platform"
     }
 
     for (final def via in viaLibs) {

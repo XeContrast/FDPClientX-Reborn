@@ -104,6 +104,17 @@ class Scaffold2 : Module() {
     val canSprint: Boolean
         get() = MovementUtils.isMoving() && when (sprintValue.get().lowercase()) {
             "always", "dynamic" -> true
+            "smart" -> {
+                if (mc.thePlayer != null && RotationUtils.targetRotation != null) {
+                    if (abs(wrapAngleTo180_float(mc.thePlayer.rotationYaw) - wrapAngleTo180_float(RotationUtils.targetRotation!!.yaw)) > 90) {
+                        false
+                    } else {
+                        true
+                    }
+                } else {
+                    false
+                }
+            }
             "onground" -> mc.thePlayer.onGround
             "offground" -> !mc.thePlayer.onGround
             else -> false
@@ -279,9 +290,13 @@ class Scaffold2 : Module() {
     // Downwards
     private var shouldGoDown: Boolean = false
 
+    // Smart Sprint
+    var sprint = false
+
     // ENABLING MODULE
     override fun onEnable() {
         if (mc.thePlayer == null) return
+        sprint = false
         launchY = mc.thePlayer!!.posY.toInt()
         slot = mc.thePlayer!!.inventory.currentItem
         facesBlock = false
@@ -458,6 +473,10 @@ class Scaffold2 : Module() {
                 FDPClient.moduleManager[Scaffold2::class.java]!!.state = false
                 alert("Disable Scaffold")
             }
+        }
+
+        if (mc.thePlayer != null && RotationUtils.targetRotation != null) {
+            sprint = !(abs(wrapAngleTo180_float(mc.thePlayer.rotationYaw) - wrapAngleTo180_float(RotationUtils.targetRotation!!.yaw)) > 90)
         }
 
         //if (event.eventState == UpdateState.OnUpdate) return
@@ -653,7 +672,7 @@ class Scaffold2 : Module() {
         if (!eagleValue.get().equals("Off", true) && !shouldGoDown) {
             var dif = 0.5
             if (edgeDistanceValue.get() > 0) {
-                for (facingType in EnumFacing.values()) {
+                for (facingType in EnumFacing.entries) {
                     if (facingType != EnumFacing.NORTH && facingType != EnumFacing.EAST && facingType != EnumFacing.SOUTH && facingType != EnumFacing.WEST)
                         continue
                     val blockPosition = BlockPos(
@@ -1394,7 +1413,7 @@ class Scaffold2 : Module() {
                 placeRotation = PlaceRotation(PlaceInfo(data.first, data.second, getVec3(data.first, data.second)), getRotations(data.first, data.second))
             } else return false
         } else {
-            for (facingType in EnumFacing.values()) {
+            for (facingType in EnumFacing.entries) {
                 val neighbor = blockPosition.offset(facingType)
                 if (!canBeClicked(neighbor)) continue
                 val dirVec = Vec3(facingType.directionVec)

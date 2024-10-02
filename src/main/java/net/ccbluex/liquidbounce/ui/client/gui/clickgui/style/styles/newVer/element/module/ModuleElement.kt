@@ -1,11 +1,13 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module
 
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.value.*
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.components.ToggleSwitch
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.*
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value.impl.*
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.FontElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl.IntElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -22,7 +24,7 @@ import java.awt.Color
 class ModuleElement(val module: Module): MinecraftInstance() {
 
     companion object {
-        private val expandIcon = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }
+        protected val expandIcon = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }
 
     private val toggleSwitch = ToggleSwitch()
     private val valueElements = mutableListOf<ValueElement<*>>()
@@ -32,7 +34,7 @@ class ModuleElement(val module: Module): MinecraftInstance() {
     private var animPercent = 0F
 
     private var listeningToKey = false
-    private var expanded = false
+    var expanded = false
 
     init {
         for (value in module.values) {
@@ -67,14 +69,14 @@ class ModuleElement(val module: Module): MinecraftInstance() {
 
         val keyName = if (listeningToKey) "Listening" else Keyboard.getKeyName(module.keyBind)
 
-        fadeKeybind = if (MouseUtils.mouseWithinBounds(mouseX, mouseY,
+        if (MouseUtils.mouseWithinBounds(mouseX, mouseY, 
                 x + 25F + Fonts.font40.getStringWidth(module.name),
                 y + height / 2F - Fonts.font40.FONT_HEIGHT + 2F,
                 x + 35F + Fonts.font40.getStringWidth(module.name) + Fonts.fontTiny.getStringWidth(keyName),
                 y + height / 2F))
-            (fadeKeybind + 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
+            fadeKeybind = (fadeKeybind + 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
         else
-            (fadeKeybind - 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
+            fadeKeybind = (fadeKeybind - 0.1F * RenderUtils.deltaTime * 0.025F).coerceIn(0F, 1F)
 
         RenderUtils.drawRoundedRect(
                 x + 25F + Fonts.font40.getStringWidth(module.name),

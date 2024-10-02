@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.VelocityMode
 
 class AttackReduceVelocity : VelocityMode("AttackReduce") {
-    val reduceAmount = FloatValue("ReduceAmount", 0.8f, 0.3f, 1f)
+    private val reduceAmount = FloatValue("ReduceAmount", 0.8f, 0.3f, 1f)
     
     override fun onAttack(event: AttackEvent) {
         if (mc.thePlayer.hurtTime < 3) 

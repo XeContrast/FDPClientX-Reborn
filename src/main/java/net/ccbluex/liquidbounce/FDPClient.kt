@@ -173,36 +173,12 @@ object FDPClient {
             fileManager.hudConfig,
             fileManager.xrayConfig
         )
-        
-        // Run update checker
-        if (CLIENT_VERSION != "unknown") {
-            thread(block = this::checkUpdate)
-        }
 
         // Set title
         ClientUtils.setTitle()
 
         // Log success
         ClientUtils.logInfo("$CLIENT_NAME $CLIENT_VERSION loaded in ${(System.currentTimeMillis() - startTime)}ms!")
-    }
-
-    private fun checkUpdate() {
-        try {
-            val get = HttpUtils.get("https://api.github.com/repos/SkidderMC/FDPClient/commits/${gitInfo["git.branch"]}")
-
-            val jsonObj = JsonParser()
-                .parse(get).asJsonObject
-
-            latest = jsonObj.get("sha").asString.substring(0, 7)
-
-            if (latest != gitInfo["git.commit.id.abbrev"]) {
-                ClientUtils.logInfo("New version available: $latest")
-            } else {
-                ClientUtils.logInfo("No new version available")
-            }
-        } catch (t: Throwable) {
-            ClientUtils.logError("Failed to check for updates.", t)
-        }
     }
 
     /**

@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.other
+package net.ccbluex.liquidbounce.features.module.modules.combat.velocitys.vanilla
 
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
@@ -51,7 +51,7 @@ class DelayedVelocity : VelocityMode("Delayed") {
             } else {
                 event.cancelEvent()
                 veloTick = mc.thePlayer.ticksExisted
-                packets.add(packet as Packet<INetHandlerPlayClient>)
+                packets.add(packet)
                 queuePacket(delayValue.get().toLong())
             }
         }
@@ -63,7 +63,7 @@ class DelayedVelocity : VelocityMode("Delayed") {
         if (!blinkValue.get() && delayC0F.get()) {
             if (packet is S32PacketConfirmTransaction && veloTick == mc.thePlayer.ticksExisted) {
                 event.cancelEvent()
-                packets.add(packet as Packet<INetHandlerPlayClient>)
+                packets.add(packet)
                 queuePacket(delayValue.get().toLong())
             }
         }

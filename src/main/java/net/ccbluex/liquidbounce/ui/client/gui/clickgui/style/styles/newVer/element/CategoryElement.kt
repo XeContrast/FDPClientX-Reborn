@@ -1,9 +1,9 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -38,7 +38,7 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
     }
 
     fun drawPanel(mX: Int, mY: Int, x: Float, y: Float, width: Float, height: Float, wheel: Int, accentColor: Color) {
-        val mouseX = mX
+        var mouseX = mX
         var mouseY = mY
         lastHeight = 0F
         for (me in moduleElements)
@@ -53,10 +53,10 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
         GL11.glEnable(3089)
         var startY = y + startYY
         for (moduleElement in moduleElements) {
-            startY += if (startY + animScrollHeight > y + height || startY + animScrollHeight + 40F + moduleElement.animHeight < y + startYY)
-                40F + moduleElement.animHeight
+            if (startY + animScrollHeight > y + height || startY + animScrollHeight + 40F + moduleElement.animHeight < y + startYY)
+                startY += 40F + moduleElement.animHeight
             else
-                moduleElement.drawElement(mouseX, mouseY, x, startY + animScrollHeight, width, 40F, accentColor)
+                startY += moduleElement.drawElement(mouseX, mouseY, x, startY + animScrollHeight, width, 40F, accentColor)
         }
         GL11.glDisable(3089)
     }
@@ -68,10 +68,10 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
             else
                 scrollHeight -= 50F
         }
-        scrollHeight = if (lastHeight > height - (startYY + 10F))
-            scrollHeight.coerceIn(-lastHeight + height - (startYY + 10F), 0F)
+        if (lastHeight > height - (startYY + 10F))
+            scrollHeight = scrollHeight.coerceIn(-lastHeight + height - (startYY + 10F), 0F)
         else
-            0F
+            scrollHeight = 0F
         animScrollHeight = animScrollHeight.animSmooth(scrollHeight, 0.5F)
     }
 
