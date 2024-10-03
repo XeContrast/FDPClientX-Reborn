@@ -140,14 +140,14 @@ public class MusicPlayerUI extends GuiScreen {
         }
 
         //进度条
-        RenderUtils.drawRoundedRect(x + 10, y + height - 50, x + width - 10, y + height - 46, 1.4f, Color.GRAY.getRGB());
+        RenderUtils.INSTANCE.drawRoundedRect(x + 10, y + height - 50, x + width - 10, y + height - 46, 1.4f, Color.GRAY.getRGB());
 
         if (MusicManager.INSTANCE.loadingThread != null) {
-            RenderUtils.drawRoundedRect(x + 10, y + height - 50, x + 10 + (1.3f * MusicManager.INSTANCE.downloadProgress), y + height - 46, 1.4f, Color.WHITE.getRGB());
+            RenderUtils.INSTANCE.drawRoundedRect(x + 10, y + height - 50, x + 10 + (1.3f * MusicManager.INSTANCE.downloadProgress), y + height - 46, 1.4f, Color.WHITE.getRGB());
             RenderUtils.circle(x + 10 + (1.3f * MusicManager.INSTANCE.downloadProgress), y + height - 48, 3, new Color(255, 255, 255).getRGB());
             RenderUtils.circle(x + 10 + (1.3f * MusicManager.INSTANCE.downloadProgress), y + height - 48, 2, new Color(255, 50, 50, 255).getRGB());
         } else {
-            RenderUtils.drawRoundedRect(x + 10, y + height - 50, x + 10 + (1.3f * progress), y + height - 46, 1.4f, Color.WHITE.getRGB());
+            RenderUtils.INSTANCE.drawRoundedRect(x + 10, y + height - 50, x + 10 + (1.3f * progress), y + height - 46, 1.4f, Color.WHITE.getRGB());
             RenderUtils.circle(x + 10 + (1.3f * progress), y + height - 48, 3, new Color(255, 255, 255).getRGB());
             RenderUtils.circle(x + 10 + (1.3f * progress), y + height - 48, 2, new Color(50, 176, 255, 255).getRGB());
         }

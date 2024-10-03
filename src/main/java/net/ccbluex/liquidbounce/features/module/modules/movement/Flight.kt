@@ -66,7 +66,7 @@ object Flight : Module() {
         antiDesync = false
         needReset = true
         if (mc.thePlayer.onGround && fakeDamageValue.get()) {
-            val event = PacketEvent(S19PacketEntityStatus(mc.thePlayer, 2.toByte()), PacketEvent.Type.RECEIVE)
+            val event = PacketEvent(S19PacketEntityStatus(mc.thePlayer, 2.toByte()), EventState.RECEIVE)
             FDPClient.eventManager.callEvent(event)
             if (!event.isCancelled) {
                 mc.thePlayer.handleStatusUpdate(2.toByte())

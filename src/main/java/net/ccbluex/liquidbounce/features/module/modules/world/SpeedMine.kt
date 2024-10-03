@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.world
 
+import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.event.PacketEvent
@@ -28,7 +29,7 @@ object SpeedMine : Module() {
     private var damage = 0f
     @EventTarget
     fun onMotion(e: MotionEvent) {
-        if (e.isPre()) {
+        if (e.eventState == EventState.PRE) {
             mc.playerController.blockHitDelay = 0
             if (pos != null && boost) {
                 val blockState = mc.theWorld.getBlockState(pos) ?: return

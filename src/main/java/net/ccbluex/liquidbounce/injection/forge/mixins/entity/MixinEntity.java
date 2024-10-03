@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidSpeed;
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ViaVersionFix;
 import net.ccbluex.liquidbounce.injection.access.IWorld;
+import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
 import net.ccbluex.liquidbounce.utils.EntityUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -34,7 +35,7 @@ import java.util.Random;
 import java.util.UUID;
 
 @Mixin(Entity.class)
-public abstract class MixinEntity {
+public abstract class MixinEntity implements IMixinEntity {
 
     @Shadow
     public double posX;

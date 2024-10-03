@@ -1137,6 +1137,11 @@ object KillAura : Module() {
                     mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
                 }
             }
+            "attackslow" -> {
+                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+                    mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+                }
+            }
         }
     }
 

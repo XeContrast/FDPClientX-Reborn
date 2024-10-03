@@ -75,11 +75,8 @@ class KeyEvent(val key: Int) : Event()
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(val eventState: EventState) : Event() {
-    fun isPre() : Boolean {
-    return eventState == EventState.PRE
-    }
-}
+class MotionEvent(val eventState: EventState) : Event()
+
 /**
  * Called after motion
  */
@@ -138,14 +135,7 @@ class MoveEvent(var x: Double, var y: Double, var z: Double) : CancellableEvent(
 /**
  * Called when receive or send a packet
  */
-class PacketEvent(val packet: Packet<*>, val type: Type) : CancellableEvent() {
-    enum class Type {
-        RECEIVE,
-        SEND
-    }
-
-    fun isServerSide() = type == Type.RECEIVE
-}
+class PacketEvent(val packet: Packet<*>, val eventType: EventState) : CancellableEvent()
 
 /**
  * Called when a block tries to push you
@@ -171,6 +161,11 @@ class ScreenEvent(val guiScreen: GuiScreen?) : Event()
  * Called when the session changes
  */
 class SessionEvent : Event()
+
+/**
+ * Called when packets sent to client are processed
+ */
+class GameLoopEvent : Event()
 
 /**
  * Called when player is going to step

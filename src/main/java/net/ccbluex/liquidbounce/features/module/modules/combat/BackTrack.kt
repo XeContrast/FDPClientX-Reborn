@@ -350,7 +350,7 @@ object BackTrack : Module() {
         while (storagePackets.isNotEmpty()) {
             storagePackets.removeAt(0).let {
                 try {
-                    val packetEvent = PacketEvent(it, PacketEvent.Type.SEND)
+                    val packetEvent = PacketEvent(it, EventState.SEND)
                     if (!PacketUtils.packets.contains(it)) FDPClient.eventManager.callEvent(packetEvent)
                     if (!packetEvent.isCancelled) it.processPacket(netHandler)
                 } catch (_: ThreadQuickExitException) {

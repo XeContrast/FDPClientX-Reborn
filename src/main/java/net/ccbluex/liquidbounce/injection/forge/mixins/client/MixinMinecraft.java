@@ -164,6 +164,11 @@ public abstract class MixinMinecraft {
         FDPClient.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
+    @Inject(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;startSection(Ljava/lang/String;)V", ordinal = 1))
+    private void hook(CallbackInfo ci) {
+        FDPClient.eventManager.callEvent(new GameLoopEvent());
+    }
+
     @Unique
     private long fDPClient$lastFrame = fDPClient$getTime();
 

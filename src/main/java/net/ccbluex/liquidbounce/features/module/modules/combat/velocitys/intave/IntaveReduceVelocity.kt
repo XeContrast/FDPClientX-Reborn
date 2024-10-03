@@ -9,8 +9,7 @@ import net.ccbluex.liquidbounce.script.api.global.Chat
 class IntaveReduceVelocity : VelocityMode("IntaveReduce") {
     @EventTarget
     override fun onAttack(event: AttackEvent) {
-        if (mc.thePlayer.hurtTime < 3) return
-        if (mc.thePlayer.isSprinting && mc.thePlayer.moveForward != 0f && mc.thePlayer.isSwingInProgress) {
+        if (mc.thePlayer.isSprinting && mc.thePlayer.moveForward != 0f && mc.thePlayer.isSwingInProgress && mc.thePlayer.hurtTime in 7..9) {
             mc.thePlayer.motionX *= 0.6
             mc.thePlayer.motionZ *= 0.6
             if (velocity.debug.get()) {

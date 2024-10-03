@@ -175,12 +175,12 @@ class BowModule : Module() {
         }
 
         if (target != null && !priorityValue.equals("Multi") && markValue.get()) {
-            RenderUtils.drawPlatform(target, Color(37, 126, 255, 70))
+            RenderUtils.drawPlatform(target!!, Color(37, 126, 255, 70))
         }
 
         if (!bowAuraValue.get()) {
             if (!AuraMarkValue.get() || target == null) return
-            RenderUtils.drawPlatform(target, Color(37, 126, 255, 70))
+            RenderUtils.drawPlatform(target!!, Color(37, 126, 255, 70))
         }
     }
 

@@ -66,6 +66,8 @@ object Sneak : Module() {
                     }
                 }
             }
+
+            else -> {}
         }
     }
 }

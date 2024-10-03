@@ -474,7 +474,7 @@ object Breaker : Module() {
     @EventTarget
     fun onMotion(e: MotionEvent) {
         if (!fastMineValue.get()) return
-        if (e.isPre()) {
+        if (e.eventState == EventState.PRE) {
             mc.playerController.blockHitDelay = 0
             if (pos != null && boost) {
                 val blockState = mc.theWorld.getBlockState(pos) ?: return

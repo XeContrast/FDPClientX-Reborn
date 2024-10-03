@@ -9,6 +9,7 @@ import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 
 object AnimationUtils {
     fun animate(target: Double, current: Double, speed: Double): Double {
@@ -114,5 +115,27 @@ object AnimationUtils {
     fun easeOut(t: Float, d: Float): Float {
         var t = t
         return ((t / d - 1).also { t = it }) * t * t + 1
+    }
+
+    fun easeInBackNotify(x: Double): Double {
+        val c1 = 1.70158;
+        val c3 = c1 + 1;
+
+        return c3 * x * x * x - c1 * x * x;
+    }
+
+
+    fun easeOutBackNotify(x: Double): Double {
+        val c1 = 1.70158;
+        val c3 = c1 + 1;
+
+        return 1 + c3 * (x - 1).pow(3) + c1 * (x - 1).pow(2);
+    }
+
+    fun easeOutBack(t: Double, b: Double, c: Double, d: Double): Double {
+        var t = t
+        val s = 1.70158
+        t = t / d - 1
+        return c * (t * t * ((s + 1) * t + s) + 1) + b
     }
 }

@@ -173,7 +173,7 @@ public abstract class MixinGuiSlot {
                 this.drawListHeader(k, l, tessellator);
             }
 
-            RenderUtils.makeScissorBox(left, top, right, bottom);
+            RenderUtils.INSTANCE.makeScissorBox(left, top, right, bottom);
 
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
 

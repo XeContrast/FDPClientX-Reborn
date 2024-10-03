@@ -15,8 +15,9 @@ interface Listenable {
     AnnotationTarget.CLASS
 )
 @Retention(AnnotationRetention.RUNTIME)
-annotation class EventTarget(val ignoreCondition: Boolean = false)
+annotation class EventTarget(val ignoreCondition: Boolean = false,val priority:Int = 0)
 
 internal class EventHook(val eventClass: Listenable, val method: Method, eventTarget: EventTarget) {
     val isIgnoreCondition = eventTarget.ignoreCondition
+    val priority = eventTarget.priority
 }

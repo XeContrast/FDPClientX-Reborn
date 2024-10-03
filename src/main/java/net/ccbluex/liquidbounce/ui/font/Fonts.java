@@ -124,6 +124,12 @@ public class Fonts {
     @FontDetails(fontName = "TenacityIcon30", fontSize = 30)
     public static GameFontRenderer fontTenacityIcon30;
 
+    @FontDetails(fontName = "XD Icons", fontSize = 85)
+    public static GameFontRenderer fontIconXD85;
+
+    @FontDetails(fontName = "Novo Angular Icons", fontSize = 85)
+    public static GameFontRenderer fontNovoAngularIcon85;
+
     //fontTenacity35  fontTenacityBold35
 
     private static final List<GameFontRenderer> CUSTOM_FONT_RENDERERS = new ArrayList<>();
@@ -154,6 +160,8 @@ public class Fonts {
         fontBold35 = new GameFontRenderer(getFont("Roboto-Bold.ttf", 35));
         fontTahomaSmall = new TTFFontRenderer(getFont("Tahoma.ttf", 11));
         fontVerdana = new TTFFontRenderer(getFont("Verdana.ttf", 7));
+        fontIconXD85 = new GameFontRenderer(getFont("iconxd.ttf", 85));
+        fontNovoAngularIcon85 = new GameFontRenderer(getFont("novoangular.ttf", 85));
         // fonts above here may not work as this is a test
         fontBangers = new GameFontRenderer(getFontcustom(45, "Bangers"));
         icon18 = new GameFontRenderer(getFontcustom(18,"Icon"));

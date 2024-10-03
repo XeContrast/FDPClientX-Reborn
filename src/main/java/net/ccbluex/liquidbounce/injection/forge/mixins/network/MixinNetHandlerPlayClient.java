@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 import io.netty.buffer.Unpooled;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.EntityDamageEvent;
+import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.PackSpoofer;
 import net.ccbluex.liquidbounce.features.module.modules.other.NoRotateSet;
@@ -177,7 +178,7 @@ public abstract class MixinNetHandlerPlayClient {
                         (this.gameController.thePlayer.motionX + packetIn.func_149149_c()) * 8000.0,
                         (this.gameController.thePlayer.motionY + packetIn.func_149144_d()) * 8000.0,
                         (this.gameController.thePlayer.motionZ + packetIn.func_149147_e()) * 8000.0);
-                PacketEvent packetEvent = new PacketEvent(packet, PacketEvent.Type.RECEIVE);
+                PacketEvent packetEvent = new PacketEvent(packet, EventState.RECEIVE);
                 FDPClient.eventManager.callEvent(packetEvent);
                 if (!packetEvent.isCancelled()) {
                     handleEntityVelocity(packet);

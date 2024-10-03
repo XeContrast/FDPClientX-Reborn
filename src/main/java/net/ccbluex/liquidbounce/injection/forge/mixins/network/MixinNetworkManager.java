@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.ccbluex.liquidbounce.FDPClient;
+import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.PacketEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.combat.BackTrack;
@@ -58,7 +59,7 @@ public abstract class MixinNetworkManager {
      */
     @Overwrite
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception {
-        PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.Type.RECEIVE);
+        PacketEvent event = new PacketEvent(p_channelRead0_2_, EventState.RECEIVE);
         if (BackTrack.INSTANCE.getState() && (BackTrack.INSTANCE.getModeValue().equals("Automatic") || Objects.equals(BackTrack.INSTANCE.getModeValue().get(), "Manual"))) {
             try {
                 BackTrack.INSTANCE.fakeLagPacket(event);
@@ -81,7 +82,7 @@ public abstract class MixinNetworkManager {
             return;
 
         if(!PacketUtils.INSTANCE.handleSendPacket(packet)){
-            final PacketEvent event = new PacketEvent(packet, PacketEvent.Type.SEND);
+            final PacketEvent event = new PacketEvent(packet, EventState.SEND);
             FDPClient.eventManager.callEvent(event);
 
             if(event.isCancelled()) {

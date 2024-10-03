@@ -12,14 +12,26 @@ import net.ccbluex.liquidbounce.ui.client.hud.designer.GuiHudDesigner
 import net.ccbluex.liquidbounce.ui.client.hud.element.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.*
-import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.blue2Value
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.blueValue
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.green2Value
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.greenValue
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.red2Value
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notifications.Companion.redValue
 import net.ccbluex.liquidbounce.features.value.*
+import net.ccbluex.liquidbounce.ui.font.Fonts.*
+import net.ccbluex.liquidbounce.utils.AnimationUtils.easeInBackNotify
+import net.ccbluex.liquidbounce.utils.AnimationUtils.easeOutBackNotify
 import net.ccbluex.liquidbounce.utils.render.shadowRenderUtils
 import net.minecraft.util.ResourceLocation
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.math.BigDecimal
+import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
 
 
 /**
@@ -36,7 +48,13 @@ class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Si
     private val whiteText = BoolValue("WhiteTextColor", true)
     private val modeColored = BoolValue("CustomModeColored", true)
     companion object {
-        val styleValue = ListValue("Mode", arrayOf("Classic", "FDP", "Modern", "Tenacity", "Intellij", "Skid"), "Modern")
+        val styleValue = ListValue("Mode", arrayOf("Classic", "FDP", "Modern", "Tenacity", "Intellij","ZAVZ", "Skid"), "Modern")
+        val redValue = IntegerValue("Red", 255, 0,255).displayable { styleValue.get() == "ZAVZ" }
+        val greenValue = IntegerValue("Green", 0, 0,255).displayable { styleValue.get() == "ZAVZ" }
+        val blueValue = IntegerValue("Blue", 84, 0,255).displayable { styleValue.get() == "ZAVZ" }
+        val red2Value = IntegerValue("Red2", 0, 0,255).displayable { styleValue.get() == "ZAVZ" }
+        val green2Value = IntegerValue("Green2", 19, 0,255).displayable { styleValue.get() == "ZAVZ" }
+        val blue2Value = IntegerValue("Blue2", 0, 0,255).displayable { styleValue.get() == "ZAVZ" }
     }
 
     /**
@@ -79,7 +97,7 @@ class Notifications(x: Double = 0.0, y: Double = 0.0, scale: Float = 1F,side: Si
 
 class Notification(
     val title: String,
-    val content: String,
+    private val content: String,
     val type: NotifyType,
     val time: Int = 1500,
     private val animeTime: Int = 500
@@ -89,12 +107,12 @@ class Notification(
     
     private val classicHeight = 30
     var x = 0F
-    var textLengthtitle = 0
-    var textLengthcontent = 0
-    var textLength = 0f
+    private var textLengthtitle = 0
+    private var textLengthcontent = 0
+    private var textLength = 0f
     init {
-        textLengthtitle = Fonts.font35.getStringWidth(title)
-        textLengthcontent = Fonts.font35.getStringWidth(content)
+        textLengthtitle = font35.getStringWidth(title)
+        textLengthcontent = font35.getStringWidth(content)
         textLength = textLengthcontent.toFloat() + textLengthtitle.toFloat()
     }
 
@@ -124,15 +142,12 @@ class Notification(
         val realY = -(index + 1) * height
         val nowTime = System.currentTimeMillis()
         var transY = nowY.toDouble()
-        var lbtl = font.getStringWidth(title + ": " + content)
-        var x = 0f
-        
-        var textColor = Color(255, 255, 255).rgb
-        
-        if (whiteText) {
-            textColor = Color(255, 255, 255).rgb
+        val x = 0f
+
+        val textColor: Int = if (whiteText) {
+            Color(255, 255, 255).rgb
         } else {
-            textColor = Color(10, 10, 10).rgb
+            Color(10, 10, 10).rgb
         }
 
         // Y-Axis Animation
@@ -186,13 +201,13 @@ class Notification(
         GL11.glTranslated(transX, transY, 0.0)
         // draw notify
         val style = parent.styleValue.get()
-        val nTypeWarning = if(type.renderColor == Color(0xF5FD00)){ true } else { false }
-        val nTypeInfo = if(type.renderColor == Color(0x6490A7)) { true } else { false }
-        val nTypeSuccess = if(type.renderColor == Color(0x60E092)) { true } else { false }
-        val nTypeError = if(type.renderColor == Color(0xFF2F2F)) { true } else { false }
+        val nTypeWarning = type.renderColor == Color(0xF5FD00)
+        val nTypeInfo = type.renderColor == Color(0x6490A7)
+        val nTypeSuccess = type.renderColor == Color(0x60E092)
+        val nTypeError = type.renderColor == Color(0xFF2F2F)
 
 
-        if (style.equals("Modern")) {
+        if (style == "Modern") {
 
             if (blurRadius != 0f) {
                 BlurUtils.draw(4 + (x + transX).toFloat() * scale, (y + transY).toFloat() * scale, (width * scale), (27f - 5f) * scale, blurRadius)
@@ -256,6 +271,145 @@ class Notification(
             font.DisplayFont2(font, content, 4F, 10F, textColor, contentShadow)
             return false
         }
+
+        if (style == "ZAVZ") {
+            val width = 100.coerceAtLeast((font35.getStringWidth(this.content)) + 70)
+
+            // Y-Axis Animation
+            if (nowY != realY) {
+                var pct = (nowTime - animeYTime) / animeTime.toDouble()
+                if (pct > 1) {
+                    nowY = realY
+                    pct = 1.0
+                } else {
+                    // Ease-out back animation could be applied here
+                    pct = easeOutBackNotify(pct)
+                }
+                GL11.glTranslated(0.0, (realY - nowY) * pct, 0.0)
+            } else {
+                animeYTime = nowTime
+            }
+            GL11.glTranslated(0.0, nowY.toDouble(), 0.0)
+
+            // X-Axis Animation
+            var pct = (nowTime - animeXTime) / animeTime.toDouble()
+            when (fadeState) {
+                FadeState.IN -> {
+                    if (pct > 1) {
+                        fadeState = FadeState.STAY
+                        animeXTime = nowTime
+                        pct = 1.0
+                    }
+                    // Ease-out back animation could be applied here
+                    pct = easeOutBackNotify(pct)
+                }
+
+                FadeState.STAY -> {
+                    pct = 1.0
+                    if ((nowTime - animeXTime) > time) {
+                        fadeState = FadeState.OUT
+                        animeXTime = nowTime
+                    }
+                }
+
+                FadeState.OUT -> {
+                    if (pct > 1) {
+                        fadeState = FadeState.END
+                        animeXTime = nowTime
+                        pct = 1.0
+                    }
+                    // Inverse easing could be applied here
+                    pct = 1 - easeInBackNotify(pct)
+                }
+
+                FadeState.END -> {
+                    return true
+                }
+            }
+            GL11.glScaled(pct, pct, pct)
+            GL11.glTranslatef(-width.toFloat(), -height.toFloat() + 30, 0F)
+
+            // Rendering shapes and elements
+            RenderUtils.drawShadow(1F, 0F, width.toFloat() - 1, height.toFloat())
+            RenderUtils.drawRect(1F, 0F, width.toFloat(), height.toFloat(), Color(0, 0, 0, 50))
+
+            // Draw Circle Function
+            fun drawCircle(x: Float, y: Float, radius: Float, start: Int, end: Int) {
+                GlStateManager.enableBlend()
+                GlStateManager.disableTexture2D()
+                GlStateManager.tryBlendFuncSeparate(
+                    GL11.GL_SRC_ALPHA,
+                    GL11.GL_ONE_MINUS_SRC_ALPHA,
+                    GL11.GL_ONE,
+                    GL11.GL_ZERO
+                )
+                GL11.glEnable(GL11.GL_LINE_SMOOTH)
+                GL11.glLineWidth(2f)
+                GL11.glBegin(GL11.GL_LINE_STRIP)
+                var i = end.toFloat()
+                while (i >= start) {
+                    val c = RenderUtils.getGradientOffset(
+                        Color(redValue.get(), greenValue.get(), blueValue.get()),
+                        Color(red2Value.get(), green2Value.get(), blue2Value.get(), 1),
+                        (abs(System.currentTimeMillis() / 360.0 + (i * 34 / 360) * 56 / 100) / 10)
+                    ).rgb
+                    val f2 = (c shr 24 and 255).toFloat() / 255.0f
+                    val f22 = (c shr 16 and 255).toFloat() / 255.0f
+                    val f3 = (c shr 8 and 255).toFloat() / 255.0f
+                    val f4 = (c and 255).toFloat() / 255.0f
+                    GlStateManager.color(f22, f3, f4, f2)
+                    GL11.glVertex2f(
+                        (x + cos(i * Math.PI / 180) * (radius * 1.001f)).toFloat(),
+                        (y + sin(i * Math.PI / 180) * (radius * 1.001f)).toFloat()
+                    )
+                    i -= 360f / 90.0f
+                }
+                GL11.glEnd()
+                GL11.glDisable(GL11.GL_LINE_SMOOTH)
+                GlStateManager.enableTexture2D()
+                GlStateManager.disableBlend()
+            }
+
+            // Drawing the circle and additional elements
+            RenderUtils.drawFilledForCircle(16f, 15f, 12.85f, Color(255, 255, 255, 255))
+            RenderUtils.drawGradientSideways(
+                1.0,
+                height.toFloat() + 0.0,
+                width * ((nowTime - displayTime) / (animeTime * 2F + time)) + 0.0,
+                height.toFloat() + 2.0,
+                Color(redValue.get(), greenValue.get(), blueValue.get()).rgb,
+                Color(red2Value.get(), green2Value.get(), blue2Value.get()).rgb
+            )
+            drawCircle(16f, 15f, 13f, 0, 360)
+
+            // Render Type-specific Icons
+            when (type.renderColor) {
+                Color(0x6490A7) -> {
+                    fontIconXD85.drawString("B", 11F, 8F, 0)
+                }
+                Color(0xF5FD00) -> {
+                    fontIconXD85.drawString("A", 14F, 8F, 0)
+                }
+                Color(0xFF2F2F) -> {
+                    fontNovoAngularIcon85.drawString("L", 9F, 10F, 0)
+                }
+                Color(0x60E092) -> {
+                    fontNovoAngularIcon85.drawString("M", 8F, 10F, 0)
+                }
+            }
+
+            // Render text content and timing
+            fontSFUI40.drawString(title, 34F, 4F, -1)
+            fontSFUI35.drawString(
+                "$content  (" + BigDecimal(((time - time * ((nowTime - displayTime) / (animeTime * 2F + time))) / 1000).toDouble()).setScale(
+                    1,
+                    BigDecimal.ROUND_HALF_UP
+                ).toString() + "s)", 34F, 17F, -1
+            )
+
+            GlStateManager.resetColor()
+            return false
+        }
         
         if (style == "FDP") {
 
@@ -312,7 +466,7 @@ class Notification(
             Fonts.font40.drawString("$title: $content", -x + 3, -13F - y, -1)
             }  */
 
-        if(style.equals("Skid")){
+        if(style == "Skid"){
 
             val colors=Color(type.renderColor.red,type.renderColor.green,type.renderColor.blue,alpha/3)
             shadowRenderUtils.drawShadowWithCustomAlpha(2f, 0F, width.toFloat() + 5f, 27f - 5f, 250f) // oops
@@ -326,38 +480,43 @@ class Notification(
             return false
             }
 
-        if(style.equals("Tenacity")){ 
-        val fontRenderer = Fonts.font35
+        if(style == "Tenacity"){
+        val fontRenderer = font35
         val thisWidth=100.coerceAtLeast(fontRenderer.getStringWidth(this.title).coerceAtLeast(fontRenderer.getStringWidth(this.content)) + 40)
         val error = ResourceLocation("fdpclient/ui/notifications/icons/tenacity/cross.png")
         val successful = ResourceLocation("fdpclient/ui/notifications/icons/tenacity/tick.png")
         val warn = ResourceLocation("fdpclient/ui/notifications/icons/tenacity/warning.png")
         val info = ResourceLocation("fdpclient/ui/notifications/icons/tenacity/info.png")
-        if(type.renderColor == Color(0xFF2F2F)){
-            RenderUtils.drawRoundedCornerRect(-18F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(180,0,0,190).rgb)
-            RenderUtils.drawImage(error,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        }else if(type.renderColor == Color(0x60E092)){
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,180,0,190).rgb)
-            RenderUtils.drawImage(successful,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        } else if(type.renderColor == Color(0xF5FD00)){
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
-            RenderUtils.drawImage(warn,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        } else {
-            RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
-            RenderUtils.drawImage(info,-13,5,18,18)
-            Fonts.font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
-            Fonts.font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
-        }
+            when (type.renderColor) {
+                Color(0xFF2F2F) -> {
+                    RenderUtils.drawRoundedCornerRect(-18F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(180,0,0,190).rgb)
+                    RenderUtils.drawImage(error,-13,5,18,18)
+                    font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                    font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+                }
+                Color(0x60E092) -> {
+                    RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,180,0,190).rgb)
+                    RenderUtils.drawImage(successful,-13,5,18,18)
+                    font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                    font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+                }
+                Color(0xF5FD00) -> {
+                    RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
+                    RenderUtils.drawImage(warn,-13,5,18,18)
+                    font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                    font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+                }
+                else -> {
+                    RenderUtils.drawRoundedCornerRect(-16F,1F,thisWidth.toFloat(),height.toFloat() - 2F,5f,Color(0,0,0,190).rgb)
+                    RenderUtils.drawImage(info,-13,5,18,18)
+                    font35.drawString(title,9F,16F,Color(255,255,255,255).rgb)
+                    font40.drawString(content,9F,6F,Color(255,255,255,255).rgb)
+                }
+            }
         return false
         }
 
-        if(style.equals("Classic")) {
+        if(style == "Classic") {
             if (blurRadius != 0f)
                 BlurUtils.draw((x + transX).toFloat() * scale, (y + transY).toFloat() * scale, width * scale, classicHeight * scale, blurRadius) 
                 
@@ -369,14 +528,14 @@ class Notification(
             return false
        }
 
-        if(style.equals("Intellij")) {
+        if(style == "Intellij") {
                 val notifyDir = "fdpclient/notifications/icons/noti/intellij/"
                 val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
                 val imgError = ResourceLocation("${notifyDir}error.png")
                 val imgWarning = ResourceLocation("${notifyDir}warning.png")
                 val imgInfo = ResourceLocation("${notifyDir}info.png")
 
-                val dist = (x + 1 + 26F) - (x - 8 - textLength)
+            (x + 1 + 26F) - (x - 8 - textLength)
                 val kek = -x - 1 - 20F
 
                 GlStateManager.resetColor()

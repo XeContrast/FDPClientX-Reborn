@@ -17,26 +17,20 @@ class EventManager : MinecraftInstance() {
     /**
      * Register [listener]
      */
-    fun registerListener(listener: Listenable) {
-        for (method in listener.javaClass.declaredMethods) {
+    fun registerListener(listener: Listenable) =
+        listener.javaClass.declaredMethods.forEach { method ->
             if (method.isAnnotationPresent(EventTarget::class.java) && method.parameterTypes.size == 1) {
-                try {
-                    if (!method.isAccessible) {
-                        method.isAccessible = true
-                    }
+                if (!method.isAccessible)
+                    method.isAccessible = true
 
-                    val eventClass = method.parameterTypes[0] as Class<out Event>
-                    val eventTarget = method.getAnnotation(EventTarget::class.java)
+                val eventClass = method.parameterTypes[0] as Class<out Event>
+                val eventTarget = method.getAnnotation(EventTarget::class.java)
 
-                    val invokableEventTargets = registry.getOrPut(eventClass) { mutableListOf() }
-                    invokableEventTargets.add(EventHook(listener, method, eventTarget))
-                    registry[eventClass] = invokableEventTargets
-                } catch (t: Throwable) {
-                    t.printStackTrace()
-                }
+                val invokableEventTargets = registry.getOrDefault(eventClass, ArrayList())
+                invokableEventTargets += EventHook(listener, method, eventTarget)
+                registry[eventClass] = invokableEventTargets.sortedByDescending { it.priority }.toMutableList()
             }
         }
-    }
 
     /**
      * Unregister listener
@@ -92,7 +86,7 @@ class EventManager : MinecraftInstance() {
                 }
             }
         }catch (e :Exception){
-            e.printStackTrace();
+            e.printStackTrace()
         }
     }
 }

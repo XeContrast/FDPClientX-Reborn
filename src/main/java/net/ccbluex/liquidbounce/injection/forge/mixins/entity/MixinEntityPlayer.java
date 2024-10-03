@@ -61,6 +61,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
 
     @Shadow public abstract void fall(float p_fall_1_, float p_fall_2_);
 
+    @Shadow public float cameraYaw;
     @Unique
     private ItemStack fDP1$cooldownStack;
     @Unique

@@ -173,7 +173,7 @@ class VerusBoostFly : FlyMode("VerusBoost") {
     override fun onMotion(event: MotionEvent) {
         when (boostModeValue.get()) {
             "Boost1" -> {
-                if(!event.isPre())
+                if(event.eventState != EventState.PRE)
                     return
                 ticks++
                 if(ticks == 3) {
@@ -188,7 +188,7 @@ class VerusBoostFly : FlyMode("VerusBoost") {
             }
 
             "Boost2" -> {
-                if(!event.isPre()) return
+                if(event.eventState != EventState.PRE) return
 
                 ticks++
             }
