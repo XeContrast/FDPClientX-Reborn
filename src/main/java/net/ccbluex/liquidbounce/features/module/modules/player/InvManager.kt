@@ -20,6 +20,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.InventoryUtils.amount
 import net.minecraft.block.Block
 import net.minecraft.block.BlockBush
 import net.minecraft.client.gui.inventory.GuiInventory
@@ -636,36 +637,4 @@ object InvManager : Module() {
         8 -> sortSlot9Value.get()
         else -> ""
     }
-
-    private val amount: IntArray
-        get() {
-            var missileAmount = 0
-            var blockAmount = 0
-            var arrowAmount = 0
-            var foodAmount = 0
-            for (i in 0..36) {
-                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (itemStack != null) {
-                    when (itemStack.item) {
-                        is ItemSnowball, is ItemEgg -> {
-                            missileAmount += itemStack.stackSize
-                        }
-
-                        is ItemBlock -> {
-                            if (InventoryUtils.canPlaceBlock((itemStack.item as ItemBlock).block)) {
-                                blockAmount += itemStack.stackSize
-                            }
-                        }
-
-                        is ItemFood -> {
-                            foodAmount += itemStack.stackSize
-                        }
-                    }
-                    if (itemStack.unlocalizedName == "item.arrow") {
-                        arrowAmount += itemStack.stackSize
-                    }
-                }
-            }
-            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount)
-        }
 }

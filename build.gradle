@@ -56,7 +56,7 @@ def viaLibs = [
 ]
 
 dependencies {
-    implementation 'org.projectlombok:lombok:1.18.34'
+    include 'org.projectlombok:lombok:1.18.34'
     include "com.google.zxing:core:3.5.3"
     include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
         transitive = false

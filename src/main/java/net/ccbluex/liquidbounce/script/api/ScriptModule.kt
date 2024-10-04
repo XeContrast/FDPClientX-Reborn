@@ -96,7 +96,14 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
     fun onRender3D(render3DEvent: Render3DEvent) = callEvent("render3D", render3DEvent)
 
     @EventTarget
-    fun onPacket(packetEvent: PacketEvent) = callEvent("packet", packetEvent)
+    fun onPacket(packetEvent: PacketEvent) {
+        callEvent("packet", packetEvent)
+        when (packetEvent.eventType) {
+            EventState.SEND -> callEvent("sendpacket", packetEvent)
+            EventState.RECEIVE -> callEvent("receivepacket", packetEvent)
+            else -> {}
+        }
+    }
 
     @EventTarget
     fun onJump(jumpEvent: JumpEvent) = callEvent("jump", jumpEvent)

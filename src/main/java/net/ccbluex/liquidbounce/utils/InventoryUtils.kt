@@ -13,10 +13,7 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
 import net.minecraft.block.BlockBush
 import net.minecraft.init.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemBlock
-import net.minecraft.item.ItemPotion
-import net.minecraft.item.ItemStack
+import net.minecraft.item.*
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
@@ -176,4 +173,43 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             stack.item is ItemBlock && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
         }.maxByOrNull { inventory.getSlot(it).stack.stackSize } ?: -1
     }
+
+    val amount: IntArray
+        get() {
+            var missileAmount = 0
+            var blockAmount = 0
+            var arrowAmount = 0
+            var foodAmount = 0
+            var gappleAmount = 0
+            for (i in 0..36) {
+                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (itemStack != null) {
+                    when (itemStack.item) {
+                        is ItemSnowball, is ItemEgg -> {
+                            missileAmount += itemStack.stackSize
+                        }
+
+                        is ItemBlock -> {
+                            if (canPlaceBlock((itemStack.item as ItemBlock).block)) {
+                                blockAmount += itemStack.stackSize
+                            }
+                        }
+
+                        is ItemFood -> {
+                            foodAmount += itemStack.stackSize
+                        }
+                    }
+                    if (itemStack.unlocalizedName == "item.arrow") {
+                        arrowAmount += itemStack.stackSize
+                    }
+                }
+            }
+            val itemStack = mc.thePlayer.inventoryContainer.getSlot(mc.thePlayer.inventory.currentItem).stack
+            if (itemStack != null) {
+                if (itemStack.item is ItemAppleGold) {
+                    gappleAmount += itemStack.stackSize
+                }
+            }
+            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,gappleAmount)
+        }
 }

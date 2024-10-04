@@ -9,79 +9,136 @@ import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
+import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.MathUtils.toRadians
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
+import net.ccbluex.liquidbounce.utils.render.Render
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
 
 @ModuleInfo(name = "JumpCircle", category = ModuleCategory.VISUAL)
 object JumpCircle : Module() {
-    private val mode = ListValue("Mode", arrayOf("Normal","Custom","Rainbow"),"Normal")
 
+    private val typeValue = ListValue("Mode", arrayOf("OldCircle", "NewCircle"), "OldCircle")
+    //NewCircle
     val disappearTime = IntegerValue("Time", 1000, 1000,3000)
     val radius = FloatValue("Radius", 2f, 1f,5f)
+    private val colorModeValue = ListValue("Color", arrayOf("Custom", "Theme", "Fade"), "Theme")
 
-    val rainbowValue = BoolValue("Rainbow", false)
+    private val colorRedValue: IntegerValue = IntegerValue("Red", 255, 0, 255)
+    private val colorGreenValue = IntegerValue("Green", 255, 0, 255)
+    private val colorBlueValue = IntegerValue("Blue", 255, 0, 255)
 
-    val r = IntegerValue("Red", 0,0,255).displayable { mode.equals("Custom")}
-    val b = IntegerValue("Blue",0,0,255).displayable { mode.equals("Custom")}
-    val g = IntegerValue("Green",0,0,255).displayable { mode.equals("Custom")}
-    val start = FloatValue("Start", 0.5f, 0f,1f).displayable {mode.equals("Normal")}
-    val end = FloatValue("End", 0.3f, 0f,1f).displayable {mode.equals("Normal")}
 
+    private val points = mutableMapOf<Int, MutableList<Render>>()
+    var jump=false
     private val circles = mutableListOf<Circle>()
-    private var lastOnGround = false
+    var red = colorRedValue.get()
+    var green = colorGreenValue.get()
+    var blue = colorBlueValue.get()
+
+    @EventTarget
+    fun onRender3D(event: Render3DEvent?) {
+        when (typeValue.get().lowercase(Locale.getDefault())) {
+            "oldcircle" -> {
+                points.forEach {
+                    for (point in it.value) {
+                        point.draw()
+                        if (point.alpha < 0F) {
+                            it.value.remove(point)
+                        }
+                    }
+                }
+            }
+            "newcircle" -> {
+                circles.removeIf { System.currentTimeMillis() > it.time + disappearTime.get() }
+
+                GL11.glPushMatrix()
+
+                GL11.glEnable(GL11.GL_BLEND)
+                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
+                GL11.glDisable(GL11.GL_CULL_FACE)
+                GL11.glDisable(GL11.GL_TEXTURE_2D)
+                GL11.glDisable(GL11.GL_DEPTH_TEST)
+                GL11.glDepthMask(false)
+                GL11.glDisable(GL11.GL_ALPHA_TEST)
+                GL11.glShadeModel(GL11.GL_SMOOTH)
+
+                circles.forEach { it.draw() }
+
+                GL11.glDisable(GL11.GL_BLEND)
+                GL11.glEnable(GL11.GL_CULL_FACE)
+                GL11.glEnable(GL11.GL_TEXTURE_2D)
+                GL11.glEnable(GL11.GL_DEPTH_TEST)
+                GL11.glDepthMask(true)
+                GL11.glEnable(GL11.GL_ALPHA_TEST)
+                GL11.glShadeModel(GL11.GL_FLAT)
+
+                GL11.glPopMatrix()
+            }
+        }
+    }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.onGround && !lastOnGround) {
-            circles.add(Circle(System.currentTimeMillis(), mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ))
+        if (!mc.thePlayer.onGround && !jump) {
+            jump = true
         }
-        lastOnGround = mc.thePlayer.onGround
+        if (mc.thePlayer.onGround && jump) {
+            updatePoints(mc.thePlayer)
+            jump = false
+        }
+    }
+
+    private fun updatePoints(entity: EntityLivingBase) {
+        when (typeValue.get().lowercase(Locale.getDefault())) {
+            "oldcircle" -> {
+                val counter = intArrayOf(0)
+                (points[entity.entityId] ?: mutableListOf<Render>().also { points[entity.entityId] = it }).add(
+                    Render(
+                        entity.posX, entity.entityBoundingBox.minY, entity.posZ, System.currentTimeMillis(),
+                        when (colorModeValue.get()) {
+                            "Custom" -> Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
+                            "Theme" -> ColorUtils.rainbow()
+                            else -> ColorUtils.fade(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get()), 1, 100)
+                        }
+                    )
+                )
+                counter[0] = counter[0] + 1
+            }
+            "newcircle" -> {
+                circles.add(Circle(System.currentTimeMillis(), mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ))
+            }
+        }
     }
 
     @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        circles.removeIf { System.currentTimeMillis() > it.time + disappearTime.get() }
+    fun onWorld(event: WorldEvent) {
+        points.clear()
+    }
 
-        GL11.glPushMatrix()
-
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glDisable(GL11.GL_CULL_FACE)
-        GL11.glDisable(GL11.GL_TEXTURE_2D)
-        GL11.glDisable(GL11.GL_DEPTH_TEST)
-        GL11.glDepthMask(false)
-        GL11.glDisable(GL11.GL_ALPHA_TEST)
-        GL11.glShadeModel(GL11.GL_SMOOTH)
-
-        circles.forEach { it.draw() }
-
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glEnable(GL11.GL_CULL_FACE)
-        GL11.glEnable(GL11.GL_TEXTURE_2D)
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
-        GL11.glDepthMask(true)
-        GL11.glEnable(GL11.GL_ALPHA_TEST)
-        GL11.glShadeModel(GL11.GL_FLAT)
-
-        GL11.glPopMatrix()
+    override fun onDisable() {
+        points.clear()
     }
 
     class Circle(val time: Long, val x: Double, val y: Double, val z: Double){
+        var entity: EntityLivingBase = mc.thePlayer
         private val jumpModule = FDPClient.moduleManager.getModule(JumpCircle::class.java) as JumpCircle
-
+        var colorModeValue = jumpModule.colorModeValue.get()
+        var colorRedValue = jumpModule.colorRedValue.get()
+        var colorGreenValue = jumpModule.colorGreenValue.get()
+        var colorBlueValue = jumpModule.colorBlueValue.get()
         fun draw() {
 
             val dif = (System.currentTimeMillis() - time)
@@ -97,43 +154,27 @@ object JumpCircle : Module() {
 
             GL11.glBegin(GL11.GL_TRIANGLE_STRIP)
             for (i in 0..360) {
-                if (mode.equals("Normal")) {
-                    val color = if (jumpModule.rainbowValue.get()) Color.getHSBColor(i / 360f, 1f, 1f)
-                    else ColorUtils.hsbTransition(jumpModule.start.get(), jumpModule.end.get(), i)
-                    val x = (dif * jumpModule.radius.get() * 0.001 * sin(i.toDouble().toRadians()))
-                    val z = (dif * jumpModule.radius.get() * 0.001 * cos(i.toDouble().toRadians()))
+                val color = getColor(0)
 
-                    RenderUtils.glColor(color.red, color.green, color.blue, 0)
-                    GL11.glVertex3d(x / 2, 0.0, z / 2)
+                val x = (dif * jumpModule.radius.get() * 0.001 * sin(i.toDouble().toRadians()))
+                val z = (dif * jumpModule.radius.get() * 0.001 * cos(i.toDouble().toRadians()))
 
-                    RenderUtils.glColor(color.red, color.green, color.blue, c.toInt())
-                    GL11.glVertex3d(x, 0.0, z)
-                }
-                if (mode.equals("Rainbow")) {
-                    val x = (dif * jumpModule.radius.get() * 0.001 * sin(i.toDouble().toRadians()))
-                    val z = (dif * jumpModule.radius.get() * 0.001 * cos(i.toDouble().toRadians()))
-                    RenderUtils.glColor(rainbow().red, rainbow().green, rainbow().blue, 0)
-                    GL11.glVertex3d(x / 2, 0.0, z / 2)
+                RenderUtils.glColor(color.red, color.green, color.blue, 0)
+                GL11.glVertex3d(x / 2, 0.0, z / 2)
 
-                    RenderUtils.glColor(rainbow().red, rainbow().green, rainbow().blue, c.toInt())
-                    GL11.glVertex3d(x, 0.0, z)
-                    RenderUtils.glColor(rainbow().red, rainbow().green, rainbow().blue,120)
-                }
-                else {
-                    val x = (dif * jumpModule.radius.get() * 0.001 * sin(i.toDouble().toRadians()))
-                    val z = (dif * jumpModule.radius.get() * 0.001 * cos(i.toDouble().toRadians()))
-                    RenderUtils.glColor(r.get(),g.get(),b.get(), 0)
-                    GL11.glVertex3d(x / 2, 0.0, z / 2)
-
-                    RenderUtils.glColor(r.get(),g.get(),b.get(), c.toInt())
-                    GL11.glVertex3d(x, 0.0, z)
-                    RenderUtils.glColor(r.get(),g.get(),b.get(),120)
-                }
+                RenderUtils.glColor(color.red, color.green, color.blue, c.toInt())
+                GL11.glVertex3d(x, 0.0, z)
             }
             GL11.glEnd()
 
             GL11.glPopMatrix()
         }
+        fun getColor(index: Int): Color {
+            return when (colorModeValue) {
+                "Custom" -> Color(colorRedValue, colorGreenValue, colorBlueValue)
+                "Theme" -> ColorUtils.rainbow()
+                else -> ColorUtils.fade(Color(colorRedValue, colorGreenValue, colorBlueValue), index, 100)
+            }
+        }
     }
-
 }

@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -319,7 +320,7 @@ object NoSlow : Module() {
                 }
                 if (consumePacketValue.equals("Bug")) {
                         if (conmode.equals("C07")) {
-                            if (mc.thePlayer.heldItem.item is ItemPotion && mc.thePlayer.heldItem.item is ItemBucketMilk) {
+                            if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || InventoryUtils.amount[4] <= 1) {
                                 return
                             }
                             mc.thePlayer.sendQueue.addToSendQueue(
