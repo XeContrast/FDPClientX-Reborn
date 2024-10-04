@@ -18,6 +18,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.PlayerUtils.getLookingTargetRange
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.getNearestPointBB
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.entity.Entity
@@ -40,7 +41,8 @@ object BackTrack : Module() {
      */
     val modeValue = ListValue("LagMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
     private val esp = BoolValue("Render-Server-Pos", true)
-    private val timeValue = IntegerValue("Time", 200, 0, 2000).displayable { modeValue.equals("Automatic") }
+    private val minTimeValue = IntegerValue("MinTime", 200, 0, 2000).displayable { modeValue.equals("Automatic") }
+    private val maxTimeValue = IntegerValue("MaxTime", 200, 0, 2000).displayable { modeValue.equals("Automatic") }
     private val onlyPlayer = BoolValue("OnlyPlayer", true).displayable { modeValue.equals("Automatic") }
     private val sizeValue = IntegerValue("Delay-Size", 100, 0, 1000).displayable { modeValue.equals("PacketDelay") }
 
@@ -49,6 +51,7 @@ object BackTrack : Module() {
     private val storageEntities = ArrayList<Entity>()
 
     private var timer = MSTimer()
+    private var time: Int = 0
     private var attacked: Entity? = null
 
     private val packets: LinkedList<PacketEvent> = LinkedList()
@@ -227,12 +230,13 @@ object BackTrack : Module() {
     fun onMotion(event: MotionEvent) {
         if (event.eventState == EventState.PRE) return
         if (modeValue.equals("PacketDelay")) {
-            if (packets.isEmpty()) return;
-            clear(this.sizeValue.get());
+            if (packets.isEmpty()) return
+            clear(this.sizeValue.get())
         } else {
             if (needFreeze) {
                 if (!modeValue.equals("Manual")) {
-                    if (timer.hasTimePassed(timeValue.get().toLong())) {
+                    time = RandomUtils.nextInt(minTimeValue.get(), maxTimeValue.get())
+                    if (timer.hasTimePassed(time.toLong())) {
                         releasePackets()
                         return
                     }
@@ -256,7 +260,8 @@ object BackTrack : Module() {
                         val entity1 = attacked
                         if (entity1 != entity) continue
                         if (!modeValue.equals("Manual")) {
-                            if (timer.hasTimePassed(timeValue.get().toLong())) {
+                            time = RandomUtils.nextInt(minTimeValue.get(), maxTimeValue.get())
+                            if (timer.hasTimePassed(time.toLong())) {
                                 if (range >= 6) {
                                     release = true
                                     break
@@ -378,7 +383,11 @@ object BackTrack : Module() {
     }
 
     override val tag: String
-        get() = modeValue.get()
+        get() = when (modeValue.get().lowercase()) {
+            "automatic" -> time.toString()
+            "packetdelay" -> sizeValue.get().toString()
+            else -> "Shit"
+        }
 }
 private class PosData {
     var height: Float = 1.9f
