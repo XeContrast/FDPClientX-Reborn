@@ -204,10 +204,9 @@ object InventoryUtils : MinecraftInstance(), Listenable {
                     }
                 }
             }
-            val itemStack = mc.thePlayer.inventoryContainer.getSlot(mc.thePlayer.inventory.currentItem).stack
-            if (itemStack != null) {
-                if (itemStack.item is ItemAppleGold) {
-                    gappleAmount += itemStack.stackSize
+            if (mc.thePlayer.heldItem != null) {
+                if (mc.thePlayer.heldItem.item is ItemAppleGold) {
+                    gappleAmount += mc.thePlayer.heldItem.stackSize
                 }
             }
             return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,gappleAmount)
