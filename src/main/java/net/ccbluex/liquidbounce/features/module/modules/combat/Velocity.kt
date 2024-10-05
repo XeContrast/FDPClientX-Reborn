@@ -124,18 +124,20 @@ object Velocity : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         mode.onPacket(event)
-        if ((onlyGroundValue.get() && !mc.thePlayer.onGround) || (onlyCombatValue.get() && !FDPClient.combatManager.inCombat)) {
+        val player = mc.thePlayer ?: return
+        val world = mc.theWorld ?: return
+        if ((onlyGroundValue.get() && !player.onGround) || (onlyCombatValue.get() && !FDPClient.combatManager.inCombat)) {
             return
         }
 
         val packet = event.packet
         if (packet is S12PacketEntityVelocity) {
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet.entityID) ?: return) != mc.thePlayer) {
+            if ((world.getEntityByID(packet.entityID) ?: return) != player) {
                 return
             }
             // if(onlyHitVelocityValue.get() && packet.getMotionY()<400.0) return
-            if (nowater.get() && mc.thePlayer.isInWater) return
-            if (noFireValue.get() && mc.thePlayer.isBurning) return
+            if (nowater.get() && player.isInWater) return
+            if (noFireValue.get() && player.isBurning) return
             velocityTimer.reset()
             velocityTick = 0
 
@@ -144,7 +146,7 @@ object Velocity : Module() {
                     if (overrideDirectionValue.get() == "Hard") {
                         overrideDirectionYawValue.get()
                     } else {
-                        mc.thePlayer.rotationYaw + overrideDirectionYawValue.get() + 90
+                        player.rotationYaw + overrideDirectionYawValue.get() + 90
                     }.toDouble()
                 )
                 val dist = sqrt((packet.motionX * packet.motionX + packet.motionZ * packet.motionZ).toDouble())

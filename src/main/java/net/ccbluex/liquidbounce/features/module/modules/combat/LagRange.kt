@@ -2,6 +2,7 @@ package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import akka.japi.Pair
 import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.GameLoopEvent
 import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -15,6 +16,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent
 import java.util.function.Function
 
 @ModuleInfo("LagRange", category = ModuleCategory.COMBAT)
@@ -23,13 +25,13 @@ class LagRange : Module() {
     private val min : FloatValue = object : FloatValue("MinRange", 3.6f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = max.get()
-            if (i > newValue) set(i)
+            if (i < newValue) set(i)
         }
     }
     private val max : FloatValue = object : FloatValue("MaxRange", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = min.get()
-            if (i < newValue) set(i)
+            if (i > newValue) set(i)
         }
     }
     private val delay = IntegerValue("Delay", 150, 50, 2000)
@@ -40,7 +42,7 @@ class LagRange : Module() {
     private var reach: Float = 0F
 
     @EventTarget
-    private fun onTick(event: TickEvent) {
+    private fun onTick(event: GameLoopEvent) {
         if (!shouldStart()) return
 
         Thread.sleep(lagTime.get().toLong())
