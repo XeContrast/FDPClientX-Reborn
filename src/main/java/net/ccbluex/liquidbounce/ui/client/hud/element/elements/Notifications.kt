@@ -572,7 +572,7 @@ class Notification(
                 GlStateManager.disableAlpha()
                 GlStateManager.resetColor()
                 GL11.glColor4f(1F, 1F, 1F, 1F)
-                RenderUtils.drawImage2(if(nTypeSuccess){imgSuccess} else if(nTypeError){imgError} else if(nTypeWarning){imgWarning} else {imgInfo}, kek + 5, -25F - y, 7, 7)
+                RenderUtils.drawImage(if(nTypeSuccess){imgSuccess} else if(nTypeError){imgError} else if(nTypeWarning){imgWarning} else {imgInfo}, (kek + 5).toInt(), (-25F - y).toInt(), 7, 7, ways = true)
                 GlStateManager.enableAlpha()
                 GL11.glPopMatrix()
 

@@ -6,10 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.FDPClient
-import net.ccbluex.liquidbounce.event.AttackEvent
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.event.WorldEvent
+import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -44,8 +41,12 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
+import java.io.File
+import java.io.IOException
 import java.util.*
-import kotlin.math.roundToInt
+import javax.sound.sampled.AudioInputStream
+import javax.sound.sampled.AudioSystem
+
 
 @ModuleInfo("CombatVisuals", category = ModuleCategory.VISUAL)
 object CombatVisuals : Module() {
@@ -64,13 +65,10 @@ object CombatVisuals : Module() {
     val colorGreenValue = IntegerValue("Mark-Green", 160, 0,255).displayable { isMarkMode }
     val colorBlueValue = IntegerValue("Mark-Blue", 255, 0,255).displayable { isMarkMode }
 
-    private val alphaValue = IntegerValue("Alpha", 255, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
-
     val colorRedTwoValue = IntegerValue("Mark-Red 2", 0, 0, 255).displayable { isMarkMode && markValue.get() == "Zavz" }
     val colorGreenTwoValue = IntegerValue("Mark-Green 2", 160, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
     val colorBlueTwoValue = IntegerValue("Mark-Blue 2", 255, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
 
-    private val rainbow = BoolValue("Mark-RainBow", false).displayable { isMarkMode }
     private val boxOutline = BoolValue("Mark-Outline", true).displayable { isMarkMode && markValue.get() == "RoundBox" }
 
     // fake sharp
@@ -78,6 +76,7 @@ object CombatVisuals : Module() {
 
     // Sound
 
+    private val miniWorld = BoolValue("MiniWorldSound",false)
     private val particle = ListValue("Particle",
         arrayOf("None", "Blood", "Lighting", "Fire", "Heart", "Water", "Smoke", "Magic", "Crits"), "Blood")
 
@@ -89,26 +88,45 @@ object CombatVisuals : Module() {
     private val volume = FloatValue("Volume", 1f, 0.1f, 5f).displayable { sound.get() != "None" }
     private val pitch = FloatValue("Pitch", 1f, 0.1f,5f).displayable { sound.get() != "None" }
 
+    //Dev
+    private val debug = BoolValue("Debug",false)
+
     // variables
     private val targetList = HashMap<EntityLivingBase, Long>()
     private val combat = FDPClient.combatManager
     var random = Random()
     const val DOUBLE_PI = Math.PI * 2
     var start = 0.0
+    private var killedAmount = 0
 
     @EventTarget
     fun onWorld(event: WorldEvent?) {
         targetList.clear()
+        killedAmount = 0
     }
+
+//    @EventTarget
+//    fun onKilled(event: EntityKilledEvent) {
+//        if (miniWorld.get()) {
+//            killedAmount += 1
+//            try {
+//                val file = "fdpclient/sound/1.wav"
+//            } catch (e : Exception) {
+//                println("Error with playing sound.")
+//                e.printStackTrace()
+//            }
+//            if (killedAmount >= 7) {
+//                killedAmount = 0
+//            }
+//
+//            if (debug.get()) {
+//                println(killedAmount)
+//            }
+//        }
+//    }
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        val color: Color = if (rainbow.get()) ColorUtils.rainbow() else Color(
-            colorRedValue.get(),
-            colorGreenValue.get(),
-            colorBlueValue.get(),
-            alphaValue.get()
-        )
         val renderManager = mc.renderManager
         val entityLivingBase = combat.target ?: return
         (entityLivingBase.lastTickPosX + (entityLivingBase.posX - entityLivingBase.lastTickPosX) * mc.timer.renderPartialTicks

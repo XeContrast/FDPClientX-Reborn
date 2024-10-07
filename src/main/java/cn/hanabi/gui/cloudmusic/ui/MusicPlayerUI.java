@@ -202,7 +202,7 @@ public class MusicPlayerUI extends GuiScreen {
         if (MusicManager.INSTANCE.currentTrack != null) {
             if (MusicManager.INSTANCE.getArt(MusicManager.INSTANCE.currentTrack.id) != null) {
                 GL11.glPushMatrix();
-                RenderUtils.drawImage2(MusicManager.INSTANCE.getArt(MusicManager.INSTANCE.currentTrack.id), x + (width / 2) - 50, y + (height / 2 - 10) - 50, 100, 100 );
+                RenderUtils.drawImage(MusicManager.INSTANCE.getArt(MusicManager.INSTANCE.currentTrack.id), (int) (x + (width / 2) - 50),(int) (y + (height / 2 - 10) - 50), 100, 100,true );
                 GL11.glPopMatrix();
             }
         }

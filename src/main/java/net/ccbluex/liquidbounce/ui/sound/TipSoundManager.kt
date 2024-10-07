@@ -7,10 +7,12 @@ import java.io.File
 class TipSoundManager {
     var enableSound: TipSoundPlayer
     var disableSound: TipSoundPlayer
+//    var miniWorld: TipSoundPlayer
 
     init {
         val enableSoundFile = File(FDPClient.fileManager.soundsDir, "enable.wav")
         val disableSoundFile = File(FDPClient.fileManager.soundsDir, "disable.wav")
+//        val miniWorldFile = File("assets/minecraft/fdpclient/sound/1.wav")
 
         if (!enableSoundFile.exists()) {
             FileUtils.unpackFile(enableSoundFile, "assets/minecraft/fdpclient/sound/enable.wav")
@@ -21,5 +23,6 @@ class TipSoundManager {
 
         enableSound = TipSoundPlayer(enableSoundFile)
         disableSound = TipSoundPlayer(disableSoundFile)
+//        miniWorld = TipSoundPlayer(miniWorldFile)
     }
 }

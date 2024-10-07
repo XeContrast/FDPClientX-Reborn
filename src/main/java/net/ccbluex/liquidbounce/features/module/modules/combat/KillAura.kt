@@ -108,12 +108,23 @@ object KillAura : Module() {
     // Range
     private val rangeDisplay = BoolValue("Range-Options", true)
 
+
+    private val reachMode = ListValue("ReachMode", arrayOf("Normal","Air","TargetPosY"),"Normal")
     private val rangeValue: FloatValue = object : FloatValue("Target-Range", 3.0f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val i = discoverRangeValue.get()
             if (i < newValue) set(i)
         }
-    }.displayable { rangeDisplay.get() } as FloatValue
+    }.displayable { rangeDisplay.get() && reachMode.equals("Normal") } as FloatValue
+
+    private val groundRangeValue = FloatValue("GroundRange",3.0f,0f,8f).displayable { reachMode.equals("Air") && rangeDisplay.get()}
+    private val airRangeValue = FloatValue("AirRange",3.0f,0f,8f).displayable { reachMode.equals("Air") && rangeDisplay.get() }
+
+    private val lowRangeValue = FloatValue("LowTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get()}
+    private val middleRangeValue = FloatValue("MiddleTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get()}
+    private val highRangeValue = FloatValue("HighTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get() }
+
+
 
     private val discoverRangeValue = FloatValue("Discover-Range", 6f, 0f, 8f).displayable { rangeDisplay.get() }
 
@@ -381,8 +392,6 @@ object KillAura : Module() {
 
     private val throughWallsValue = BoolValue("ThroughWalls", false)
 
-    private val multiCombo = BoolValue("MultiCombo", false).displayable { bypassDisplay.get() }
-
     private val failRateValue = FloatValue("FailRate", 0f, 0f, 100f).displayable { bypassDisplay.get() }
     private val fakeSwingValue =
         BoolValue("FakeSwing", true).displayable { failRateValue.get() != 0f && failRateValue.displayable }
@@ -638,6 +647,27 @@ object KillAura : Module() {
             val nextitem = (curritem + 1) % 9
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(nextitem))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(curritem))
+        }
+
+        if (reachMode.equals("Air")) {
+            if (mc.thePlayer.onGround) {
+                rangeValue.set(groundRangeValue.get())
+            } else {
+                rangeValue.set(airRangeValue.get())
+            }
+        }
+        if (reachMode.equals("TargetPosY")) {
+            if (currentTarget != null) {
+                if (currentTarget!!.posY > mc.thePlayer.posY) {
+                    rangeValue.set(highRangeValue.get())
+                } else if (currentTarget!!.posY == mc.thePlayer.posY) {
+                    rangeValue.set(middleRangeValue.get())
+                } else {
+                    rangeValue.set(lowRangeValue.get())
+                }
+            } else {
+                rangeValue.set(middleRangeValue.get())
+            }
         }
 
         if (noInventoryAttackValue.equals("CancelRun") && (mc.currentScreen is GuiContainer ||

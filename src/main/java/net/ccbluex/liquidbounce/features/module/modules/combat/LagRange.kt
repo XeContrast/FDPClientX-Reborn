@@ -1,9 +1,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
-import akka.japi.Pair
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.GameLoopEvent
-import net.ccbluex.liquidbounce.event.TickEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -15,9 +13,6 @@ import net.ccbluex.liquidbounce.utils.EntityUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent
-import java.util.function.Function
 
 @ModuleInfo("LagRange", category = ModuleCategory.COMBAT)
 class LagRange : Module() {
@@ -42,7 +37,7 @@ class LagRange : Module() {
     private var reach: Float = 0F
 
     @EventTarget
-    private fun onTick(event: GameLoopEvent) {
+    private fun onGameLoop(event: GameLoopEvent) {
         if (!shouldStart()) return
 
         Thread.sleep(lagTime.get().toLong())

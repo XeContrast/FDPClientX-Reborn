@@ -48,7 +48,7 @@ public enum MusicOverlayRenderer {
                 GL11.glPushMatrix();
                 GL11.glColor4f(1, 1, 1, 1);
                 ResourceLocation icon = MusicManager.INSTANCE.circleLocations.get(MusicManager.INSTANCE.getCurrentTrack().id);
-                RenderUtils.drawImage(icon, 4 + addonX, 6 + addonY, 28, 28);
+                RenderUtils.drawImage(icon, 4 + addonX, 6 + addonY, 28, 28, false);
                 GL11.glPopMatrix();
             } else {
                 MusicManager.INSTANCE.getCircle(MusicManager.INSTANCE.getCurrentTrack());
@@ -95,7 +95,7 @@ public enum MusicOverlayRenderer {
                 GL11.glPushMatrix();
                 GL11.glColor4f(1, 1, 1, 1);
                 ResourceLocation icon = MusicManager.INSTANCE.circleLocations.get(MusicManager.INSTANCE.getCurrentTrack().id);
-                RenderUtils.drawImage2(icon, sr.getScaledWidth() - animation + 5, 8, 28, 28);
+                RenderUtils.drawImage(icon, (int) (sr.getScaledWidth() - animation + 5), 8, 28, 28, true);
                 GL11.glPopMatrix();
             } else {
                 MusicManager.INSTANCE.getCircle(MusicManager.INSTANCE.getCurrentTrack());

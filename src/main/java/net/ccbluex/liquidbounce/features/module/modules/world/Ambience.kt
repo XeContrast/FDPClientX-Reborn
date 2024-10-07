@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
@@ -25,6 +26,12 @@ object Ambience : Module() {
     private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 24).displayable { timeModeValue.equals("Custom") }
     private val changeWorldTimeSpeedValue = IntegerValue("ChangeWorldTimeSpeed", 150, 10, 500).displayable { timeModeValue.equals("Normal") }
     private val weatherStrengthValue = FloatValue("WeatherStrength", 1f, 0f, 1f).displayable { !weatherModeValue.equals("None") }
+
+    val worldColor = BoolValue("WorldColor", false)
+    val worldColorRed = IntegerValue("WorldRed", 255, 0,255).displayable { worldColor.get() }
+    val worldColorGreen = IntegerValue("WorldGreen", 255, 0,255).displayable { worldColor.get() }
+    val worldColorBlue = IntegerValue("WorldBlue", 255, 0,255).displayable { worldColor.get() }
+
 
     var i = 0L
 

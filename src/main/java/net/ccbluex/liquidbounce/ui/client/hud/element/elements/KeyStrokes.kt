@@ -68,7 +68,7 @@ class KeyStrokes : Element(5.0, 25.0, 1.5F, Side.default()) {
 
         if(keyStyleValue.get().equals("Jello")) {
             for (keyStroke in keys) { keyStroke.renderJelloBlur(this.renderX.toFloat(), this.renderY.toFloat(), scale) }
-            RenderUtils.drawImage2(ResourceLocation("fdpclient/misc/keystrokes.png"), -3.5f, -3.5f, 54, 54)
+            RenderUtils.drawImage(ResourceLocation("fdpclient/misc/keystrokes.png"), (-3.5).toInt(), (-3.5f).toInt(), 54, 54, true)
             for (keyStroke in keys) { keyStroke.renderJelloIndicator(animSpeedValue.get(), backGroundColor, textColor, highLightPercent.get(), this.renderX.toFloat(), this.renderY.toFloat(), scale) }
         }
 

@@ -320,7 +320,7 @@ object NoSlow : Module() {
                 }
                 if (consumePacketValue.equals("Bug")) {
                         if (conmode.equals("C07")) {
-                            if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || (InventoryUtils.amount[4] <= 1 && mc.thePlayer.heldItem.item is ItemAppleGold)) {
+                            if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
                                 return
                             }
                             mc.thePlayer.sendQueue.addToSendQueue(

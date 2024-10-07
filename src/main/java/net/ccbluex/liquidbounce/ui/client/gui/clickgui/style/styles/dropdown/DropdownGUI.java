@@ -82,7 +82,7 @@ public class DropdownGUI extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         if (Mouse.isButtonDown(0) && mouseX >= 5 && mouseX <= 50 && mouseY <= height - 5 && mouseY >= height - 50)
             mc.displayGuiScreen(new GuiHudDesigner());
-        RenderUtils.drawImage(hudIcon, 9, height - 41, 32, 32);
+        RenderUtils.drawImage(hudIcon, 9, height - 41, 32, 32,false);
         GL11.glPushMatrix();
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         int x = ScaleUtils.getScaledMouseCoordinates(mc, mouseX, mouseY)[0];
@@ -108,13 +108,13 @@ public class DropdownGUI extends GuiScreen {
     public void updatemouse(){
         int scrollWheel = Mouse.getDWheel();
         int panlesize = this.tabs.size();
-        for (int i = 0; i< panlesize; ++i){
-            if (scrollWheel < 0){
-                (this.tabs.get(i)).setPosY((this.tabs.get(i)).getPosY() - 15);
+        for (Tab tab : this.tabs) {
+            if (scrollWheel < 0) {
+                tab.setPosY(tab.getPosY() - 15);
                 continue;
             }
-            if (scrollWheel <=0)continue;
-            (this.tabs.get(i)).setPosY((this.tabs.get(i)).getPosY() + 15);
+            if (scrollWheel == 0) continue;
+            tab.setPosY(tab.getPosY() + 15);
         }
 
 

@@ -1,5 +1,6 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
 
+import codes.som.anthony.koffee.types.int
 import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
 import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
@@ -41,7 +42,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
 
         Stencil.dispose()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage2(IconManager.search, xPos + width - 15F, yPos + 5F, 10, 10)
+        RenderUtils.drawImage(IconManager.search, (xPos + width - 15).toInt(), (yPos + 5F).toInt(), 10, 10, true)
         GlStateManager.enableAlpha()
         return searchBox.text.isNotEmpty()
     }
@@ -76,7 +77,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
 
 //        Fonts.fontLarge.drawString("Search", x + 10F, y + 10F, -1)
         Fonts.fontSmall.drawString("Search", NewUi.getInstance().windowXStart + 20f, y - 12F, -1)
-        RenderUtils.drawImage2(IconManager.back, NewUi.getInstance().windowXStart + 4f, y - 15F, 10, 10)
+        RenderUtils.drawImage(IconManager.back, (NewUi.getInstance().windowXStart + 4f).toInt(), (y - 15F).toInt(), 10, 10,true)
 
         var startY = y + startYY
         if (mouseY < y + startYY || mouseY >= y + h)

@@ -59,7 +59,7 @@ public class QRLoginScreen extends GuiScreen {
         Minecraft.getMinecraft().fontRendererObj.drawString(state, res.getScaledWidth() / 2 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(state.replaceAll("\247.", "")) / 2), 50, 0xFFFFFFFF);
 
         if (this.loginProcessThread != null) {
-            RenderUtils.drawImage(new ResourceLocation("cloudMusicCache/qrcode"), res.getScaledWidth() / 2 - 64, 70, 128, 128);
+            RenderUtils.drawImage(new ResourceLocation("cloudMusicCache/qrcode"), res.getScaledWidth() / 2 - 64, 70, 128, 128, false);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);

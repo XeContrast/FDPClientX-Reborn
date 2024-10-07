@@ -114,7 +114,7 @@ public class LightClickGUI extends GuiScreen implements GuiYesNoCallback {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         // yes hud designer here
-        RenderUtils.drawImage(new ResourceLocation( "fdpclient/ui/clickgui/hud.png"), 9, height - 41, 32, 32);
+        RenderUtils.drawImage(new ResourceLocation( "fdpclient/ui/clickgui/hud.png"), 9, height - 41, 32, 32,false);
 
         // set up bool animations?
         if(!firstSetAnimation) {
@@ -648,14 +648,14 @@ public class LightClickGUI extends GuiScreen implements GuiYesNoCallback {
             animationHeight = categoryYpos;
         }
 
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Combat.png"), (int) startX + 17, (int) startY + 35, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Movement.png"), (int) startX + 17, (int) startY + 70, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/World.png"), (int) startX + 17, (int) startY + 105, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Player.png"), (int) startX + 17, (int) startY + 140, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Exploit.png"), (int) startX + 17, (int) startY + 175, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Misc.png"), (int) startX + 17, (int) startY + 210, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Client.png"), (int) startX + 17, (int) startY + 245, 12, 12);
-        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Render.png"), (int) startX + 17, (int) startY + 280, 12, 12);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Combat.png"), (int) startX + 17, (int) startY + 35, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Movement.png"), (int) startX + 17, (int) startY + 70, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/World.png"), (int) startX + 17, (int) startY + 105, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Player.png"), (int) startX + 17, (int) startY + 140, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Exploit.png"), (int) startX + 17, (int) startY + 175, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Misc.png"), (int) startX + 17, (int) startY + 210, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Client.png"), (int) startX + 17, (int) startY + 245, 12, 12,false);
+        RenderUtils.drawImage(new ResourceLocation("fdpclient/ui/clickgui/light/Render.png"), (int) startX + 17, (int) startY + 280, 12, 12,false);
 
     }
 

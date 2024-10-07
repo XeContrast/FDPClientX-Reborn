@@ -2432,30 +2432,21 @@ object RenderUtils : MinecraftInstance() {
     }
 
     @JvmStatic
-    fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int) {
+    fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, ways: Boolean = false) {
         glDisable(GL11.GL_DEPTH_TEST)
         glEnable(GL11.GL_BLEND)
         glDepthMask(false)
         OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-        mc.textureManager.bindTexture(image)
-        Gui.drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
-        glDepthMask(true)
-        glDisable(GL11.GL_BLEND)
-        glEnable(GL11.GL_DEPTH_TEST)
-    }
-
-    @JvmStatic
-    fun drawImage2(image: ResourceLocation?, x: Float, y: Float, width: Int, height: Int) {
-        glDisable(GL11.GL_DEPTH_TEST)
-        glEnable(GL11.GL_BLEND)
-        glDepthMask(false)
-        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
-        GL11.glTranslatef(x, y, x)
-        mc.textureManager.bindTexture(image)
-        Gui.drawModalRectWithCustomSizedTexture(0, 0, 0f, 0f, width, height, width.toFloat(), height.toFloat())
-        GL11.glTranslatef(-x, -y, -x)
+        if (!ways) {
+            mc.textureManager.bindTexture(image)
+            Gui.drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
+        } else {
+            GL11.glTranslatef(x.toFloat(), y.toFloat(), x.toFloat())
+            mc.textureManager.bindTexture(image)
+            Gui.drawModalRectWithCustomSizedTexture(0, 0, 0f, 0f, width, height, width.toFloat(), height.toFloat())
+            GL11.glTranslatef((-x).toFloat(), (-y).toFloat(), (-x).toFloat())
+        }
         glDepthMask(true)
         glDisable(GL11.GL_BLEND)
         glEnable(GL11.GL_DEPTH_TEST)
