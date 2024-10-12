@@ -5,10 +5,10 @@ import net.ccbluex.liquidbounce.utils.RegexUtils
 import java.util.regex.Pattern
 
 object LanguageManager {
-    val key = "%"
-    val defaultLocale = "en_us"
+    const val key = "%"
+    private const val defaultLocale = "en_us"
 
-    var language = Language(defaultLocale)
+    private var language = Language(defaultLocale)
         private set(value) {
             cachedStrings.clear()
             field = value

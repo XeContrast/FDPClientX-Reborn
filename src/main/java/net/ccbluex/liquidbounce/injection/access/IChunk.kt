@@ -1,17 +1,17 @@
-package net.ccbluex.liquidbounce.injection.access;
+package net.ccbluex.liquidbounce.injection.access
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.block.state.IBlockState
+import net.minecraft.world.EnumSkyBlock
 
-public interface IChunk {
-    int getLightFor(EnumSkyBlock var1, int var2, int var3, int var4);
+interface IChunk {
+    fun getLightFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int): Int
 
-    int getLightSubtracted(int var1, int var2, int var3, int var4);
+    fun getLightSubtracted(var1: Int, var2: Int, var3: Int, var4: Int): Int
 
-    boolean canSeeSky(int var1, int var2, int var3);
+    fun canSeeSky(var1: Int, var2: Int, var3: Int): Boolean
 
-    void setLightFor(EnumSkyBlock var1, int var2, int var3, int var4, int var5);
+    fun setLightFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int, var5: Int)
 
-    IBlockState getBlockState(int var1, int var2, int var3);
+    fun getBlockState(var1: Int, var2: Int, var3: Int): IBlockState?
 }
 

@@ -239,7 +239,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
 
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX >= x && mouseX <= x + width && mouseY >= y + height &&
                 mouseY <= y + height + 10) {
-            val values = Side.Horizontal.values()
+            val values = Side.Horizontal.entries.toTypedArray()
             val currIndex = values.indexOf(element.side.horizontal)
 
             val x = element.renderX
@@ -247,8 +247,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             element.side.horizontal = values[if (currIndex + 1 >= values.size) 0 else currIndex + 1]
             element.x = when (element.side.horizontal) {
                 Side.Horizontal.LEFT -> x
-                Side.Horizontal.MIDDLE -> (StaticStorage.scaledResolution.scaledWidth / 2) - x
-                Side.Horizontal.RIGHT -> StaticStorage.scaledResolution.scaledWidth - x
+                Side.Horizontal.MIDDLE -> (StaticStorage.scaledResolution!!.scaledWidth / 2) - x
+                Side.Horizontal.RIGHT -> StaticStorage.scaledResolution!!.scaledWidth - x
             }
         }
 
@@ -261,7 +261,7 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
                 x + 12, y + height, Color.GRAY.rgb)
 
         if (Mouse.isButtonDown(0) && !mouseDown && mouseX >= x && mouseX <= x + width && mouseY >= y + height && mouseY <= y + height + 10) {
-            val values = Side.Vertical.values()
+            val values = Side.Vertical.entries.toTypedArray()
             val currIndex = values.indexOf(element.side.vertical)
 
             val y = element.renderY
@@ -269,8 +269,8 @@ class EditorPanel(private val hudDesigner: GuiHudDesigner, var x: Int, var y: In
             element.side.vertical = values[if (currIndex + 1 >= values.size) 0 else currIndex + 1]
             element.y = when (element.side.vertical) {
                 Side.Vertical.UP -> y
-                Side.Vertical.MIDDLE -> (StaticStorage.scaledResolution.scaledHeight / 2) - y
-                Side.Vertical.DOWN -> StaticStorage.scaledResolution.scaledHeight - y
+                Side.Vertical.MIDDLE -> (StaticStorage.scaledResolution!!.scaledHeight / 2) - y
+                Side.Vertical.DOWN -> StaticStorage.scaledResolution!!.scaledHeight - y
             }
         }
 

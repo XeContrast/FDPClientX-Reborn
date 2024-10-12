@@ -38,9 +38,7 @@ import kotlin.math.*
  * Allows to get the distance between the current entity and [entity] from the nearest corner of the bounding box
  */
 
-fun Entity.getDistanceToEntityBox(entity: Entity) = MinecraftInstance.mc.thePlayer.eyes.distanceTo(
-    entity.eyes
-) - 0.5
+fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPointBB(eyes, entity.hitBox))
 
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)

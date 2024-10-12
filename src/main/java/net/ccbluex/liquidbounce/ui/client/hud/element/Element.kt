@@ -36,8 +36,8 @@ abstract class Element(
     var renderX: Double
         get() = when (side.horizontal) {
             Side.Horizontal.LEFT -> x
-            Side.Horizontal.MIDDLE -> (StaticStorage.scaledResolution.scaledWidth / 2) - x
-            Side.Horizontal.RIGHT -> StaticStorage.scaledResolution.scaledWidth - x
+            Side.Horizontal.MIDDLE -> (StaticStorage.scaledResolution?.scaledWidth!! / 2) - x
+            Side.Horizontal.RIGHT -> StaticStorage.scaledResolution?.scaledWidth!! - x
         }
         set(value) = when (side.horizontal) {
             Side.Horizontal.LEFT -> {
@@ -51,8 +51,8 @@ abstract class Element(
     var renderY: Double
         get() = when (side.vertical) {
             Side.Vertical.UP -> y
-            Side.Vertical.MIDDLE -> (StaticStorage.scaledResolution.scaledHeight / 2) - y
-            Side.Vertical.DOWN -> StaticStorage.scaledResolution.scaledHeight - y
+            Side.Vertical.MIDDLE -> (StaticStorage.scaledResolution!!.scaledHeight / 2) - y
+            Side.Vertical.DOWN -> StaticStorage.scaledResolution!!.scaledHeight - y
         }
         set(value) = when (side.vertical) {
             Side.Vertical.UP -> {

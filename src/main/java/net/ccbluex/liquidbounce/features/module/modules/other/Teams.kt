@@ -47,7 +47,7 @@ class Teams : Module() {
                 val myItemArmor = myHead.item as ItemArmor
 
                 val entityHead = entityPlayer.inventory.armorInventory[3]
-                var entityItemArmor = myHead.item as ItemArmor
+                val entityItemArmor = myHead.item as ItemArmor
 
                 if (myItemArmor.getColor(myHead) == entityItemArmor.getColor(entityHead)) {
                     return true

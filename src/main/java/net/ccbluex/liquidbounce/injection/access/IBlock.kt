@@ -1,10 +1,10 @@
-package net.ccbluex.liquidbounce.injection.access;
+package net.ccbluex.liquidbounce.injection.access
 
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockAccess
 
-public interface IBlock {
-    int getLightValue(IBlockAccess var1, int var2, int var3, int var4);
+interface IBlock {
+    fun getLightValue(var1: IBlockAccess?, var2: Int, var3: Int, var4: Int): Int
 
-    int getLightOpacity(IBlockAccess var1, int var2, int var3, int var4);
+    fun getLightOpacity(var1: IBlockAccess?, var2: Int, var3: Int, var4: Int): Int
 }
 

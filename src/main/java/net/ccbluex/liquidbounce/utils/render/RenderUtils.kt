@@ -2737,7 +2737,7 @@ object RenderUtils : MinecraftInstance() {
     @JvmOverloads
     fun makeScissorBox(x: Float, y: Float, x2: Float, y2: Float, scaleOffset: Float = 1f) {
         val scaledResolution = StaticStorage.scaledResolution
-        val factor = scaledResolution.scaleFactor * scaleOffset
+        val factor = scaledResolution!!.scaleFactor * scaleOffset
         GL11.glScissor(
             (x * factor).toInt(),
             ((scaledResolution.scaledHeight - y2) * factor).toInt(),

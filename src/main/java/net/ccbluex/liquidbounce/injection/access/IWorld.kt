@@ -1,50 +1,57 @@
-package net.ccbluex.liquidbounce.injection.access;
+package net.ccbluex.liquidbounce.injection.access
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.block.state.IBlockState
+import net.minecraft.world.EnumSkyBlock
+import net.minecraft.world.chunk.Chunk
 
-public interface IWorld {
+interface IWorld {
+    fun isAreaLoaded(var1: Int, var2: Int, var3: Int, var4: Int, var5: Boolean): Boolean
 
-    boolean isAreaLoaded(int var1, int var2, int var3, int var4, boolean var5);
+    fun isBlockLoaded(var1: Int, var2: Int, var3: Int): Boolean
 
-    boolean isBlockLoaded(int var1, int var2, int var3);
+    fun isBlockLoaded(var1: Int, var2: Int, var3: Int, var4: Boolean): Boolean
 
-    boolean isBlockLoaded(int var1, int var2, int var3, boolean var4);
+    fun isValid(var1: Int, var2: Int, var3: Int): Boolean
 
-    boolean isValid(int var1, int var2, int var3);
+    fun canSeeSky(var1: Int, var2: Int, var3: Int): Boolean
 
-    boolean canSeeSky(int var1, int var2, int var3);
+    fun getCombinedLight(var1: Int, var2: Int, var3: Int, var4: Int): Int
 
-    int getCombinedLight(int var1, int var2, int var3, int var4);
+    fun getRawLight(var1: Int, var2: Int, var3: Int, var4: EnumSkyBlock?): Int
 
-    int getRawLight(int var1, int var2, int var3, EnumSkyBlock var4);
+    fun getLight(var1: Int, var2: Int, var3: Int, var4: Boolean): Int
 
-    int getLight(int var1, int var2, int var3, boolean var4);
+    fun getLightFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int): Int
 
-    int getLightFor(EnumSkyBlock var1, int var2, int var3, int var4);
+    fun getLightFromNeighbors(var1: Int, var2: Int, var3: Int): Int
 
-    int getLightFromNeighbors(int var1, int var2, int var3);
+    fun getLightFromNeighborsFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int): Int
 
-    int getLightFromNeighborsFor(EnumSkyBlock var1, int var2, int var3, int var4);
+    fun setLightFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int, var5: Int)
 
-    void setLightFor(EnumSkyBlock var1, int var2, int var3, int var4, int var5);
+    fun checkLight(var1: Int, var2: Int, var3: Int): Boolean
 
-    boolean checkLight(int var1, int var2, int var3);
+    fun checkLightFor(var1: EnumSkyBlock?, var2: Int, var3: Int, var4: Int): Boolean
 
-    boolean checkLightFor(EnumSkyBlock var1, int var2, int var3, int var4);
+    fun getLightBrightness(var1: Int, var2: Int, var3: Int): Float
 
-    float getLightBrightness(int var1, int var2, int var3);
+    fun getBlockState(n: Int, n2: Int, n3: Int): IBlockState?
 
-    IBlockState getBlockState(int n, int n2, int n3);
+    fun setBlockState(var1: Int, var2: Int, var3: Int, var4: IBlockState?, var5: Int): Boolean
 
-    boolean setBlockState(int var1, int var2, int var3, IBlockState var4, int var5);
+    fun markBlockForUpdate(var1: Int, var2: Int, var3: Int)
 
-    void markBlockForUpdate(int var1, int var2, int var3);
+    fun markAndNotifyBlock(
+        var1: Int,
+        var2: Int,
+        var3: Int,
+        var4: Chunk?,
+        var5: IBlockState?,
+        var6: IBlockState?,
+        var7: Int
+    )
 
-    void markAndNotifyBlock(int var1, int var2, int var3, Chunk var4, IBlockState var5, IBlockState var6, int var7);
+    fun notifyLightSet(var1: Int, var2: Int, var3: Int)
 
-    void notifyLightSet(int var1, int var2, int var3);
-
-    Chunk getChunkFromBlockCoords(int var1, int var2, int var3);
+    fun getChunkFromBlockCoords(var1: Int, var2: Int, var3: Int): Chunk?
 }

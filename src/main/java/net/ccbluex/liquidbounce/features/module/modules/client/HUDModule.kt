@@ -87,12 +87,12 @@ object HUDModule : Module() {
             else -> {}
         }
         if (eatbar.get()) {
-            if (mc.thePlayer.heldItem.item != null && (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem
-                    .item is ItemPotion)
+            if (mc.thePlayer.heldItem.item != null && (mc.thePlayer.heldItem?.item is ItemFood || mc.thePlayer.heldItem
+                    ?.item is ItemPotion)
             ) {
                 val scaledResolution = StaticStorage.scaledResolution
                 val math: Double
-                val height: Double = scaledResolution.scaledHeight.toDouble()
+                val height: Double = scaledResolution?.scaledHeight!!.toDouble()
                 val width: Double = scaledResolution.scaledWidth.toDouble()
                 if (!(tick <= 0)) {
                     idk = (1f - (tick / 32))

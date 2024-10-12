@@ -155,7 +155,7 @@ open class HUD : MinecraftInstance() {
                 val maxX = max(border.x, border.x2) - 1
                 val maxY = max(border.y, border.y2) - 1
 
-                val width = scaledResolution.scaledWidth / element.scale
+                val width = scaledResolution?.scaledWidth!! / element.scale
                 val height = scaledResolution.scaledHeight / element.scale
 
                 if ((element.renderX + minX + moveX >= 0.0 || moveX > 0) && (element.renderX + maxX + moveX <= width || moveX < 0)) {

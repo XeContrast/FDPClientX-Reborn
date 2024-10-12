@@ -180,8 +180,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             var blockAmount = 0
             var arrowAmount = 0
             var foodAmount = 0
-            var gappleAmount = 0
-            for (i in 0..36) {
+            mc.thePlayer.inventory.mainInventory.forEachIndexed { i, _ ->
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
                 if (itemStack != null) {
                     when (itemStack.item) {
@@ -204,11 +203,6 @@ object InventoryUtils : MinecraftInstance(), Listenable {
                     }
                 }
             }
-            if (mc.thePlayer.heldItem != null) {
-                if (mc.thePlayer.heldItem.item is ItemAppleGold) {
-                    gappleAmount += mc.thePlayer.heldItem.stackSize
-                }
-            }
-            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,gappleAmount)
+            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount)
         }
 }

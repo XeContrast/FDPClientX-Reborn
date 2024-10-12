@@ -1,8 +1,7 @@
-package net.ccbluex.liquidbounce.injection.access;
+package net.ccbluex.liquidbounce.injection.access
 
-public interface IMixinWorldAccess {
+interface IMixinWorldAccess {
+    fun markBlockForUpdate(var1: Int, var2: Int, var3: Int)
 
-    void markBlockForUpdate(int var1, int var2, int var3);
-
-    void notifyLightSet(int var1, int var2, int var3);
+    fun notifyLightSet(var1: Int, var2: Int, var3: Int)
 }
