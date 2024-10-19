@@ -94,10 +94,10 @@ object InvManager : Module() {
         "Potion",
         "Missile"
     )
-    private val maxmiss = IntegerValue("MaxMissile", 128, 0, 999)
-    private val maxblock = IntegerValue("MaxBlock", 128, 0, 999)
-    private val maxarrow = IntegerValue("MaxArrow", 128, 0, 999)
-    private val maxfood = IntegerValue("MaxFood", 128, 0, 999)
+    private val maxmiss = IntegerValue("MaxMissile", 128, 0, 2304)
+    private val maxblock = IntegerValue("MaxBlock", 128, 0, 2304)
+    private val maxarrow = IntegerValue("MaxArrow", 128, 0, 2304)
+    private val maxfood = IntegerValue("MaxFood", 128, 0, 2304)
     private val sortSlot1Value = ListValue("SortSlot-1", items, "Sword").displayable { sortValue.get() }
     private val sortSlot2Value = ListValue("SortSlot-2", items, "Gapple").displayable { sortValue.get() }
     private val sortSlot3Value = ListValue("SortSlot-3", items, "Potion").displayable { sortValue.get() }

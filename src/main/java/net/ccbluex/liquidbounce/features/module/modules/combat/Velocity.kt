@@ -87,7 +87,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce", "Karhu", "Delay", "Phase"),
+        arrayOf("AttackReduce","IntaveReduce", "Karhu", "Delay", "Phase"),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -234,6 +234,9 @@ object Velocity : Module() {
         "Normal"
     ).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
 
+    private val reduceFactor = FloatValue("Factor", 0.6f, 0.6f,1f).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val hurtTime = IntegerValue("HurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+
     //
     private var hasReceivedVelocity = false
     private val velocityTimer = MSTimer()
@@ -273,6 +276,11 @@ object Velocity : Module() {
 
     // AACPush
     private var jump = false
+
+    // IntaveReduce
+    private var intaveTick = 0
+    private var lastAttackTime = 0L
+    private var intaveDamageTick = 0
 
     @EventTarget(priority = -1)
     private fun onPacket(event: PacketEvent) {
@@ -484,6 +492,8 @@ object Velocity : Module() {
                             }
                         }
 
+                        "intavereduce" -> hasReceivedVelocity = true
+
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
                                 if (!mc.thePlayer.onGround && phaseOnlyGroundValue.get()) {
@@ -670,11 +680,26 @@ object Velocity : Module() {
 
     @EventTarget
     private fun onAttack(event: AttackEvent) {
-        if (mainMode.get() == "Other" && otherMode.get() == "AttackReduce") {
-            if (mc.thePlayer.hurtTime < 3)
-                return
-            mc.thePlayer.motionX *= reduceAmount.get().toDouble()
-            mc.thePlayer.motionZ *= reduceAmount.get().toDouble()
+        val player = mc.thePlayer ?: return
+        when (mainMode.get().lowercase()) {
+            "other" -> {
+                when (otherMode.get().lowercase()) {
+                    "attackreduce" -> {
+                        if (mc.thePlayer.hurtTime >= 4) {
+                            player.motionX *= reduceAmount.get()
+                            player.motionZ *= reduceAmount.get()
+                        }
+                    }
+                    "intavereduce" -> {
+                        if (player.hurtTime <= hurtTime.get() && System.currentTimeMillis() - lastAttackTime <= 8000 && player.hurtTime != 0) {
+                            player.motionX *= reduceFactor.get()
+                            player.motionZ *= reduceFactor.get()
+                        }
+
+                        lastAttackTime = System.currentTimeMillis()
+                    }
+                }
+            }
         }
     }
 
@@ -705,6 +730,19 @@ object Velocity : Module() {
                         if (blink && blinkValue.get() && delayTimer.hasTimePassed(delayValue.get().toLong())) {
                             clearPackets()
                             blink = false
+                        }
+                    }
+                    "intavereduce" -> {
+                        if (!hasReceivedVelocity) return
+                        intaveTick++
+
+                        if (mc.thePlayer.hurtTime == 2) {
+                            intaveDamageTick++
+                            if (player.onGround && intaveTick % 2 == 0 && intaveDamageTick <= 10) {
+                                player.jump()
+                                intaveTick = 0
+                            }
+                            hasReceivedVelocity = false
                         }
                     }
                 }
