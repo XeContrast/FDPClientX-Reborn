@@ -281,7 +281,7 @@ class Scaffold : Module() {
         lastGroundY = mc.thePlayer.posY.toInt()
         lastPlace = 2
         wdTick = 5
-        clickDelay = TimeUtils.randomDelay(extraClickMinDelayValue.get(), extraClickMaxDelayValue.get())
+        clickDelay = TimeUtils.randomDelay(extraClickMinDelayValue.get(), extraClickMaxDelayValue.get()).toLong()
         delayTimer.reset()
         zitterTimer.reset()
         clickTimer.reset()
@@ -401,7 +401,7 @@ class Scaffold : Module() {
                     }
                 }
             }
-            clickDelay = TimeUtils.randomDelay(extraClickMinDelayValue.get(), extraClickMaxDelayValue.get())
+            clickDelay = TimeUtils.randomDelay(extraClickMinDelayValue.get(), extraClickMaxDelayValue.get()).toLong()
             clickTimer.reset()
         }
 
@@ -1013,7 +1013,7 @@ class Scaffold : Module() {
         if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemStack, targetPlace!!.blockPos, targetPlace!!.enumFacing, targetPlace!!.vec3)) {
             placedBlocksWithoutEagle++
             // delayTimer.reset()
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
             if (mc.thePlayer.onGround) {
                 val modifier = speedModifierValue.get()
                 mc.thePlayer.motionX *= modifier.toDouble()

@@ -37,7 +37,6 @@ object NoSlow : Module() {
         "Vanilla",
         "LiquidBounce",
         "Custom",
-        "Bug",
         "WatchDog",
         "WatchDog2",
         "UNCP",
@@ -59,6 +58,7 @@ object NoSlow : Module() {
         "SpamPlace",
         "SpamEmptyPlace"
     )
+
     //Basic settings
     private val modeValue = ListValue(
         "PacketMode",
@@ -81,7 +81,6 @@ object NoSlow : Module() {
         arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","Intave","InvalidC08", "Packet"),
         "None"
     ).displayable { consumeModifyValue.get() }
-    private val conmode = ListValue("BugMode", arrayOf("C07","C16"),"C07").displayable { consumePacketValue.equals("Bug")}
     private val consumeTimingValue =
         ListValue("ConsumeTiming", arrayOf("Pre", "Post"), "Pre").displayable { consumeModifyValue.get() }
     private val consumeForwardMultiplier =
@@ -313,25 +312,6 @@ object NoSlow : Module() {
                 if (!consumePacketValue.equals("Bug")) {
                     sendPacket2(consumePacketValue.get(),event)
                 }
-                if (consumePacketValue.equals("Bug")) {
-                        if (conmode.equals("C07")) {
-                            if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
-                                return
-                            }
-                            mc.thePlayer.sendQueue.addToSendQueue(
-                                C07PacketPlayerDigging(
-                                    C07PacketPlayerDigging.Action.DROP_ITEM,
-                                    BlockPos(0, 0, 0),
-                                    EnumFacing.DOWN
-                                )
-                            )
-                        } else {
-                            mc.netHandler.addToSendQueue(C16PacketClientStatus(EnumState.OPEN_INVENTORY_ACHIEVEMENT))
-                        }
-                        mc.gameSettings.keyBindUseItem.pressed = false
-                        mc.thePlayer.stopUsingItem()
-                        mstimer2.reset()
-                }
             }
         }
 
@@ -440,12 +420,6 @@ object NoSlow : Module() {
                             )
                         )
                     }
-                }
-                "bug" -> {
-                    mc.netHandler.addToSendQueue(C16PacketClientStatus(EnumState.OPEN_INVENTORY_ACHIEVEMENT))
-                    mc.netHandler.addToSendQueue(C0DPacketCloseWindow())
-                    mc.thePlayer.stopUsingItem()
-                    mc.thePlayer.closeScreen()
                 }
                 "intave" -> {
                     if (event.eventState == EventState.PRE) mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
@@ -658,6 +632,24 @@ object NoSlow : Module() {
         val heldItem = mc.thePlayer.heldItem?.item
 
         stop = packet is C07PacketPlayerDigging && packet.status == (C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
+        if (consumeModifyValue.get() && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
+            if (consumePacketValue.equals("Bug")) {
+                if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
+                    return
+                }
+                if (packet is C08PacketPlayerBlockPlacement) {
+                    mc.netHandler.addToSendQueue(
+                        C07PacketPlayerDigging(
+                            C07PacketPlayerDigging.Action.DROP_ITEM,
+                            BlockPos.ORIGIN,
+                            EnumFacing.DOWN
+                        )
+                    )
+                    mc.gameSettings.keyBindUseItem.pressed = false
+                    mc.thePlayer.stopUsingItem()
+                }
+            }
+        }
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
             if (consumePacketValue.equals("Grim")) {
                 when (packet) {

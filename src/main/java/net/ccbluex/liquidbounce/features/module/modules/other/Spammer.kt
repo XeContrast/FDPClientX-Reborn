@@ -62,7 +62,7 @@ object Spammer : Module() {
             return
         }
 
-        if (msTimer.hasTimePassed(delay)) {
+        if (msTimer.hasTimePassed(delay.toLong())) {
             mc.thePlayer.sendChatMessage(when (modeValue.get().lowercase()) {
                 "insult" -> {
                     replaceAbuse(Insult.getRandomOne())

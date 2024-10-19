@@ -65,7 +65,7 @@ object ChestAura : Module() {
             val eyesPos = Vec3(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
                 mc.thePlayer.posZ)
 
-            currentBlock = BlockUtils.searchBlocks(radius.toInt())
+            currentBlock = BlockUtils.searchBlocks(radius.toInt(), null)
                 .filter {
                     it.value is BlockChest && !clickedBlocks.contains(it.key) &&
                             BlockUtils.getCenterDistance(it.key) < rangeValue.get()

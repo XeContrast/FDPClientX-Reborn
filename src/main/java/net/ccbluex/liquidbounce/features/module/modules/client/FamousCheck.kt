@@ -25,17 +25,17 @@ class FamousCheck : Module() {
             //Hacker 包含词
             HackerData("A_Equal","A_Equal"),
             HackerData("AKQ33","A_Equal"),
-            HackerData("Holiday_","Holiday", Mode.StartWith),
+            HackerData("Holiday_","Holiday"),
             HackerData("Xe_","Xe及他的儿子"),
             HackerData("longyan","LongYan"),
             HackerData("longsir","WanFan"),
-            HackerData("RealLonbg","WanFan",Mode.Same),
+            HackerData("RealLonbg","WanFan"),
             HackerData("wansir","WanFan"),
             HackerData("Float","FloatMemory_Official"),
-            HackerData("HuHua","沭桦Next",Mode.StartWith),
-            HackerData("Rem_","沭桦Next",Mode.StartWith),
-            HackerData("ImSad_","BoySir_",Mode.Same),
-            HackerData("RN_","Random_Name",Mode.StartWith),
+            HackerData("HuHua","沭桦Next"),
+            HackerData("Rem_","沭桦Next"),
+            HackerData("ImSad_","BoySir_"),
+            HackerData("RN_","Random_Name"),
 
             )
 

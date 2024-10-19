@@ -10,11 +10,12 @@ import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.client.Rotations;
 import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidSpeed;
-import net.ccbluex.liquidbounce.features.module.modules.movement.NoJumpDelay;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
+import net.ccbluex.liquidbounce.features.module.modules.player.NoDelay;
 import net.ccbluex.liquidbounce.features.module.modules.visual.AntiBlind;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.ViaVersionFix;
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -126,7 +127,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))
     private void headLiving(CallbackInfo callbackInfo) {
-        if (Objects.requireNonNull(FDPClient.moduleManager.getModule(NoJumpDelay.class)).getState())
+        if (Objects.requireNonNull(FDPClient.moduleManager.getModule(NoDelay.class)).getState() && FDPClient.moduleManager.getModule(NoDelay.class).getNoJumpDelay().get())
             jumpTicks = 0;
     }
 

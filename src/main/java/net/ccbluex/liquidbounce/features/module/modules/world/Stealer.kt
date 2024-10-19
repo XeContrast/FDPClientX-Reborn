@@ -122,7 +122,7 @@ object Stealer : Module() {
 
         val screen = mc.currentScreen
 
-        if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay)) {
+        if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay.toLong())) {
             autoCloseTimer.reset()
             return
         }
@@ -166,7 +166,7 @@ object Stealer : Module() {
                     val slot = items[randomSlot]
 
                     move(screen, slot)
-                } while (delayTimer.hasTimePassed(nextDelay) && items.isNotEmpty())
+                } while (delayTimer.hasTimePassed(nextDelay.toLong()) && items.isNotEmpty())
                 return
             }
 
@@ -174,7 +174,7 @@ object Stealer : Module() {
             for (slotIndex in 0 until screen.inventoryRows * 9) {
                 val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
-                if (delayTimer.hasTimePassed(nextDelay) && slot.stack != null &&
+                if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
                     (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || InvManager.isUseful(
                         slot.stack,
                         -1
@@ -183,7 +183,7 @@ object Stealer : Module() {
                 }
             }
         } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
-                nextCloseDelay
+                nextCloseDelay.toLong()
             )) {
             mc.thePlayer.closeScreen()
             nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
@@ -228,7 +228,7 @@ object Stealer : Module() {
             return
         }
 
-        if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay)) {
+        if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay.toLong())) {
             autoCloseTimer.reset()
             return
         }
@@ -274,9 +274,9 @@ object Stealer : Module() {
                     val slot = items[randomSlot]
 
                     move(screen, slot)
-                    if (nextDelay == 0L || delayTimer.hasTimePassed(nextDelay))
+                    if (nextDelay.toLong() == 0L || delayTimer.hasTimePassed(nextDelay.toLong()))
                         noLoop = true
-                } while (delayTimer.hasTimePassed(nextDelay) && items.isNotEmpty() && !noLoop)
+                } while (delayTimer.hasTimePassed(nextDelay.toLong()) && items.isNotEmpty() && !noLoop)
                 return
             }
 
@@ -284,7 +284,7 @@ object Stealer : Module() {
             for (slotIndex in 0 until screen.inventoryRows * 9) {
                 val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
-                if (delayTimer.hasTimePassed(nextDelay) && slot.stack != null &&
+                if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
                     (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
                         .map { it.item!! }
                         .contains(slot.stack.item)) && (!inventoryCleaner.state || InvManager.isUseful(
@@ -296,7 +296,7 @@ object Stealer : Module() {
                 }
             }
         } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
-                nextCloseDelay
+                nextCloseDelay.toLong()
             )
         ) {
             mc.thePlayer.closeScreen()

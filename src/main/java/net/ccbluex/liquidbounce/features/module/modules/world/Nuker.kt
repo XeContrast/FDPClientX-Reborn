@@ -71,7 +71,7 @@ class Nuker : Module() {
         val thePlayer = mc.thePlayer!!
 
         if (!mc.playerController.isInCreativeMode) {
-            val validBlocks = searchBlocks(radiusValue.get().roundToInt() + 1)
+            val validBlocks = searchBlocks(radiusValue.get().roundToInt() + 1,null)
                 .filter { (pos, block) ->
                     if (getCenterDistance(pos) <= radiusValue.get() && validBlock(block)) {
                         if (layerValue.get() && pos.y < thePlayer.posY) { // Layer: Break all blocks above you
@@ -174,7 +174,7 @@ class Nuker : Module() {
                 return
 
             // Search for new blocks to break
-            searchBlocks(radiusValue.get().roundToInt() + 1)
+            searchBlocks(radiusValue.get().roundToInt() + 1,null)
                 .filter { (pos, block) ->
                     if (getCenterDistance(pos) <= radiusValue.get() && validBlock(block)) {
                         if (layerValue.get() && pos.y < thePlayer.posY) { // Layer: Break all blocks above you

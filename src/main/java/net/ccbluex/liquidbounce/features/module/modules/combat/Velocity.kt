@@ -287,6 +287,9 @@ object Velocity : Module() {
         val packet = event.packet
         val thePlayer = mc.thePlayer ?: return
 
+        if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb || thePlayer.isDead)
+            return
+
         if ((packet is S12PacketEntityVelocity && thePlayer.entityId == packet.entityID && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0))
             || (packet is S27PacketExplosion && (thePlayer.motionY + packet.field_149153_g) > 0.0
                     && ((thePlayer.motionX + packet.field_149152_f) != 0.0 || (thePlayer.motionZ + packet.field_149159_h) != 0.0))
@@ -706,6 +709,10 @@ object Velocity : Module() {
     @EventTarget
     private fun onUpdate(event: UpdateEvent) {
         val player = mc.thePlayer ?: return
+
+        if (player.isInWater || player.isInLava || player.isInWeb || player.isDead)
+            return
+
         when (mainMode.get().lowercase()) {
             "cancel" -> {
                 when (cancelMode.get().lowercase()) {

@@ -7,31 +7,29 @@ import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.value.BoolValue
+import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.features.value.IntegerValue
+import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.access.IItemStack
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.InventoryUtils
+import net.ccbluex.liquidbounce.utils.InventoryUtils.amount
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.item.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
-import net.ccbluex.liquidbounce.features.value.BoolValue
-import net.ccbluex.liquidbounce.features.value.FloatValue
-import net.ccbluex.liquidbounce.features.value.IntegerValue
-import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.InventoryUtils.amount
-import net.minecraft.block.Block
-import net.minecraft.block.BlockBush
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.init.Blocks
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
+import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
-import java.util.stream.Collectors
-import java.util.stream.IntStream
 
 @ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER)
 object InvManager : Module() {
@@ -65,6 +63,7 @@ object InvManager : Module() {
     private val sortValue = BoolValue("Sort", true)
     private val throwValue = BoolValue("Drop", true)
     private val armorValue = BoolValue("Armor", true)
+    private val armorHotbarValue = BoolValue("ArmorHotbar", true)
     private val noCombatValue = BoolValue("NoCombat", false)
     private val itemDelayValue = IntegerValue("ItemDelay", 0, 0, 5000)
     private val swingValue = BoolValue("Swing", true)
@@ -157,6 +156,24 @@ object InvManager : Module() {
         if (!invTimer.hasTimePassed(delayValue.get().toLong())) {
             return
         }
+
+        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) && !instantValue.get()) {
+            return
+        }
+        if (armorHotbarValue.get()) {
+            val bestArmor = getBestArmorSet(mc.thePlayer.openContainer.inventory) ?: return
+            for (i in 0..3) {
+                val (index, stack) = bestArmor[i] ?: continue
+
+                val hotbarIndex = index?.toHotbarIndex(mc.thePlayer.openContainer.inventory.size) ?: continue
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(hotbarIndex))
+                mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(stack))
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+
+                delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
+                return
+            }
+        }
         if (noMoveValue.get() && MovementUtils.isMoving() ||
             mc.thePlayer.openContainer != null && mc.thePlayer.openContainer.windowId != 0 ||
             (FDPClient.combatManager.inCombat && noCombatValue.get())
@@ -167,33 +184,38 @@ object InvManager : Module() {
             return
         }
 
-        if (!InventoryUtils.CLICK_TIMER.hasTimePassed(delay) && !instantValue.get() || (mc.currentScreen !is GuiInventory && invOpenValue.get())) {
-            return
-        }
+        if ((mc.currentScreen !is GuiInventory && invOpenValue.get())) return
 
         if (armorValue.get()) {
             // Find best armor
-            val bestArmor = findBestArmor()
+            val bestArmor = getBestArmorSet(mc.thePlayer.openContainer.inventory) ?: return
 
             // Swap armor
             for (i in 0..3) {
-                val armorPiece = bestArmor[i] ?: continue
-                val armorSlot = 3 - i
-                val oldArmor: ItemStack? = mc.thePlayer.inventory.armorItemInSlot(armorSlot)
-                if (oldArmor == null || oldArmor.item !is ItemArmor || ItemUtils.compareArmor(
-                        ArmorPiece(oldArmor, -1),
-                        armorPiece,
-                        nbtArmorPriority.get(),
-                        goal
-                    ) < 0
-                ) {
-                    if (oldArmor != null && move(8 - armorSlot, true)) {
-                        return
+                val (index, stack) = bestArmor[i] ?: continue
+
+                when (mc.thePlayer.openContainer.inventory[i + 5]) {
+                    stack -> {
+                        continue
                     }
-                    if (mc.thePlayer.inventory.armorItemInSlot(armorSlot) == null && move(armorPiece.slot, false)) {
-                        return
+                    null -> {
+                        mc.playerController?.windowClick(
+                            mc.thePlayer.openContainer.windowId, index
+                                ?: return, 0, 1, mc.thePlayer
+                        )
+                    }
+
+                    else -> {
+                        mc.playerController?.windowClick(mc.thePlayer.openContainer.windowId, i + 5, 0, 4, mc.thePlayer)
+                        mc.playerController?.windowClick(
+                            mc.thePlayer.openContainer.windowId, index
+                                ?: return, 0, 1, mc.thePlayer
+                        )
+                        delay
                     }
                 }
+                delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
+                return
             }
         }
 
@@ -214,7 +236,7 @@ object InvManager : Module() {
                         mc.thePlayer
                     )
 
-                    delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+                    delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
                     return
                 }
             }
@@ -245,7 +267,7 @@ object InvManager : Module() {
 
                 mc.playerController.windowClick(mc.thePlayer.openContainer.windowId, garbageItem, 1, 4, mc.thePlayer)
 
-                delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+                delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
 
                 return
             }
@@ -255,6 +277,13 @@ object InvManager : Module() {
             invOpened = false
         }
     }
+
+    private fun Int.toHotbarIndex(stacksSize: Int): Int? {
+        val parsed = this - stacksSize + 9
+
+        return if (parsed in 0..8) parsed else null
+    }
+
 
     /**
      * Checks if the item is useful
@@ -331,7 +360,7 @@ object InvManager : Module() {
                             false
                         } else {
                             val currDamage = item.getDamage(itemStack)
-                            val result = ItemUtils.compareArmor(currArmor, armor, nbtArmorPriority.get(), goal)
+                            val result = ItemUtils.compareArmor(currArmor, armor.itemStack, nbtArmorPriority.get(), goal)
                             if (result == 0)
                                 currDamage >= stack.item.getDamage(stack)
                             else result < 0
@@ -362,33 +391,6 @@ object InvManager : Module() {
             ClientUtils.logError("(InvManager) Failed to check item: ${itemStack.unlocalizedName}.", ex)
             true
         }
-    }
-
-    private fun findBestArmor(): Array<ArmorPiece?> {
-        val armorPieces = IntStream.range(0, 36)
-            .filter { i: Int ->
-                val itemStack = mc.thePlayer.inventory.getStackInSlot(i)
-                (itemStack != null && itemStack.item is ItemArmor &&
-                        (i < 9 || System.currentTimeMillis() - (itemStack as IItemStack).itemDelay >= itemDelayValue.get()))
-            }
-            .mapToObj { i: Int -> ArmorPiece(mc.thePlayer.inventory.getStackInSlot(i), i) }
-            .collect(Collectors.groupingBy { obj: ArmorPiece -> obj.armorType })
-
-        val bestArmor = arrayOfNulls<ArmorPiece>(4)
-        for ((key, value) in armorPieces) {
-            bestArmor[key!!] = value.also {
-                it.sortWith { armorPiece, armorPiece2 ->
-                    ItemUtils.compareArmor(
-                        armorPiece,
-                        armorPiece2,
-                        nbtArmorPriority.get(),
-                        goal
-                    )
-                }
-            }.lastOrNull()
-        }
-
-        return bestArmor
     }
 
     private fun findBetterItem(targetSlot: Int, slotStack: ItemStack?): Int? {
@@ -600,7 +602,7 @@ object InvManager : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(item))
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer.getSlot(item).stack))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
             return true
         } else {
             if (checkOpen()) {
@@ -617,7 +619,7 @@ object InvManager : Module() {
                     mc.thePlayer
                 )
             }
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
             return true
         }
     }

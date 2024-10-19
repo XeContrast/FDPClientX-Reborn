@@ -28,11 +28,10 @@ object AutoItem : Module() {
     private val fakeItem = BoolValue("FakeItem", false).displayable { autoTool.get() }
     private val switchBack = BoolValue("SwitchBack", false).displayable { autoTool.get() }
     private val onlySneaking = BoolValue("OnlySneaking", false).displayable { autoTool.get() }
-    private val noCombat = BoolValue("NoCombat", true).displayable { autoTool.get() }
     private val autoWeapon = BoolValue("AutoWeapon", false)
     private val onlySwordValue = BoolValue("OnlySword", false).displayable { autoWeapon.get() }
     private val silent = BoolValue("Spoof", false)
-    var formerSlot = 0
+    private var formerSlot = 0
     private var attackEnemy = false
     private var prevItemWeapon = 0
     private var spoofTick = 0
@@ -85,7 +84,7 @@ object AutoItem : Module() {
             }
         }
     }
-    fun switchSlot(blockPos: BlockPos) {
+    private fun switchSlot(blockPos: BlockPos) {
         var bestSpeed = 1F
         var bestSlot = -1
 

@@ -33,7 +33,7 @@ object InvMove : Module() {
     private val chest = BoolValue("Chest",true)
     private val inv = BoolValue("Inv",true)
     private val noDetectableValue = BoolValue("NoDetectable", false)
-    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Jump","Intave", "None"), "None")
+    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Intave", "None"), "None")
     private val rotateValue = BoolValue("Rotate", false)
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
     val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
@@ -171,9 +171,6 @@ object InvMove : Module() {
                         blinkPacketList.clear()
                     }
                 }
-            }
-            "jump" -> {
-                if (mc.currentScreen is GuiChest && mc.thePlayer.onGround && lastInvOpen) mc.thePlayer.jump()
             }
         }
     }

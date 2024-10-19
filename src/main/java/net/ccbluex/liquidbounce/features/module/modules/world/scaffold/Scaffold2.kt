@@ -1120,7 +1120,7 @@ class Scaffold2 : Module() {
             )
         ) {
             delayTimer.reset()
-            delay = if (!placeDelay.get()) 0 else TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = if (!placeDelay.get()) 0 else TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get()).toLong()
 
             if (mc.thePlayer!!.onGround) {
                 val modifier: Float = speedModifierValue.get()
