@@ -17,6 +17,8 @@ import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
+import net.ccbluex.liquidbounce.utils.EntityUtils.speed
+import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
@@ -439,11 +441,16 @@ object  AntiBot : Module() {
         val packet = event.packet
 
         when (packet) {
-            is S18PacketEntityTeleport -> processEntityMove(mc.theWorld.getEntityByID(packet.entityId) ?: return, packet.onGround)
+            is S18PacketEntityTeleport -> processEntityMove(
+                mc.theWorld.getEntityByID(packet.entityId) ?: return,
+                packet.onGround
+            )
+
             is S14PacketEntity -> {
                 if (czechHekValue.get()) wasAdded = false
                 processEntityMove(packet.getEntity(mc.theWorld) ?: return, packet.onGround)
             }
+
             is S0BPacketAnimation -> {
                 val entity = mc.theWorld.getEntityByID(packet.entityID)
 
@@ -453,6 +460,7 @@ object  AntiBot : Module() {
                     swing.add(entity.entityId)
                 }
             }
+
             is S38PacketPlayerListItem -> {
                 val data = packet.entries[0]
                 if (duplicateCompareModeValue.equals("WhenSpawn") && packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) {
@@ -475,39 +483,14 @@ object  AntiBot : Module() {
                     }
                 }
                 //
-                if (matrix7.get()) {
-                    mc.theWorld.playerEntities.forEach { entity ->
-                        if (entity.inventory.armorInventory.all { it == null } || entity.heldItem == null)
-                            return
-
-                        val player = mc.thePlayer ?: return
-                        val playerPosY = player.posY - 2..player.posY + 2
-
-                        if (entity.posY in playerPosY) {
-                            if (packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) {
-                                if (data.gameMode == WorldSettings.GameType.SURVIVAL) {
-                                    if (!matrix.contains(entity.entityId)) {
-                                        matrix.add(entity.entityId)
-                                        if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile?.name}")
-                                    }
-                                }
-                            }
-
-                            if (packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
-                                if (matrix.contains(entity.entityId)) {
-                                    matrix.remove(entity.entityId)
-                                    if (debugValue.get()) Chat.alert("AntiBot - ${entity.gameProfile?.name}")
-                                }
-                            }
-                        }
-                    }
-                }
             }
+
             is S0CPacketSpawnPlayer -> {
                 if (FDPClient.combatManager.inCombat && !hasRemovedEntities.contains(packet.entityID)) {
                     spawnInCombat.add(packet.entityID)
                 }
             }
+
             is S13PacketDestroyEntities -> hasRemovedEntities.addAll(packet.entityIDs.toTypedArray())
         }
 
@@ -532,6 +515,34 @@ object  AntiBot : Module() {
                         -0.5f
                     }
                 lastDamage[entity.entityId] = entity.ticksExisted
+            }
+        }
+
+        if (matrix7.get()) {
+            mc.theWorld.playerEntities.forEach { entity ->
+                if (entity.inventory.armorInventory.all { it != null } && entity.heldItem != null) {
+
+                    val player = mc.thePlayer ?: return
+                    val playerPosY = player.posY - 2..player.posY + 2
+
+                    var tick: Int = 0
+
+                    if (entity.posY in playerPosY) {
+                        if (!entity.onGround && entity.hurtTime == 0) {
+                            tick++
+                            if (tick == 5) {
+                                tick = 0
+                            }
+                        }
+                        if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
+                            val data = packet.entries[0]
+                            if (matrix.contains(entity.entityId) && data.gameMode == null && data.displayName == null) {
+                                matrix.remove(entity.entityId)
+                                if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fRemove §r" + entity.gameProfile.name)
+                            }
+                        }
+                    }
+                }
             }
         }
     }

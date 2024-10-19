@@ -564,11 +564,12 @@ object KillAura : Module() {
         event: Render2DEvent
     ) {
         if (displayDebug.get()) {
+            val player = mc.thePlayer ?: return
             val sr = ScaledResolution(mc)
-            val blockingStatus = mc.thePlayer.isBlocking
+            val blockingStatus = player.isBlocking
             val maxRange = this.maxRange
 
-            val reach = mc.thePlayer.getDistanceToEntityBox(currentTarget!!)
+            val reach = player.getDistanceToEntityBox(currentTarget ?: return)
 
             val formattedReach = String.format("%.2f", reach)
 

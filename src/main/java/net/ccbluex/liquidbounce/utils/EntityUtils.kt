@@ -30,6 +30,7 @@ import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.Vec3
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.sin
 
 object EntityUtils : MinecraftInstance() {
@@ -68,12 +69,6 @@ object EntityUtils : MinecraftInstance() {
             }
         }
         return false
-    }
-    fun addVelocity(x: Double, y: Double, z: Double) {
-        mc.thePlayer.motionX += x
-        mc.thePlayer.motionY += y
-        mc.thePlayer.motionZ += z
-        mc.thePlayer.isAirBorne = true
     }
     fun isLookingOnEntities(entity: Entity, maxAngleDifference: Double): Boolean {
         val player = mc.thePlayer ?: return false
@@ -156,5 +151,9 @@ object EntityUtils : MinecraftInstance() {
         val eyes = this.eyes
         val end = (rotation?: RotationUtils.bestServerRotation())!!.toDirection().multiply(range).add(eyes)
         return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
+    }
+
+    fun Entity.speed() : Double {
+        return hypot(this.posX - this.prevPosX, this.posZ - this.prevPosZ) * 20
     }
 }

@@ -217,7 +217,6 @@ object NoSlow : Module() {
     }
 
     private fun sendPacket2(packetType: String,event: MotionEvent) {
-        val isUsingItem = usingItemFunc()
         when (packetType.lowercase()) {
             "aac5" -> {
                 mc.netHandler.addToSendQueue(
@@ -287,10 +286,6 @@ object NoSlow : Module() {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle % 8 + 1))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle % 7 + 2))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle))
-            }
-
-            "packet" -> {
-                null
             }
         }
     }
@@ -448,6 +443,7 @@ object NoSlow : Module() {
                 }
                 "bug" -> {
                     mc.netHandler.addToSendQueue(C16PacketClientStatus(EnumState.OPEN_INVENTORY_ACHIEVEMENT))
+                    mc.netHandler.addToSendQueue(C0DPacketCloseWindow())
                     mc.thePlayer.stopUsingItem()
                     mc.thePlayer.closeScreen()
                 }
@@ -589,13 +585,8 @@ object NoSlow : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        var aura: KillAura? = null
-        var count = 0
-        var lastItem: ItemStack? = null
         val isBlocking =
             mc.thePlayer.isUsingItem && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
-        val player = mc.thePlayer ?: return
-        val currentItem = player.currentEquippedItem
         if (mc.thePlayer == null || mc.theWorld == null || (onlyGround.get() && !mc.thePlayer.onGround))
             return
 
