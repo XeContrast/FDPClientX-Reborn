@@ -87,7 +87,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce", "Karhu", "GrimVertical", "Delay", "Phase"),
+        arrayOf("AttackReduce", "Karhu", "Delay", "Phase"),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -220,7 +220,7 @@ object Velocity : Module() {
     ).displayable { !blinkValue.get() && otherMode.get() == "Delay" && mainMode.get() == "Other" }
 
     private val aacPushXZReducer =
-        FloatValue("AACPushXZReducer", 2F, 1F, 3F) { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
+        FloatValue("AACPushXZReducer", 2F, 1F, 3F).displayable { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
     private val aacPushYReducer =
         BoolValue("AACPushYReducer", true).displayable { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
 
