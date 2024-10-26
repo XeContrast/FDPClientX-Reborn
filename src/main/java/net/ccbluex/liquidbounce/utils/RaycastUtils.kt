@@ -13,7 +13,9 @@ import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.*
+import net.minecraft.util.EntitySelectors
+import net.minecraft.util.MathHelper
+import net.minecraft.util.Vec3
 
 object RaycastUtils : MinecraftInstance() {
 

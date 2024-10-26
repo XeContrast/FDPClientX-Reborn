@@ -1,367 +1,379 @@
 /*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
- */
+* LiquidBounce Hacked Client
+* A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+* https://github.com/CCBlueX/LiquidBounce/
+*/
 package net.ccbluex.liquidbounce.features.module.modules.other
 
-import net.ccbluex.liquidbounce.FDPClient
+import kotlinx.coroutines.*
+import net.ccbluex.liquidbounce.FDPClient.hud
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
-import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.utils.ClientUtils
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.features.value.TextValue
-import net.minecraft.network.play.server.S14PacketEntity
-import net.minecraft.network.play.server.S1DPacketEntityEffect
+import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
+import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
+import net.ccbluex.liquidbounce.utils.StaffList
+import net.ccbluex.liquidbounce.utils.misc.HttpUtils
+import net.minecraft.entity.Entity
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Items
+import net.minecraft.network.Packet
+import net.minecraft.network.play.server.*
+import java.util.concurrent.ConcurrentHashMap
 
-@ModuleInfo(name = "AntiStaff", category = ModuleCategory.OTHER)
+@ModuleInfo("AntiStaff", category = ModuleCategory.OTHER)
 object AntiStaff : Module() {
 
-    private val serversText = TextValue("Servers", "")
+    const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
 
-    private val mode = ListValue("Mode", arrayOf("Hypixel","KKCraft","BlocksMC","Jartex","Pika","MineBox","HyCraft","LibreCraft","UniverseCraft","Custom"),"Hypixel")
-    
-    private val notifyValue = BoolValue("Notification",true)
-    private val chatValue = BoolValue("SendChatMessage",false)
-    private val messageValue = TextValue("Message", "%staff% was detected as a staff member!").displayable { chatValue.get() }
-    private val customURLValue = TextValue("CustomURL", "https://raw.githubusercontent.com/fdpweb/fdpweb.github.io/main/test").displayable { mode.equals("Custom") }
+    private val staffMode = object : ListValue("StaffMode", arrayOf("BlocksMC", "CubeCraft", "Gamster",
+        "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD","KKCraft"), "BlocksMC") {
+    }
 
-    private val leaveValue = BoolValue("Leave",true)
-    private val leaveMessageValue = TextValue("LeaveCommand","/hub").displayable { leaveValue.get() }
+    private val tab1 = BoolValue("TAB", true)
+    private val packet = BoolValue("Packet", true)
+    private val velocity = BoolValue("Velocity", false)
 
-    private var hypStaffttxt : String =
-            "Gerbor12 " +
-            "JordWG " +
-            "LeBrillant " +
-            "Pensul " +
-            "LadyBleu " +
-            "Citria " +
-            "DeluxeRose " +
-            "TheBirmanator " +
-            "TorWolf " +
-            "Minikloon " +
-            "Rhune " +
-            "Greeenn " +
-            "Fr0z3n " +
-            "SnowyPai " +
-            "Rozsa " +
-            "Quack " +
-            "ZeaBot " +
-            "Cheesey " +
-            "MCVisuals " +
-            "carstairs95 " +
-            "DistrictGecko " +
-            "inventivetalent " +
-            "JacobRuby " +
-            "Jayavarmen " +
-            "Judg3 " +
-            "LandonHP " +
-            "Liffeh " +
-            "xHascox " +
-            "DEADORKAI " +
-            "Brandonjja " +
-            "skyerzz " +
-            "Dctr " +
-            "AdamWho " +
-            "aPunch " +
-            "jamzs " +
-            "Phaige " +
-            "Likaos " +
-            "hypixel " +
-            "Plummel " +
-            "Bloozing " +
-            "BlocksKey " +
-            "MistressEldrid " +
-            "Nausicaah " +
-            "ChiLynn " +
-            "TheMGRF " +
-            "Revengeee " +
-            "_PolynaLove_ " +
-            "Sylent_ " +
-            "Teddy " +
-            "Relenter " +
-            "_fudgiethewhale " +
-            "sfarnham " +
-            "NoxyD " +
-            "WilliamTiger " +
-            "vinny8ball666 " +
-            "Nitroholic_ " +
-            "Donpireso " +
-            "Plancke " +
-            "ConnorLinfoot " +
-            "RapidTheNerd " +
-            "Rezzus " +
-            "eeyitscoco " +
-            "Cecer " +
-            "Externalizable " +
-            "Bembo " +
-            "Taytale " +
-            "JamieTheGeek " +
-            "williamgburns " +
-            "BOGA32 " +
-            "boomerzap " +
-            "MFN " +
-            "Gainful " +
-            "Octaverei " +
-            "TacNayn " +
-            "TimeDeo " +
-            "Minikloon " +
-            "idhoom " +
-            "7so " +
-            "1sweet " +
-            "jinaaan " +
-            "ev2n " +
-            "eissaa " +
-            "mohmad_q8 " +
-            "1daykel " +
-            "ximtaig_ " +
-            "nshme " +
-            "comsterr " +
-            "e9_ " +
-            "1meko " +
-            "1lab " +
-            "mk_f16 " +
-            "loovq " +
-            "_sadeq " +
-            "nv0ola " +
-            "1f5amh___3oo " +
-            "frecss217 " +
-            "xmz7 " +
-            "a2bod " +
-            "eyeso_diamond " +
-            "bunkrat " +
-            "1rana " +
-            "1ahmd " +
-            "1heyimhasson_ " +
-            "casteret " +
-            "1elyy " +
-            "1zeyad " +
-            "lt1x " +
-            "firas " +
-            "postme " +
-            "3mmr " +
-            "xl2d " +
-            "yzed " +
-            "y2men " +
-            "iv2a " +
-            "_nonameishere_ " +
-            "0hfault " +
-            "deficency " +
-            "anauri " +
-            "xluffy1 " +
-            "kinderbueno__ " +
-            "_revoox_ " +
-            "xidayzer " +
-            "i7ilin " +
-            "1adam__ " +
-            "27bk " +
-            "ventz_ " +
-            "awfultimes " +
-            "ahm2d " +
-            "gsomar " +
-            "mvp11 " +
-            "xxkhaledxxcraft " +
-            "aymann_ " +
-            "1iraqi " +
-            "rambokinq " +
-            "undertest " +
-            "zswift " +
-            "strongest0ne " +
-            "neverletyouknow " +
-            "zixgamer " +
-            "sanfoor_j " +
-            "ixghoul_ " +
-            "imbexsl_ " +
-            "glowdown_ " +
-            "hunter47 " +
-            "fexoranep " +
-            "1reyleigh " +
-            "420waffle " +
-            "ywgiz " +
-            "sweetyalice " +
-            "xfahadq " +
-            "mr3nb_ " +
-            "akash1004 " +
-            "zaytonaaa " +
-            "rma7o " +
-            "mr_1990 " +
-            "iali_305 " +
-            "wacros " +
-            "lwwh " +
-            "pynifical " +
-            "rivsci " +
-            "itsjuan_ " +
-            "meedo_qb " +
-            "_r3 " +
-            "1speedo_ " +
-            "_justidk " +
-            "505t " +
-            "xzvv " +
-            "mauveracer " +
-            "_1hypersx_ " +
-            "rayqquaza " +
-            "swivee " +
-            "absqtulate " +
-            "opgaming2009 " +
-            "vhagardracarys " +
-            "luffy404 " +
-            "faisaal420 " +
-            "hdzt " +
-            "sunsnipebeastwtf " +
-            "_odex " +
-            "1ashu " +
-            "n13m_ " +
-            "callinu " +
-            "sh59 " +
-            "drnyx " +
-            "iisrab5bgii " +
-            "haoeris " +
-            "lxrayanxl " +
-            "toxiclayer " +
-            "greatm7md " +
-            "brksfrb2 " +
-            "madix707 " +
-            "hnxrr " +
-            "1sweetty " +
-            "ohhhhqls " +
-            "solidfying " +
-            "_i_b " +
-            "escoco " +
-            "dreadpirater0b " +
-            "aboshxm " +
-            "0ryze " +
-            "spuvr " +
-            "va_1 " +
-            "kingpvp90 " +
-            "rieus " +
-            "prebowed " +
-            "mitsichu " +
-            "gogglas " +
-            "battlebay " +
-            "32lbo " +
-            "7far_8bor " +
-            "evenfai " +
-            "hlazny " +
-            "valrm"
-    private var kkStaff : String = "Creeper_Hello Kun_God hanhan_api Regotly_Long"
-    private var bmcStaff : String = " iDhoom " +
-            "Jinaaan " +
-            "Eissaa " +
-            "Ev2n " +
-            "1Mhmmd " +
-            "mohmad_q8 " +
-            "1Daykel Aliiyah 1Brhom xImTaiG_ comsterr 8layh M7mmd 1LaB xIBerryPlayz iiRaivy Refolt 1Sweet Aba5z3l EyesO_Diamond bestleso Firas reallyisntfair e9_ MK_F16 unrelievable Ixfaris_0 LuvDark 420kinaka _NonameIsHere_ iS3od_ 3Mmr Wesccar 1MeKo losingtears KaaReeeM loovq rarticalss 1RealFadi JustDrink_ AFG_progamer92 Jxicide D7oMz 1AhMqD Omaaaaaaaaaar Classic190 Only7oDa sylx69 1_3bdalH frank124 dfdox 1Mohq 1Sweleh_ Om2r epicmines33 1Devesty_ BagmaTwT Azyyq A2boD Ba1z 100k__ Watchdog nv0ola KinderBueno__ Invxe_ GreatMjd zixgamer Salvctore 420Lalilala vIon3 wstre AstroSaif plaintiveness ImS3G 1Flick EstieMeow ItsNqf MVP11 Daddy_Naif shichirouu Lordui 1Reyleigh BIocksMc 1Retired O_lp L6mh 63myh 1Mawja_ Tqfi 3iDO 1M7mmd__ lqmr yzed GsOMAR nshme Fcris RamboKinq qDry1 1Rana 1flyn Harbi deficency 0Aix 0Da3s 0DrRep 0hPqnos 0h_Roby 1A7mad1 1Ahmvd 1Derex 1DeVilz 1F5aMH___3oo 1HeyImHasson_ 1KhaleeD 1Kweng 1L7NN 1Levaai 1Loga_ 1LoST_ 1M0ha 1M7mdz 1M7mmD 1Mshari 1Narwhql 1Omxr 1Pepe_ 1RE3 1Sinqx 1Tz3bo 1_aq 1_ST 3rodi 7MZH 7re2a_YT 8mhh 90fa 91l7 9we A5oShnBaT abd0_369 Aboal3z14 Aboz3bl AbuA7md506 AfootDiamond117 AhmedPROGG Alaam_FG arbawii AsgardOfEddard AwKTaM Aymann_ baderr Banderr BaSiL_123 Bastic beyondviolets BinDontCare BlackOurs Blood_Artz Bo3aShor Bo6lalll bota_69 Boviix c22l Creegam Cryslinq CutieRana cuz_himo cW6n d5qq DaBabyFan DangPavel DarkA5_ deathally Dedz1k DeeRx DestroyerOnyc_ DestroyerTrUnKs Dizibre Dqrkfall Draggn_ Driction Du7ym ebararh EVanDoskI F2rris FaRidok FexoraNEP Flineer Fta7 Futurezii G3rryx GoldenGapples H2ris Haifa_magic HM___ iA11 iAhmedGG IDoubIe IF3MH iiEsaTKing_ iikimo iLuvSG_ ilybb0 iMehdi_ ImXann INFAMOUSEEE InjjectoR inVertice IR3DX iRxv iSolom Its_HighNoon Ittekimasu itzZa1D ixBander IxDjole IxKimo i_Ym5 Jarxay Jrx7 Just7MO KingHOYT KoFTH kostasidk Kuhimitsu lacvna lareey leeleeeleeeleee Lemfs lt1x Lunching Luvaa lwra M1M_ M4rwaan Maarcii manuelmaster Mark_Gamer_YT_ MaybeHeDoes Mhmovd MightyM7MD Millsap MindOfNasser Mjdra_call_ME mokgii Mondoros Mythiques mzh Neeres NotMoHqMeD__ obaida123445 ogm OldAlone Oxenaa phxnomenal PT7 qB6o6 qlxc qMabel qPito Raceth RADVN RealWayne real__happy redcriper Requieem ritclaw rixw1 rqnkk s2lm S3rvox saad6 Saajed Sadlly SalemBayern_ SamoXS sh5boo6 Sp0tzy_ SpecialAdam_ SpecialAdel_ STEEEEEVEEEE Tabby_Bhau Tetdeus TheDaddyJames TheDrag_Xx Thenvra TheOnlyM7MAD Tibbz_BGamer Tibbz_BGamer_ ToFy_ Tostiebramkaas ttkshr_ tverdy uh8e vBursT_ vdhvm vinnythebot vM6r vxom w7r wishingdeath wl3d wzii xanaxjuice xDiaa_levo xDmg xDupzHell xiDayzer xImMuntadher_ xIMonster_Rj xL2d xLePerfect xMz7 Y2men Yaazzeed yff3 yosife_7Y yQuack Y_04 zAhmd ZANAD zayedk zCroDanger Zqvies _0bX _b_i _iSkyla _N3 _Ottawa _R3 _SpecialSA_ _Vxpe _xayu_ _z2_ "
-    private var jartexStaff : String = "voodootje0 Max Rodagave Wrath JustThiemo Andeh Nirahz stupxd Botervrij Viclyn_  DrogonMC ovq Flexier NotLoLo1818 SabitTSDM07 ItzCqldFxld Laux  bene_e  iFlyYT          HeadsBreker       AX79       Technostein          Djim       Serpentsalamce       Almostlikeaboss       JustAtaman       ZoneRGH       naranbaatr       louiekeys       Difficulted       FuzniX       xHasey       sammyxt       CR7811149       Xerrainrin       toastt_x          UpperGround       Swervinng       SquareWings928       Yanique1       pakitonia     Stxrs"
-    private var pikaStaff : String = "Max voodootje0 MrFrenco JustThiemo Wrath Andeh Nirahz stupxd Botervrij Subvalent Apo2xd Arrly Minecraft_leg CaptainGeoGR Thijme01 ChickenDinnr Crni_ MrGownz Outscale MrEpiko Crveni_Marlboro zMqrcc _Stella_xD Stormidity TryToHitMe Alparo_ CandyOP Astrospeh TinCanL TheTrueNova FIKOZ DarkVenom7 caila5 Lpkfvip i9BAR "
-    private var mineboxStaff : String = "xSp3ctro_  SaF3rC  Sagui  TheSuperXD_YT  xAnibal  xTheKillex25x  HankWalter  JavierFenix  inothayami  ChaosSoleil  ElChamo300  Robert TO1010  itachi_uchiha_s  roku__  rynne_ sushi dashi Vicky_21"
-    private var zonecraftStaff : String = "002Aren asiessoydecono donerreMC elMagnificPvP ErCris fernxndx gourd Gudaa ImAle ImMarvolo ismq nicoxrm pacorro rapheos MrBara MrMonkey57 uploadedhh trifeyy 002Aren Agu5 augusmaster BetTD d411 dunshbey85 ElMaGnific Pv ErCris Eugene FelmaxMC Gudaa ¡Enux ImMarvolo sleepless ismq ItzOmar16 joescam LuisPoMC Nicoxrm pacorro "
-    private var hycraftStaff : String = "Alexander245 arqui Blandih Chony_15 jac0mc Ragen06 TheBryaan TMT_131 Yapecito MartynaGamer830 archeriam"
-    private var librecraftStaff : String = "Kudos  H0DKIER  Iker_XD9  acreate  iJeanSC  acreate  Janet  Rosse_RM  aldoum23neko_  DERGO  MJKINGPAND"
-    private var universocraftStaff : String = "0edx_ 0_Lily 1Kao denila  fxrchus  haaaaaaaaaaax_ iBlackSoulz iMxon_ JuliCarles kvvwro Tauchet wSilv6r _JuPo_"
-    
-    
-    private var detected = false
-    private var staffs = ""
-    
-    
+    private val autoLeave = ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off").displayable { tab1.get() || packet.get() }
+
+    private val spectator = BoolValue("StaffSpectator", false).displayable { tab1.get() || packet.get() }
+    private val otherSpectator = BoolValue("OtherSpectator", false).displayable { tab1.get() || packet.get() }
+
+    private val inGame = BoolValue("InGame", true).displayable { autoLeave.get() != "Off" }
+    private val warn = ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
+
+    private val checkedStaff = ConcurrentHashMap.newKeySet<String>()
+    private val checkedSpectator = ConcurrentHashMap.newKeySet<String>()
+    private val playersInSpectatorMode = ConcurrentHashMap.newKeySet<String>()
+
+    private var attemptLeave = false
+
+    private var staffList: String = ""
+    private var serverIp = ""
+
+    private val moduleJob = SupervisorJob()
+    private val moduleScope = CoroutineScope(Dispatchers.IO + moduleJob)
+
+    override fun onDisable() {
+        serverIp = ""
+        moduleJob.cancel()
+        checkedStaff.clear()
+        checkedSpectator.clear()
+        playersInSpectatorMode.clear()
+        attemptLeave = false
+    }
+
+    /**
+     * Reset on World Change
+     */
     @EventTarget
     fun onWorld(event: WorldEvent) {
-        staffs = when (mode.get().lowercase()) {
-            "hypixel" -> "$staffs $hypStaffttxt"
-            "kkcraft" -> "$staffs $kkStaff"
-            "blocksmc" -> "$staffs $bmcStaff"
-            "jartex" -> "$staffs $jartexStaff"
-            "pika" -> "$staffs $pikaStaff"
-            "minebox" -> "$staffs $mineboxStaff"
-            "hycraft" -> "$staffs $hycraftStaff"
-            "librecraft" -> "$staffs $librecraftStaff"
-            "universecraft" -> "$staffs $universocraftStaff"
-            "custom" -> {
-                try {
-                    staffs + " " + HttpUtils.get(customURLValue.get())
-                    FDPClient.hud.addNotification(
-                        Notification(
-                            "AntiStaff",
-                            "SuccessFully Loaded URL",
-                            NotifyType.SUCCESS,
-                            1000
-                        )
-                    )
-                } catch (err: Throwable) {
-                    FDPClient.hud.addNotification(
-                        Notification(
-                            "AntiStaff",
-                            "Error when loading URL",
-                            NotifyType.ERROR,
-                            1000
-                        )
-                    )
-                }.toString()
-            }
+        checkedStaff.clear()
+        checkedSpectator.clear()
+        playersInSpectatorMode.clear()
+    }
 
-            else -> {
-                ""
-            }
+    private fun checkedStaffRemoved() {
+        val onlinePlayers = mc.netHandler?.playerInfoMap?.mapNotNull { it?.gameProfile?.name }
+
+        synchronized(checkedStaff) {
+            onlinePlayers?.toSet()?.let { checkedStaff.retainAll(it) }
         }
-            
-        detected = false
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent){
-        if (mc.theWorld == null || mc.thePlayer == null) return
+    fun onUpdate(event: UpdateEvent) {
+        staffList = when (staffMode.get().lowercase()) {
+            "cubecraft" -> StaffList.CUBECRAFT
+            "kkcraft" -> StaffList.KKCRAFT
+            "hypixel" -> StaffList.HYPIXEL
+            "pikanetwork" -> StaffList.PIKA
+            "blocksmc" -> StaffList.BMC
+            "agerapvp" -> StaffList.ARERAPVP
+            "hypemc" -> StaffList.HYPEMC
+            "supercraft" -> StaffList.SUERPCRAFT
+            "gommehd" -> StaffList.GOMMA
+            "gamster" -> StaffList.GAMSTER
+            else -> ""
+        }
+    }
 
-        val packet = event.packet // smart convert
-        if (packet is S1DPacketEntityEffect) {
-            val entity = mc.theWorld.getEntityByID(packet.entityId)
-            if (entity != null && (staffs.contains(entity.name) || staffs.contains(entity.displayName.unformattedText))) {
-                if (!detected) {
-                    if (notifyValue.get()){
-                        FDPClient.hud.addNotification(Notification(name, "Detected staff members with invis. You should quit ASAP.", NotifyType.WARNING, 8000))
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        val packet = event.packet
+
+        /**
+         * OLD BlocksMC Staff Spectator Check
+         * Credit: @HU & Modified by @EclipsesDev
+         *
+         * NOTE: Doesn't detect staff spectator all the time.
+         */
+        if (spectator.get()) {
+            if (packet is S3EPacketTeams) {
+                val teamName = packet.name
+
+                if (teamName.equals("Z_Spectator", true)) {
+                    val players = packet.players ?: return
+
+                    val staffSpectateList = players.filter { it in staffList } - checkedSpectator
+                    val nonStaffSpectateList = players.filter { it !in staffList } - checkedSpectator
+
+                    // Check for players who are using spectator menu
+                    val miscSpectatorList = playersInSpectatorMode - players.toSet()
+
+                    staffSpectateList.forEach { player ->
+                        notifySpectators(player!!)
                     }
-                    
-                    if (chatValue.get()) {
-                        mc.thePlayer.sendChatMessage((messageValue.get()).replace("%staff%", entity.name))
+
+                    nonStaffSpectateList.forEach { player ->
+                        if (otherSpectator.get()) {
+                            notifySpectators(player!!)
+                        }
                     }
-                    if (leaveValue.get()) {
-                        mc.thePlayer.sendChatMessage(leaveMessageValue.get())
+
+                    miscSpectatorList.forEach { player ->
+                        val isStaff = player in staffList
+
+                        if (isStaff && spectator.get()) {
+                            Chat.print("§c[STAFF] §d${player} §3is using the spectator menu §e(compass/left)")
+                        }
+
+                        if (!isStaff && otherSpectator.get()) {
+                            Chat.print("§d${player} §3is using the spectator menu §e(compass/left)")
+                        }
+                        checkedSpectator.remove(player)
                     }
-                    
-                    detected = true
+
+                    // Update the set of players in spectator mode
+                    playersInSpectatorMode.clear()
+                    playersInSpectatorMode.addAll(players)
                 }
             }
-        }
-        if (packet is S14PacketEntity) {
-            val entity = packet.getEntity(mc.theWorld)
 
-            if (entity != null && (staffs.contains(entity.name) || staffs.contains(entity.displayName.unformattedText))) {
-                if (!detected) {
-                    if (notifyValue.get()){
-                    FDPClient.hud.addNotification(Notification(name, "Detected staff members. You should quit ASAP.", NotifyType.WARNING,8000))
+            // Handle other packets
+            handleOtherChecks(packet)
+        }
+
+        /**
+         * Velocity Check
+         * Credit: @azureskylines / Nextgen
+         *
+         * Check if this is a regular velocity update
+         */
+        if (velocity.get()) {
+            if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer?.entityId) {
+                if (packet.motionX == 0 && packet.motionZ == 0 && packet.motionY / 8000.0 > 0.075) {
+                    attemptLeave = false
+                    autoLeave()
+
+                    if (warn.get() == "Chat") {
+                        Chat.print("§3Staff is Watching")
+                    } else {
+                        hud.addNotification(Notification("AntiStaff","§3Staff is Watching", NotifyType.INFO, 3000))
                     }
-                    
-                    if (chatValue.get()) {
-                        ClientUtils.displayChatMessage((messageValue.get()).replace("%staff%", entity.name))
-                    }
-                    
-                    if (leaveValue.get()) {
-                        mc.thePlayer.sendChatMessage(leaveMessageValue.get())
-                    }
-                    
-                    detected = true
                 }
             }
         }
     }
 
-    override val tag: String
-        get() = mode.get()
+    private fun notifySpectators(player: String) {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        val isStaff: Boolean = staffList.contains(player)
+
+        if (isStaff && spectator.get()) {
+            if (warn.get() == "Chat") {
+                Chat.print("§c[STAFF] §d${player} §3is a spectators")
+            } else {
+                hud.addNotification(Notification("AntiStaff","§c[STAFF] §d${player} §3is a spectators", NotifyType.INFO,3000))
+            }
+        }
+
+        if (!isStaff && otherSpectator.get()) {
+            if (warn.get() == "Chat") {
+                Chat.print("§d${player} §3is a spectators")
+            } else {
+                hud.addNotification(Notification("AntiStaff","§d${player} §3is a spectators", NotifyType.INFO,3000))
+            }
+        }
+
+        attemptLeave = false
+        checkedSpectator.add(player)
+
+        if (isStaff) {
+            autoLeave()
+        }
+    }
+
+    /**
+     * Check staff using TAB
+     */
+    private fun notifyStaff() {
+        if (!tab1.get())
+            return
+
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        val playerInfoMap = mc.netHandler?.playerInfoMap ?: return
+
+        val playerInfos = synchronized(playerInfoMap) {
+            playerInfoMap.mapNotNull { playerInfo ->
+                playerInfo?.gameProfile?.name?.let { playerName ->
+                    playerName to playerInfo.responseTime
+                }
+            }
+        }
+
+        playerInfos.forEach { (player, responseTime) ->
+            val isStaff : Boolean = staffList.contains(player)
+
+            val condition = when {
+                responseTime > 0 -> "§e(${responseTime}ms)"
+                responseTime == 0 -> "§a(Joined)"
+                else -> "§c(Ping error)"
+            }
+
+            val warnings = "§c[STAFF] §d${player} §3is a staff §b(TAB) $condition"
+
+            synchronized(checkedStaff) {
+                if (isStaff && player !in checkedStaff) {
+                    if (warn.get() == "Chat") {
+                        Chat.print(warnings)
+                    } else {
+                        hud.addNotification(Notification("AntiStaff",warnings, NotifyType.INFO,3000))
+                    }
+
+                    attemptLeave = false
+                    checkedStaff.add(player)
+
+                    autoLeave()
+                }
+            }
+        }
+    }
+
+    /**
+     * Check staff using Packet
+     */
+    private fun notifyStaffPacket(staff: Entity) {
+        if (!packet.get())
+            return
+
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        val isStaff: Boolean = if (staff is EntityPlayer) {
+            val playerName = staff.gameProfile.name
+
+            staffList.contains(playerName)
+        } else {
+            false
+        }
+
+        val condition = when (staff) {
+            is EntityPlayer -> {
+                val responseTime = mc.netHandler?.getPlayerInfo(staff.uniqueID)?.responseTime ?: 0
+                when {
+                    responseTime > 0 -> "§e(${responseTime}ms)"
+                    responseTime == 0 -> "§a(Joined)"
+                    else -> "§c(Ping error)"
+                }
+            }
+            else -> ""
+        }
+
+        val playerName = if (staff is EntityPlayer) staff.gameProfile.name else ""
+
+        val warnings = "§c[STAFF] §d${playerName} §3is a staff §b(Packet) $condition"
+
+        synchronized(checkedStaff) {
+            if (isStaff && playerName !in checkedStaff) {
+                if (warn.get() == "Chat") {
+                    Chat.print(warnings)
+                } else {
+                    hud.addNotification(Notification("AntiStaff",warnings, NotifyType.INFO,3000))
+                }
+
+                attemptLeave = false
+                checkedStaff.add(playerName)
+
+                autoLeave()
+            }
+        }
+    }
+
+    private fun autoLeave() {
+        val firstSlotItemStack = mc.thePlayer.inventory.mainInventory[0] ?: return
+
+        if (inGame.get() && (firstSlotItemStack.item == Items.compass || firstSlotItemStack.item == Items.bow)) {
+            return
+        }
+
+        if (!attemptLeave && autoLeave.get() != "Off") {
+            when (autoLeave.get().lowercase()) {
+                "leave" -> mc.thePlayer.sendChatMessage("/leave")
+                "lobby" -> mc.thePlayer.sendChatMessage("/lobby")
+                "quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
+            }
+            attemptLeave = true
+        }
+    }
+
+    private fun handleOtherChecks(packet: Packet<*>?) {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        fun handlePlayer(player: Entity?) {
+            player ?: return
+            handleStaff(player)
+        }
+
+        when (packet) {
+            is S01PacketJoinGame -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S0CPacketSpawnPlayer -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
+            is S18PacketEntityTeleport -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S1CPacketEntityMetadata -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S1DPacketEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S1EPacketRemoveEntityEffect -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S19PacketEntityStatus -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S19PacketEntityHeadLook -> handlePlayer(packet.getEntity(mc.theWorld))
+            is S49PacketUpdateEntityNBT -> handlePlayer(packet.getEntity(mc.theWorld))
+            is S1BPacketEntityAttach -> handlePlayer(mc.theWorld.getEntityByID(packet.entityId))
+            is S04PacketEntityEquipment -> handlePlayer(mc.theWorld.getEntityByID(packet.entityID))
+        }
+    }
+
+    private fun handleStaff(staff: Entity) {
+        if (mc.thePlayer == null || mc.theWorld == null) {
+            return
+        }
+
+        checkedStaffRemoved()
+
+        notifyStaff()
+        notifyStaffPacket(staff)
+    }
+
+    /**
+     * HUD TAG
+     */
+    override val tag
+        get() = staffMode.get()
 }

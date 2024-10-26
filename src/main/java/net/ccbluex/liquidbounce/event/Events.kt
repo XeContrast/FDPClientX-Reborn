@@ -61,7 +61,7 @@ class ClientShutdownEvent : Event()
  *
  * @param motion jump motion (y motion)
  */
-class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
+class JumpEvent(var motion: Float, var yaw: Float,val eventState: EventState) : CancellableEvent()
 
 /**
  * Called when user press a key once
@@ -75,7 +75,7 @@ class KeyEvent(val key: Int) : Event()
  *
  * @param eventState PRE or POST
  */
-class MotionEvent(val eventState: EventState) : Event()
+class MotionEvent(var x: Double, var y: Double, var z: Double, var onGround: Boolean, val eventState: EventState) : Event()
 
 /**
  * Called after motion

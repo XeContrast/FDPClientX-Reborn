@@ -19,21 +19,25 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.EntityUtils.speed
 import net.ccbluex.liquidbounce.utils.MovementUtils
+import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.ping
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.ccbluex.liquidbounce.utils.rotation
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemArmor
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 import net.minecraft.world.WorldSettings
 import java.awt.Color
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.regex.Pattern
+import kotlin.math.abs
 
 @ModuleInfo("AntiBot","Prevents KillAura from attacking AntiCheat bots.", category = ModuleCategory.OTHER)
 object  AntiBot : Module() {
@@ -522,23 +526,37 @@ object  AntiBot : Module() {
             mc.theWorld.playerEntities.forEach { entity ->
                 if (entity.inventory.armorInventory.all { it != null } && entity.heldItem != null) {
 
-                    val player = mc.thePlayer ?: return
+                    val player = mc.thePlayer ?: return@forEach
+                    val world = mc.theWorld ?: return@forEach
                     val playerPosY = player.posY - 2..player.posY + 2
 
-                    var tick: Int = 0
-
                     if (entity.posY in playerPosY) {
-                        if (!entity.onGround && entity.hurtTime == 0) {
-                            tick++
-                            if (tick == 5) {
-                                tick = 0
-                            }
+
+                        val entityRot = entity.rotationYaw
+                        val playerPreRot = player.prevRotationYaw
+
+                        val rotDiff = abs(entityRot - playerPreRot)
+                        val utilDiff = abs(entityRot - RotationUtils.serverRotation?.yaw!!)
+
+                        if ((rotDiff <= 10 || utilDiff <= 10) && matrix.contains(entity.entityId)) {
+//                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
+//                            world.removeEntityFromWorld(entity.entityId)
+                            matrix.add(entity.entityId)
+                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
                         }
-                        if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
-                            val data = packet.entries[0]
-                            if (matrix.contains(entity.entityId) && data.gameMode == null && data.displayName == null) {
-                                matrix.remove(entity.entityId)
-                                if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fRemove §r" + entity.gameProfile.name)
+
+                        if (entity.isSprinting && entity.moveForward == 0f && matrix.contains(entity.entityId)) {
+//                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
+//                            world.removeEntityFromWorld(entity.entityId)
+                            matrix.add(entity.entityId)
+                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
+                        }
+                        if (matrix.contains(entity.entityId)) {
+                            if (player.getDistanceToEntity(entity) <= 10) {
+                                if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
+                                    matrix.remove(entity.entityId)
+                                    if (debugValue.get()) Chat.alert("AntiBot - ${entity.gameProfile.name}")
+                                }
                             }
                         }
                     }

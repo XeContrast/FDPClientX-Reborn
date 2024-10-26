@@ -43,6 +43,8 @@ object EntityUtils : MinecraftInstance() {
                             return false
                         }
 
+                        if (entity.gameProfile.name == mc.thePlayer.name) return false
+
                         if (isFriend(entity)) {
                             return false
                         }

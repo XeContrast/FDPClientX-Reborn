@@ -31,9 +31,7 @@ import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
-import net.minecraft.network.play.client.C03PacketPlayer
-import net.minecraft.network.play.client.C07PacketPlayerDigging
-import net.minecraft.network.play.client.C0FPacketConfirmTransaction
+import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
@@ -77,7 +75,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Matrix" }
     private val aacMode = ListValue(
         "AACMode",
-        arrayOf("AAC4Reduce", "AAC5Reduce", "AAC5.2.0", "AAC5.2.0Combat", "AACPush", "AACZero"),
+        arrayOf("AAC4Reduce", "AAC5Reduce", "AAC5.2.0","AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
         "AAC4Reduce"
     ).displayable { mainMode.get() == "AAC" }
     private val reverseMode = ListValue(
@@ -95,7 +93,7 @@ object Velocity : Module() {
         mainMode.get() in arrayOf(
             "AAC",
             "Vanilla"
-        ) && (vanillaMode.get() == "Simple" || aacMode.get() == "AAC5.2.0")
+        ) && (vanillaMode.get() == "Simple" || aacMode.get() == "AAC5Reduce")
     }
     private val vertical = FloatValue("Vertical", 0F, -1F, 1F).displayable {
         mainMode.get() in arrayOf(
@@ -495,7 +493,7 @@ object Velocity : Module() {
                             }
                         }
 
-                        "intavereduce" -> hasReceivedVelocity = true
+                        "intavereduce","attackreduce" -> hasReceivedVelocity = true
 
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
@@ -688,13 +686,17 @@ object Velocity : Module() {
             "other" -> {
                 when (otherMode.get().lowercase()) {
                     "attackreduce" -> {
-                        if (mc.thePlayer.hurtTime >= 4) {
-                            player.motionX *= reduceAmount.get()
-                            player.motionZ *= reduceAmount.get()
+                        if (hasReceivedVelocity) {
+                            if (mc.thePlayer.hurtTime >= 4) {
+                                player.motionX *= reduceAmount.get()
+                                player.motionZ *= reduceAmount.get()
+                            } else {
+                                hasReceivedVelocity = false
+                            }
                         }
                     }
                     "intavereduce" -> {
-                        if (player.hurtTime <= hurtTime.get() && System.currentTimeMillis() - lastAttackTime <= 8000 && player.hurtTime != 0) {
+                        if (player.hurtTime == hurtTime.get() && System.currentTimeMillis() - lastAttackTime <= 8000) {
                             player.motionX *= reduceFactor.get()
                             player.motionZ *= reduceFactor.get()
                         }
@@ -830,12 +832,29 @@ object Velocity : Module() {
 
             "aac" -> {
                 when (aacMode.get().lowercase()) {
-                    "aac5Reduce" -> {
+                    "aac5reduce" -> {
                         if (hasReceivedVelocity && velocityTimer.hasTimePassed(120L)) {
                             player.motionX *= horizontal.get()
                             player.motionZ *= horizontal.get()
                             //mc.thePlayer.motionY *= vertical ?
                             hasReceivedVelocity = false
+                        }
+                    }
+
+                    "aac5vertical" -> {
+                        if (mc.thePlayer.hurtTime == 9) {
+                            val target = FDPClient.combatManager.getNearByEntity(3f)
+                            repeat(12) {
+                                mc.thePlayer.sendQueue.addToSendQueue(
+                                    C02PacketUseEntity(
+                                        target,
+                                        C02PacketUseEntity.Action.ATTACK
+                                    )
+                                )
+                                mc.thePlayer.sendQueue.addToSendQueue(C0APacketAnimation())
+                            }
+                            mc.thePlayer.motionX *= 0.077760000
+                            mc.thePlayer.motionZ *= 0.077760000
                         }
                     }
 

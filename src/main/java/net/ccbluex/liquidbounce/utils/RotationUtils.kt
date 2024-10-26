@@ -24,7 +24,6 @@ import java.util.*
 import kotlin.math.*
 
 class RotationUtils : MinecraftInstance(), Listenable {
-    val currentRotation: Rotation? = null
     /**
      * Handle minecraft tick
      *
@@ -175,6 +174,11 @@ class RotationUtils : MinecraftInstance(), Listenable {
         fun getRotationsEntity(entity: EntityLivingBase): Rotation {
             return getRotations(entity.posX, entity.posY + entity.eyeHeight - 0.4, entity.posZ)
         }
+
+        /**
+         * Allows you to check if your enemy is behind a wall
+         */
+        fun isVisible(vec3: Vec3) = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, vec3) == null
 
         /**
          *
@@ -730,6 +734,8 @@ class RotationUtils : MinecraftInstance(), Listenable {
             return if (serverRotation == null) 0.0 else getRotationDifference(rotation, serverRotation)
         }
 
+        fun angleDifference(a: Float, b: Float) = MathHelper.wrapAngleTo180_float(a - b)
+
         /**
          * Calculate difference between two rotations
          *
@@ -851,19 +857,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
          */
         fun isFaced(targetEntity: Entity, blockReachDistance: Double): Boolean {
             return raycastEntity(blockReachDistance) { entity: Entity -> entity === targetEntity } != null
-        }
-
-        /**
-         * Allows you to check if your enemy is behind a wall
-         */
-        private fun isVisible(vec3: Vec3?): Boolean {
-            val eyesPos = Vec3(
-                mc.thePlayer.posX,
-                mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
-                mc.thePlayer.posZ
-            )
-
-            return mc.theWorld.rayTraceBlocks(eyesPos, vec3) == null
         }
 
         /**

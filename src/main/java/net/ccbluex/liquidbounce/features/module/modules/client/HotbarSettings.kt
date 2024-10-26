@@ -51,7 +51,7 @@ object HotbarSettings : Module() {
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         val sr = event.scaledResolution
-        val i = sr.getScaledWidth() / 2
+        val i = sr.scaledWidth / 2
         val entityplayer = mc.renderViewEntity as EntityPlayer
         val itemX = sr.scaledWidth / 2 - 91 + getHotbarEasePos(entityplayer.inventory.currentItem * 20)
         val posInv = (91 - i + itemX).toFloat()
@@ -269,7 +269,7 @@ object HotbarSettings : Module() {
                 var s = text ?: stack.stackSize.toString()
                 if(ItemCountValue.get()){
                     if (text == null && stack.stackSize < 1) { s = stack.stackSize.toString() }
-                    if (stack.stackSize >= 46) { colour = Color.green } else if (stack.stackSize <= 45 && stack.stackSize > 20) { colour = Color.orange } else if (stack.stackSize <= 20) { colour = Color.red }
+                    if (stack.stackSize >= 46) { colour = Color.green } else if (stack.stackSize in 21..45) { colour = Color.orange } else if (stack.stackSize <= 20) { colour = Color.red }
                 } else {
                     if (text == null && stack.stackSize < 1) { s = EnumChatFormatting.RED.toString() + stack.stackSize.toString() }
                     colour = Color.white

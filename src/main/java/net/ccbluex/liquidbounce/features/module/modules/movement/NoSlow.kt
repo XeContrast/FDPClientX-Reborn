@@ -58,7 +58,6 @@ object NoSlow : Module() {
         "SpamPlace",
         "SpamEmptyPlace"
     )
-
     //Basic settings
     private val modeValue = ListValue(
         "PacketMode",
@@ -253,6 +252,23 @@ object NoSlow : Module() {
                 }
             }
 
+            "bug" -> {
+                if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
+                    return
+                }
+                mc.thePlayer.sendQueue.addToSendQueue(
+                    C07PacketPlayerDigging(
+                        C07PacketPlayerDigging.Action.DROP_ITEM,
+                        BlockPos(0, 0, 0),
+                        EnumFacing.DOWN
+                    )
+                )
+
+                mc.gameSettings.keyBindUseItem.pressed = false
+                mc.thePlayer.stopUsingItem()
+                mstimer2.reset()
+            }
+
             "spamitemchange" -> {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
             }
@@ -282,9 +298,11 @@ object NoSlow : Module() {
 
             "grim" -> {
                 val handle = mc.thePlayer.inventory.currentItem
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle % 8 + 1))
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle % 7 + 2))
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(handle))
+                PacketUtils.sendPackets(
+                    C09PacketHeldItemChange(handle % 8 + 1),
+                    C09PacketHeldItemChange(handle % 7 + 2),
+                    C09PacketHeldItemChange(handle)
+                )
             }
         }
     }
@@ -309,9 +327,7 @@ object NoSlow : Module() {
         start = event.eventState == EventState.PRE
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
             if ((consumeTimingValue.equals("Pre") && event.eventState == EventState.PRE) || (consumeTimingValue.equals("Post") && event.eventState == EventState.POST)) {
-                if (!consumePacketValue.equals("Bug")) {
-                    sendPacket2(consumePacketValue.get(),event)
-                }
+                sendPacket2(consumePacketValue.get(), event)
             }
         }
 
@@ -425,7 +441,7 @@ object NoSlow : Module() {
                     if (event.eventState == EventState.PRE) mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
                 }
                 "invalidc08" -> {
-                    val heldItem = mc.thePlayer.heldItem
+                    val heldItem = mc.thePlayer.heldItem!!
                     if (event.eventState == EventState.PRE) {
                         // Food Only
                         if (heldItem.item is ItemPotion || heldItem.item is ItemBucketMilk) {
@@ -632,24 +648,6 @@ object NoSlow : Module() {
         val heldItem = mc.thePlayer.heldItem?.item
 
         stop = packet is C07PacketPlayerDigging && packet.status == (C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
-        if (consumeModifyValue.get() && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
-            if (consumePacketValue.equals("Bug")) {
-                if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
-                    return
-                }
-                if (packet is C08PacketPlayerBlockPlacement) {
-                    mc.netHandler.addToSendQueue(
-                        C07PacketPlayerDigging(
-                            C07PacketPlayerDigging.Action.DROP_ITEM,
-                            BlockPos.ORIGIN,
-                            EnumFacing.DOWN
-                        )
-                    )
-                    mc.gameSettings.keyBindUseItem.pressed = false
-                    mc.thePlayer.stopUsingItem()
-                }
-            }
-        }
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
             if (consumePacketValue.equals("Grim")) {
                 when (packet) {

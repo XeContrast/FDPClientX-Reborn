@@ -14,12 +14,14 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.INetHandlerPlayServer
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 
 object PacketUtils : MinecraftInstance(), Listenable {
     val packets = ArrayList<Packet<*>>()
     val queuedPackets = mutableListOf<Packet<*>>()
 
+    @JvmStatic
     fun handleSendPacket(packet: Packet<*>): Boolean {
         if (packets.contains(packet)) {
             packets.remove(packet)
@@ -27,6 +29,10 @@ object PacketUtils : MinecraftInstance(), Listenable {
         }
         return false
     }
+
+    @JvmStatic
+    fun sendPackets(vararg packets: Packet<*>, triggerEvents: Boolean = true) =
+        packets.forEach { sendPacket(it, triggerEvents) }
 
     @EventTarget(priority = 2)
     fun onTick(event: GameTickEvent) {
@@ -197,3 +203,10 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
     override fun handleEvents(): Boolean = true
 }
+
+var C03PacketPlayer.rotation
+    get() = Rotation(yaw, pitch)
+    set(value) {
+        yaw = value.yaw
+        pitch = value.pitch
+    }

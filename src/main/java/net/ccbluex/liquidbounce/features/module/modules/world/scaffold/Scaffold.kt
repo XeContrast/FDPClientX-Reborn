@@ -1216,7 +1216,7 @@ class Scaffold : Module() {
      */
     private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
         val hypixelBlockPos: BlockPos = (
-            if (sameYValue.equals("Hypixel")) BlockPos(
+            if (sameYValue.equals("Hypixel") && mc.thePlayer.motionY in 0.1..0.2) BlockPos(
                 blockPosition.x,
                 blockPosition.y + 1,
                 blockPosition.z

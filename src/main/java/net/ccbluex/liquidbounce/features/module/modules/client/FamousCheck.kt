@@ -64,7 +64,7 @@ class FamousCheck : Module() {
         fun check(string: String) : Boolean {
             return when (mode) {
                 Mode.Contains -> {
-                    string.contains(prefix)
+                    string.contains(prefix,ignoreCase = true)
                 }
                 Mode.StartWith -> {
                     string.startsWith(prefix,ignoreCase = true)

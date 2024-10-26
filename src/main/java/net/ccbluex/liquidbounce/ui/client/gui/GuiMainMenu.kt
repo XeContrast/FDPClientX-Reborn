@@ -5,16 +5,15 @@
  */
 package net.ccbluex.liquidbounce.ui.client.gui
 
-import net.ccbluex.liquidbounce.FDPClient
+import net.ccbluex.liquidbounce.FDPClient.CLIENT_NAME
 import net.ccbluex.liquidbounce.font.FontLoaders
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager
-import net.ccbluex.liquidbounce.utils.MainMenuButton
-import net.ccbluex.liquidbounce.utils.render.ParticleUtils
+import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.*
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.resources.I18n
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.client.GuiModList
 import java.awt.Color
 import java.io.IOException
 
@@ -25,133 +24,145 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     private var res: ScaledResolution? = null
 
     override fun initGui() {
-        butt.clear()
-        butt.add(MainMenuButton("G", "SinglePlayer") { mc.displayGuiScreen(GuiSelectWorld(this)) })
-        butt.add(MainMenuButton("H", "MultiPlayer") { mc.displayGuiScreen(GuiMultiplayer(this)) })
-        butt.add(MainMenuButton("I", "AltManager") { mc.displayGuiScreen(GuiAltManager(this)) })
-        butt.add(MainMenuButton("J", "Mods", { mc.displayGuiScreen(GuiModList(this)) }, 0.5f))
-        butt.add(MainMenuButton("K", "Options") {
-            mc.displayGuiScreen(
-                GuiOptions(
-                    this,
-                    mc.gameSettings
+        val j = this.height / 4
+        buttonList.run {
+            add(
+                ButtonGui(
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    I18n.format(""),
+                    null
                 )
             )
-        })
-        butt.add(MainMenuButton("L", "Languages") {
-            mc.displayGuiScreen(
-                GuiLanguage(
-                    this,
-                    mc.gameSettings,
-                    mc.languageManager
+            add(
+                ButtonGui(
+                    1,
+                    20,
+                    j,
+                    200,
+                    34,
+                    I18n.format("menu.singleplayer"),
+                    ResourceLocation("assets/minecraft/fdpclient/mainmenu/1.png")
                 )
             )
-        })
-        butt.add(MainMenuButton("M", "Quit") { mc.shutdown() })
+            add(
+                ButtonGui(
+                    2,
+                    20,
+                    j + 44,
+                    200,
+                    34,
+                    I18n.format("menu.multiplayer"),
+                    ResourceLocation("fdpclient/mainmenu/2.png")
+                )
+            )
+            add(
+                ButtonGui(
+                    0,
+                    20,
+                    j + 44 * 2,
+                    200,
+                    34,
+                    I18n.format("menu.options"),
+                    ResourceLocation("fdpclient/mainmenu/5.png")
+                )
+            )
+            add(
+                ButtonGui(
+                    4,
+                    20,
+                    j + 44 * 4,
+                    200,
+                    34,
+                    I18n.format("menu.quit"),
+                    ResourceLocation("fdpclient/mainmenu/4.png")
+                )
+            )
+            add(
+                ButtonGui(
+                    7,
+                    20,
+                    j + 44 * 3,
+                    200,
+                    34,
+                    "AltManager",
+                    ResourceLocation("fdpclient/mainmenu/8.png")
+                )
+            )
+        }
         this.res = ScaledResolution(this.mc)
         super.initGui()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
-        try {
-            this.drawGradientRect(0, 0, this.width, this.height, 16777215, 16777215)
-            val h = this.height
-            val w = this.width
-            val xDiff = ((mouseX - h / 2).toFloat() - this.currentX) / res!!.scaleFactor.toFloat()
-            val yDiff = ((mouseY - w / 2).toFloat() - this.currentY) / res!!.scaleFactor.toFloat()
-            this.currentX += xDiff * 0.3f
-            this.currentY += yDiff * 0.3f
-            GlStateManager.translate(this.currentX / 30.0f, this.currentY / 15.0f, 0.0f)
-            RenderUtils.drawImage(
-                ResourceLocation("fdpclient/japanesebackground.png"), -30, -30,
-                res!!.scaledWidth + 60,
-                res!!.scaledHeight + 60
-            )
-            GlStateManager.translate(-this.currentX / 30.0f, -this.currentY / 15.0f, 0.0f)
-            RenderUtils.drawRoundedCornerRect(
-                width.toFloat() / 2.0f - (80.0f * (butt.size.toFloat() / 2.0f)) - 3f,
-                height.toFloat() / 2.0f - 100.0f - 3f,
-                width.toFloat() / 2.0f + (80.0f * (butt.size.toFloat() / 2.0f)) + 3f,
-                height.toFloat() / 2.0f + 103.0f, 10f, Color(0, 0, 0, 80).rgb
-            )
-            FontLoaders.F18.drawCenteredString(
-                "Made by SkidderMC with love.",
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f + 70.0f).toDouble(),
-                Color(255, 255, 255, 255).rgb
-            )
-            //BlurUtils.INSTANCE.draw(0, 0, mc.displayWidth, mc.displayHeight, 30f);
-            FontLoaders.F40.drawCenteredString(
-                "FDPCLIENTX-REBORN",
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f - 70.0f).toDouble(),
-                Color(255, 255, 255).rgb
-            )
-            //BlurUtils.INSTANCE.draw(0, 0, mc.displayWidth, mc.displayHeight, 10f);
-            ParticleUtils.drawParticles(mouseX, mouseY)
-            RenderUtils.drawRoundedCornerRect(
-                width.toFloat() / 2.0f - 80.0f * (butt.size.toFloat() / 2.0f),
-                height.toFloat() / 2.0f - 100.0f,
-                width.toFloat() / 2.0f + 80.0f * (butt.size.toFloat() / 2.0f),
-                height.toFloat() / 2.0f + 100.0f, 10f, Color(0, 0, 0, 100).rgb
-            )
-            //RenderUtils.drawRect((float)this.width / 2.0F - 50.0F * ((float)this.butt.size() / 2.0F), (float)this.height / 2.0F + 20.0F, (float)this.width / 2.0F + 50.0F * ((float)this.butt.size() / 2.0F), (float)this.height / 2.0F + 50.0F, 1040187392);
-            var startX = width.toFloat() / 2.0f - 64.5f * (butt.size.toFloat() / 2.0f)
-
-            val var9: Iterator<*> = butt.iterator()
-            while (var9.hasNext()) {
-                val button = var9.next() as MainMenuButton
-                button.draw(startX, height.toFloat() / 2.0f + 20.0f, mouseX, mouseY)
-                startX += 75.0f
-            }
-            FontLoaders.F40.drawCenteredString(
-                "FDPCLIENTX-REBORN",
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f - 70.0f).toDouble(),
-                Color(255, 255, 255).rgb
-            )
-            FontLoaders.F18.drawCenteredString(
-                FDPClient.CLIENT_VERSION,
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f - 20.0f).toDouble(),
-                Color(255, 255, 255).rgb
-            )
-            FontLoaders.F18.drawCenteredString(
-                FDPClient.moduleManager.modules.size.toString() + " Module",
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f - 30.0f).toDouble(),
-                Color(255, 255, 255).rgb
-            )
-            RenderUtils.drawRect(
-                width.toFloat() / 2.0f - 30f,
-                height.toFloat() / 2.0f - 40.0f,
-                width.toFloat() / 2.0f + 30f,
-                height.toFloat() / 2.0f - 39.5f, Color(255, 255, 255, 100).rgb
-            )
-            FontLoaders.F18.drawCenteredString(
-                "Made by SkidderMC with love.",
-                (width.toFloat() / 2.0f).toDouble(),
-                (height.toFloat() / 2.0f + 70.0f).toDouble(),
-                Color(255, 255, 255, 100).rgb
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        this.drawGradientRect(0, 0, this.width, this.height, 16777215, 16777215)
+        GlStateManager.translate(this.currentX / 30.0f, this.currentY / 15.0f, 0.0f)
+        val scaledWidth = res!!.scaledWidth
+        val scaledHeight = res!!.scaledHeight
+        RenderUtils.drawImage(
+            ResourceLocation("fdpclient/japanesebackground.png"), -30, -30,
+            scaledWidth + 60,
+            scaledHeight + 60
+        )
+        val j = this.height / 4
+        Fonts.fontBold180.drawCenteredString(CLIENT_NAME,
+            150f,
+            (j + 44 * -1).toFloat(),
+            Color(255, 255, 255).rgb,
+            true)
+        RenderUtils.drawQuads(
+            floatArrayOf(scaledWidth * 0.57f - scaledWidth * 0.11f, 0f),
+            floatArrayOf(scaledWidth * 0.43f - scaledWidth * 0.11f, scaledHeight.toFloat()),
+            floatArrayOf(scaledWidth * 0.57f, 0f),
+            floatArrayOf(scaledWidth * 0.43f, scaledHeight.toFloat()),
+            Color(0, 0, 0, 150),
+            Color(0, 0, 0, 130)
+        )
+        RenderUtils.drawQuads(
+            floatArrayOf(scaledWidth * 0.57f - scaledWidth * 0.22f, 0f),
+            floatArrayOf(scaledWidth * 0.43f - scaledWidth * 0.22f, scaledHeight.toFloat()),
+            floatArrayOf(scaledWidth * 0.57f - scaledWidth * 0.11f, 0f),
+            floatArrayOf(scaledWidth * 0.43f - scaledWidth * 0.11f, scaledHeight.toFloat()),
+            Color(0, 0, 0, 200),
+            Color(0, 0, 0, 180)
+        )
+        RenderUtils.drawQuads(
+            floatArrayOf(0f, 0f),
+            floatArrayOf(0f, height.toFloat()),
+            floatArrayOf(scaledWidth * 0.57f - scaledWidth * 0.22f, 0f),
+            floatArrayOf(scaledWidth * 0.43f - scaledWidth * 0.22f, scaledHeight.toFloat()),
+            Color(0, 0, 0, 220),
+            Color(0, 0, 0, 210)
+        )
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
     @Throws(IOException::class)
-    override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
-        for (o in this.butt) {
-            val button = o as MainMenuButton
-            button.mouseClick(mouseX, mouseY, mouseButton)
+    public override fun actionPerformed(button: GuiButton) {
+        if (button.id == 0) {
+            mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
         }
 
-        super.mouseClicked(mouseX, mouseY, mouseButton)
-    }
+        if (button.id == 1) {
+            mc.displayGuiScreen(GuiSelectWorld(this))
+        }
 
-    override fun updateScreen() {
-        this.res = ScaledResolution(this.mc)
-        super.updateScreen()
+        if (button.id == 2) {
+            mc.displayGuiScreen(GuiMultiplayer(this))
+        }
+
+        if (button.id == 4) {
+            mc.shutdown()
+        }
+        if (button.id == 5) {
+            mc.displayGuiScreen(GuiLanguage(this, mc.gameSettings, mc.languageManager))
+        }
+        if (button.id == 7) {
+            mc.displayGuiScreen(GuiAltManager(this))
+        }
+        super.actionPerformed(button)
     }
 }

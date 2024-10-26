@@ -38,7 +38,7 @@ object NameProtect : Module() {
         ) return
 
         for (friend in FDPClient.fileManager.friendsConfig.friends) event.text =
-            StringUtils.replace(event.text, friend.playerName, translateAlternateColorCodes(friend.alias) + "§f")
+            StringUtils.replace(event.text!!, friend.playerName, translateAlternateColorCodes(friend.alias) + "§f")
 
         var playerName = mc.thePlayer.name
         if (nameSpoofValue.get() && customNameValue.get().isNotEmpty()) {
@@ -46,7 +46,7 @@ object NameProtect : Module() {
         }
 
         event.text = StringUtils.replace(
-            event.text,
+            event.text!!,
             mc.thePlayer.name,
             (if (selfValue.get()) (if (tagValue.get()) StringUtils.injectAirString(playerName) + " §7(§r" + translateAlternateColorCodes(
                 fakeNameValue.get() + "§r§7)"
@@ -60,7 +60,7 @@ object NameProtect : Module() {
                     playerInfoName = customNameValue.get()
                 }
                 event.text = StringUtils.replace(
-                    event.text,
+                    event.text!!,
                     playerInfoName,
                     translateAlternateColorCodes(allFakeNameValue.get()) + "§f"
                 )

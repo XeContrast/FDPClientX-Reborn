@@ -17,7 +17,7 @@ import net.minecraft.client.gui.GuiButton
 object ClientSpoof : Module() {
 
     val modeValue = ListValue("Payloads", arrayOf("Vanilla", "Forge", "Lunar", "LabyMod", "CheatBreaker", "PvPLounge"), "LabyMod")
-    private val buttonValue = ListValue("Button", arrayOf("Better", "RGBRounded", "Wolfram", "Rounded", "Hyperium", "RGB", "Badlion", "Flat", "FLine", "Rise", "Vanilla"), "Hyperium")
+    private val buttonValue = ListValue("Button", arrayOf("Better", "RGBRounded", "Wolfram", "Rounded", "Hyperium", "RGB", "Badlion", "Flat", "FLine", "Rise", "Vanilla"), "Better")
     val render = BoolValue("Render", true)
 
     fun getButtonRenderer(button: GuiButton): AbstractButtonRenderer? {

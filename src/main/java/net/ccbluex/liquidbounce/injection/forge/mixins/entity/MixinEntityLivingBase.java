@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.FDPClient;
+import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.JumpEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.client.Rotations;
@@ -101,7 +102,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
          * @param strafeFix StrafeFix Module
          */
 
-        final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion(),this.rotationYaw);
+        final JumpEvent jumpEvent = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion(),this.rotationYaw, EventState.PRE);
         FDPClient.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
@@ -123,6 +124,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         }
 
         this.isAirBorne = true;
+
+        final JumpEvent jumpEventPost = new JumpEvent(MovementUtils.INSTANCE.getJumpMotion(),this.rotationYaw, EventState.POST);
+        FDPClient.eventManager.callEvent(jumpEventPost);
     }
 
     @Inject(method = "onLivingUpdate", at = @At("HEAD"))

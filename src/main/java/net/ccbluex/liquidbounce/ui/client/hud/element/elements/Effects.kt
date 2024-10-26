@@ -15,10 +15,8 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Side
 import net.ccbluex.liquidbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.realpha
-import net.ccbluex.liquidbounce.utils.render.Colors
-import net.ccbluex.liquidbounce.utils.render.PotionData
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.utils.render.Translate
+import net.ccbluex.liquidbounce.utils.render.*
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawGradientSideways
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
@@ -154,10 +152,13 @@ class Effects : Element() {
                     Colors.GREY.c, 0.1f
                 )
             )
-            RenderUtils.drawRect(
-                0f, potionData.translate.y, potionData.animationX, potionData.translate.y + 30f, realpha.reAlpha(
-                    (Color(34, 24, 20)).brighter().rgb, 0.3f
-                )
+            drawGradientSideways(
+                0.0,
+                potionData.translate.y.toDouble(),
+                potionData.animationX.toDouble(),
+                (potionData.translate.y + 30f).toDouble(),
+                ColorUtils.rainbow(0).rgb,
+                ColorUtils.rainbow(1).rgb
             )
             RenderUtils.drawShadow(0f, Math.round(potionData.translate.y).toFloat(), 120f, 30f)
             val posY: Float = potionData.translate.y + 13f

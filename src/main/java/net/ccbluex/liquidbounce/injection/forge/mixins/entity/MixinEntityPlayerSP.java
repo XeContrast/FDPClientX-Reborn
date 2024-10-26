@@ -140,8 +140,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         try {
             final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
             Objects.requireNonNull(strafeFix).updateOverwrite();
+
+            MotionEvent motionEvent = new MotionEvent(
+                    posX,
+                    getEntityBoundingBox().minY,
+                    posZ,
+                    onGround,
+                    EventState.PRE
+            );
             
-            FDPClient.eventManager.callEvent(new MotionEvent(EventState.PRE));
+            FDPClient.eventManager.callEvent(motionEvent);
 
             boolean flag = this.isSprinting();
             //alert("Attempt: " + debug_AttemptSprint + " Actual: " + this.isSprinting() + " Server: " + this.serverSprintState);
@@ -219,7 +227,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 }
             }
 
-            FDPClient.eventManager.callEvent(new MotionEvent(EventState.POST));
+            FDPClient.eventManager.callEvent(new MotionEvent(posX, getEntityBoundingBox().minY, posZ, onGround, EventState.POST));
         } catch (final Exception e) {
             e.printStackTrace();
         }

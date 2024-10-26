@@ -6,6 +6,8 @@
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 
+import kevin.utils.plus
+import kevin.utils.times
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
@@ -26,6 +28,9 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
+import net.ccbluex.liquidbounce.utils.EntityUtils.rotation
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithServerSideRotation
@@ -404,7 +409,6 @@ object KillAura : Module() {
     // Tools
     private val toolsDisplay = BoolValue("Tools-Options", true)
 
-    private val blinkCheck = BoolValue("BlinkCheck", false).displayable { toolsDisplay.get() }
     private val noScaffValue = BoolValue("NoScaffold", false).displayable { toolsDisplay.get() }
     private val noFlyValue = BoolValue("NoFly", false).displayable { toolsDisplay.get() }
     private val noEat = BoolValue("NoEat", false).displayable { toolsDisplay.get() }
@@ -1007,7 +1011,7 @@ object KillAura : Module() {
                 continue
             }
 
-            val distance = mc.thePlayer.getDistanceToEntityBox(entity)
+            var distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
             val entityFov = RotationUtils.getRotationDifference(entity)
 
@@ -1501,7 +1505,6 @@ object KillAura : Module() {
      */
     private val cancelRun: Boolean
         get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer)
-                || (blinkCheck.get() && FDPClient.moduleManager[Blink::class.java]!!.state)
                 || FDPClient.moduleManager[FreeCam::class.java]!!.state
                 || (noScaffValue.get() && FDPClient.moduleManager[Scaffold::class.java]!!.state)
                 || (noScaffValue.get() && FDPClient.moduleManager[Scaffold2::class.java]!!.state)

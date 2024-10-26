@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.features.module.modules.movement.speeds.aac
 
 import net.ccbluex.liquidbounce.FDPClient
+import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.JumpEvent
 import net.ccbluex.liquidbounce.features.module.modules.movement.speeds.SpeedMode
 import net.ccbluex.liquidbounce.utils.MovementUtils
@@ -24,7 +25,7 @@ class AACHop3313Speed : SpeedMode("AACHop3.3.13") {
                 mc.thePlayer.motionX -= (MathHelper.sin(yawRad) * 0.202f).toDouble()
                 mc.thePlayer.motionZ += (MathHelper.cos(yawRad) * 0.202f).toDouble()
                 mc.thePlayer.motionY = 0.405
-                FDPClient.eventManager.callEvent(JumpEvent(0.405f,mc.thePlayer.rotationYaw))
+                FDPClient.eventManager.callEvent(JumpEvent(0.405f,mc.thePlayer.rotationYaw,EventState.PRE))
                 MovementUtils.strafe()
             }
 

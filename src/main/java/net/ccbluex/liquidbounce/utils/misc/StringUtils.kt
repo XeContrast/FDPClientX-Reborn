@@ -3,104 +3,103 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.utils.misc;
+package net.ccbluex.liquidbounce.utils.misc
 
-import kotlin.text.Charsets;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.IOUtils
+import java.util.*
+import kotlin.text.Charsets.UTF_8
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+object StringUtils {
+    private val pinyinMap: MutableMap<String, String> = HashMap()
+    private val airCache = HashMap<String, String>()
 
-public final class StringUtils {
+    @JvmOverloads
+    fun toCompleteString(args: Array<String>, start: Int, join: String? = " "): String {
+        if (args.size <= start) return ""
 
-    private static final Map<String,String> pinyinMap=new HashMap<>();
-    private static final HashMap<String,String> airCache = new HashMap<>();
-
-    public static String toCompleteString(final String[] args, final int start) {
-        return toCompleteString(args, start, " ");
+        return java.lang.String.join(join, *Arrays.copyOfRange(args, start, args.size))
     }
 
-    public static String toCompleteString(final String[] args, final int start, final String join) {
-        if(args.length <= start) return "";
+    fun replace(string: String, searchChars: String, replaceChars: String?): String {
+        var replaceChars = replaceChars
+        if (string.isEmpty() || searchChars.isEmpty() || searchChars == replaceChars) return string
 
-        return String.join(join, Arrays.copyOfRange(args, start, args.length));
-    }
+        if (replaceChars == null) replaceChars = ""
 
-    public static String replace(final String string, final String searchChars, String replaceChars) {
-        if(string.isEmpty() || searchChars.isEmpty() || searchChars.equals(replaceChars))
-            return string;
+        val stringLength = string.length
+        val searchCharsLength = searchChars.length
+        val stringBuilder = StringBuilder(string)
 
-        if(replaceChars == null)
-            replaceChars = "";
+        for (i in 0 until stringLength) {
+            val start = stringBuilder.indexOf(searchChars, i)
 
-        final int stringLength = string.length();
-        final int searchCharsLength = searchChars.length();
-        final StringBuilder stringBuilder = new StringBuilder(string);
+            if (start == -1) {
+                if (i == 0) return string
 
-        for(int i = 0; i < stringLength; i++) {
-            final int start = stringBuilder.indexOf(searchChars, i);
-
-            if(start == -1) {
-                if(i == 0)
-                    return string;
-
-                return stringBuilder.toString();
+                return stringBuilder.toString()
             }
 
-            stringBuilder.replace(start, start + searchCharsLength, replaceChars);
+            stringBuilder.replace(start, start + searchCharsLength, replaceChars)
         }
 
-        return stringBuilder.toString();
+        return stringBuilder.toString()
     }
 
-    public static String toPinyin(final String inString, final String fill) {
-        if(pinyinMap.isEmpty()) {
+    fun toPinyin(inString: String, fill: String?): String {
+        if (pinyinMap.isEmpty()) {
             try {
-                String[] dict = IOUtils.toString(StringUtils.class.getClassLoader().getResourceAsStream("assets/minecraft/fdpclient/misc/pinyin"), Charsets.UTF_8).split(";");
-                for(String word:dict){
-                    String[] wordData=word.split(",");
-                    pinyinMap.put(wordData[0],wordData[1]);
+                val dict: Array<String> = IOUtils.toString(
+                    StringUtils::class.java.classLoader.getResourceAsStream("assets/minecraft/fdpclient/misc/pinyin"),
+                    UTF_8
+                ).split(";".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
+                for (word in dict) {
+                    val wordData = word.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                    pinyinMap[wordData[0]] = wordData[1]
                 }
-            } catch (final Exception e) {
-                e.printStackTrace();
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-        final String[] strSections = inString.split("");
-        final StringBuilder result = new StringBuilder();
-        boolean lastIsPinyin = false;
-        for(String section : strSections){
+        val strSections = inString.split("".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val result = StringBuilder()
+        var lastIsPinyin = false
+        for (section in strSections) {
             if (pinyinMap.containsKey(section)) {
-                result.append(fill);
-                result.append(pinyinMap.get(section));
-                lastIsPinyin = true;
+                result.append(fill)
+                result.append(pinyinMap[section])
+                lastIsPinyin = true
             } else {
-                if(lastIsPinyin) {
-                    result.append(fill);
+                if (lastIsPinyin) {
+                    result.append(fill)
                 }
-                result.append(section);
-                lastIsPinyin = false;
+                result.append(section)
+                lastIsPinyin = false
             }
         }
-        return result.toString();
+        return result.toString()
     }
 
-    public static String injectAirString(String str) {
-        if(airCache.containsKey(str)) return airCache.get(str);
+    fun injectAirString(str: String): String? {
+        if (airCache.containsKey(str)) return airCache[str]
 
-        StringBuilder stringBuilder = new StringBuilder();
+        val stringBuilder = StringBuilder()
 
-        boolean hasAdded = false;
-        for(char c : str.toCharArray()) {
-            stringBuilder.append(c);
-            if (!hasAdded) stringBuilder.append('\uF8FF');
-            hasAdded = true;
+        var hasAdded = false
+        for (c in str.toCharArray()) {
+            stringBuilder.append(c)
+            if (!hasAdded) stringBuilder.append('\uF8FF')
+            hasAdded = true
         }
 
-        String result = stringBuilder.toString();
-        airCache.put(str, result);
+        val result = stringBuilder.toString()
+        airCache[str] = result
 
-        return result;
+        return result
     }
 
+    operator fun String?.contains(substrings: Array<String>): Boolean {
+        val lowerCaseString = this?.lowercase() ?: return false
+        return substrings.any { it in lowerCaseString }
+    }
 }

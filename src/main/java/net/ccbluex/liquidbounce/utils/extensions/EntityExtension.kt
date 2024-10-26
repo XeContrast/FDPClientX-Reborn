@@ -40,6 +40,14 @@ import kotlin.math.*
 
 fun Entity.getDistanceToEntityBox(entity: Entity) = eyes.distanceTo(getNearestPointBB(eyes, entity.hitBox))
 
+fun Entity.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
+
+val Entity.currPos: Vec3
+    get() = this.positionVector
+
+val Entity.prevPos: Vec3
+    get() = Vec3(prevPosX, prevPosY, prevPosZ)
+
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
@@ -55,6 +63,19 @@ fun Vec3.distanceTo(bb: AxisAlignedBB): Double {
     val yDist = abs(pos.yCoord - this.yCoord)
     val zDist = abs(pos.zCoord - this.zCoord)
     return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
+}
+
+fun Entity.setPosAndPrevPos(currPos: Vec3, prevPos: Vec3 = currPos, lastTickPos: Vec3? = null) {
+    setPosition(currPos.xCoord, currPos.yCoord, currPos.zCoord)
+    prevPosX = prevPos.xCoord
+    prevPosY = prevPos.yCoord
+    prevPosZ = prevPos.zCoord
+
+    lastTickPos?.let {
+        this.lastTickPosX = it.xCoord
+        this.lastTickPosY = it.yCoord
+        this.lastTickPosZ = it.zCoord
+    }
 }
 
 
