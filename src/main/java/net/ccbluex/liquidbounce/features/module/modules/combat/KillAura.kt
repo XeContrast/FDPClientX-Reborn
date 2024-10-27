@@ -1173,6 +1173,7 @@ object KillAura : Module() {
                     mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
                 }
             }
+            "stopsprint" -> mc.thePlayer.serverSprintState = false
             "attackslow" -> {
                 if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
                     mc.thePlayer.attackTargetEntityWithCurrentItem(entity)

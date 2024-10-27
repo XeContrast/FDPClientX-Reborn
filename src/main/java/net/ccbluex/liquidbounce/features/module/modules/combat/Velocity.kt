@@ -233,7 +233,10 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
 
     private val reduceFactor = FloatValue("Factor", 0.6f, 0.6f,1f).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val hurtTimeMode = ListValue("HurtTimeMode",arrayOf("Single","Range"),"Single").displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
     private val hurtTime = IntegerValue("HurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val minHurtTime = IntegerValue("MinHurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val maxHurtTime = IntegerValue("MaxHurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
 
     //
     private var hasReceivedVelocity = false
@@ -695,13 +698,16 @@ object Velocity : Module() {
                             }
                         }
                     }
-                    "intavereduce" -> {
-                        if (player.hurtTime == hurtTime.get() && System.currentTimeMillis() - lastAttackTime <= 8000) {
-                            player.motionX *= reduceFactor.get()
-                            player.motionZ *= reduceFactor.get()
-                        }
 
-                        lastAttackTime = System.currentTimeMillis()
+                    "intavereduce" -> {
+                        if ((hurtTimeMode.get() == "Single" && player.hurtTime == hurtTime.get()) || (hurtTimeMode.get() == "Range" && player.hurtTime in minHurtTime.get()..maxHurtTime.get())) {
+                            if (System.currentTimeMillis() - lastAttackTime <= 8000) {
+                                player.motionX *= reduceFactor.get()
+                                player.motionZ *= reduceFactor.get()
+                            }
+
+                            lastAttackTime = System.currentTimeMillis()
+                        }
                     }
                 }
             }

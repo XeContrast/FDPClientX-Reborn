@@ -106,7 +106,7 @@ object InvManager : Module() {
     private val sortSlot3Value = ListValue("SortSlot-3", items, "Potion").displayable { sortValue.get() }
     private val sortSlot4Value = ListValue("SortSlot-4", items, "Pickaxe").displayable { sortValue.get() }
     private val sortSlot5Value = ListValue("SortSlot-5", items, "Axe").displayable { sortValue.get() }
-    private val sortSlot6Value = ListValue("SortSlot-6", items, "None").displayable { sortValue.get() }
+    private val sortSlot6Value = ListValue("SortSlotF-6", items, "None").displayable { sortValue.get() }
     private val sortSlot7Value = ListValue("SortSlot-7", items, "Block").displayable { sortValue.get() }
     private val sortSlot8Value = ListValue("SortSlot-8", items, "Pearl").displayable { sortValue.get() }
     private val sortSlot9Value = ListValue("SortSlot-9", items, "Food").displayable { sortValue.get() }
@@ -403,6 +403,7 @@ object InvManager : Module() {
                     return items(0, 45).none { (_, stack) -> itemStack != stack && stack.unlocalizedName == "item.compass" }
                 }
                 "item.arrow" -> return amount[2] <= maxarrow.get()
+                "item.slimeball" -> return true
                 else -> {return false}
             }
         } catch (ex: Exception) {

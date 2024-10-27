@@ -7,8 +7,8 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.gui;
 
 import me.liuli.elixir.account.MinecraftAccount;
 import net.ccbluex.liquidbounce.FDPClient;
-import net.ccbluex.liquidbounce.handler.network.AutoReconnect;
 import net.ccbluex.liquidbounce.handler.network.ClientFixes;
+import net.ccbluex.liquidbounce.handler.network.AutoReconnect;
 import net.ccbluex.liquidbounce.ui.client.altmanager.GuiAltManager;
 import net.ccbluex.liquidbounce.utils.ServerUtils;
 import net.ccbluex.liquidbounce.utils.SessionUtils;
@@ -23,7 +23,6 @@ import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,51 +33,48 @@ import java.util.Random;
 
 @Mixin(GuiDisconnected.class)
 public abstract class MixinGuiDisconnected extends MixinGuiScreen {
-    @Unique
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0");
 
     @Shadow
     private int field_175353_i;
 
-    @Shadow @Final private GuiScreen parentScreen;
-    @Unique
-    private GuiButton fDPClient$reconnectButton;
-    @Unique
-    private GuiSlider fDPClient$autoReconnectDelaySlider;
-    @Unique
-    private GuiButton fDPClient$forgeBypassButton;
-    @Unique
-    private int fDPClient$reconnectTimer;
-    @Unique
-    private String fDPClient$infoStr = "null";
+    @Shadow
+    @Final
+    private GuiScreen parentScreen;
+    private GuiButton reconnectButton;
+    private GuiSlider autoReconnectDelaySlider;
+    private GuiButton forgeBypassButton;
+    private int reconnectTimer;
+    private String infoStr = "null";
 
     @Inject(method = "initGui", at = @At("RETURN"))
     private void initGui(CallbackInfo callbackInfo) {
-        fDPClient$reconnectTimer = 0;
+        reconnectTimer = 0;
         SessionUtils.handleConnection();
 
-        final ServerData server=ServerUtils.serverData;
-        assert server != null;
-        fDPClient$infoStr ="§fPlaying on: "+mc.session.getUsername()+" | "+ server.serverIP;
-        buttonList.add(fDPClient$reconnectButton = new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
+        final ServerData server = ServerUtils.serverData;
+        if (server != null) {
+            infoStr = "§fPlaying on: " + mc.session.getUsername() + " | " + server.serverIP;
+        }
+        buttonList.add(reconnectButton = new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
 
-        buttonList.add(fDPClient$autoReconnectDelaySlider =
+        buttonList.add(autoReconnectDelaySlider =
                 new GuiSlider(2, this.width / 2 + 2, this.height / 2 + field_175353_i / 2
                         + this.fontRendererObj.FONT_HEIGHT + 22, 98, 20, "AutoReconnect: ",
                         "ms", AutoReconnect.MIN, AutoReconnect.MAX, AutoReconnect.INSTANCE.getDelay(), false, true,
                         guiSlider -> {
                             AutoReconnect.INSTANCE.setDelay(guiSlider.getValueInt());
 
-                            this.fDPClient$reconnectTimer = 0;
-                            this.fDPClient$updateReconnectButton();
-                            this.fDPClient$updateSliderText();
+                            this.reconnectTimer = 0;
+                            this.updateReconnectButton();
+                            this.updateSliderText();
                         }));
 
         buttonList.add(new GuiButton(3, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 44, 98, 20, "RandomAlt"));
         buttonList.add(new GuiButton(4, this.width / 2 + 2, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 44, 98, 20, "RandomOffline"));
-        buttonList.add(fDPClient$forgeBypassButton = new GuiButton(5, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 66, "AntiForge: " + (ClientFixes.INSTANCE.getEnabled() ? "ON" : "OFF")));
+        buttonList.add(forgeBypassButton = new GuiButton(5, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 66, "AntiForge: " + (ClientFixes.INSTANCE.getEnabled() ? "ON" : "OFF")));
 
-        fDPClient$updateSliderText();
+        updateSliderText();
     }
 
     @Inject(method = "actionPerformed", at = @At("HEAD"))
@@ -101,36 +97,45 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                 break;
             case 5:
                 ClientFixes.INSTANCE.setEnabled(!ClientFixes.INSTANCE.getEnabled());
-                fDPClient$forgeBypassButton.displayString = "AntiForge: " + (ClientFixes.INSTANCE.getEnabled() ? "ON" : "OFF");
+                forgeBypassButton.displayString = "AntiForge: " + (ClientFixes.INSTANCE.getEnabled() ? "ON" : "OFF");
                 FDPClient.fileManager.saveConfig(FDPClient.fileManager.getSpecialConfig());
                 break;
+            case 998:
+                mc.displayGuiScreen(new GuiAltManager((GuiScreen) (Object) this));
+                break;
+        }
+    }
+
+    public void updateScreen() {
+        if (AutoReconnect.INSTANCE.isEnabled()) {
+            reconnectTimer++;
+            if (reconnectTimer > AutoReconnect.INSTANCE.getDelay() / 50)
+                ServerUtils.connectToLastServer();
         }
     }
 
     @Inject(method = "drawScreen", at = @At("RETURN"))
     private void drawScreen(CallbackInfo callbackInfo) {
-        RendererExtensionKt.drawCenteredString(mc.fontRendererObj, fDPClient$infoStr, this.width / 2F, this.height / 2F + field_175353_i / 2F + this.fontRendererObj.FONT_HEIGHT + 100, 0, false);
+        RendererExtensionKt.drawCenteredString(mc.fontRendererObj, infoStr, this.width / 2F, this.height / 2F + field_175353_i / 2F + this.fontRendererObj.FONT_HEIGHT + 100, 0, false);
         if (AutoReconnect.INSTANCE.isEnabled()) {
-            this.fDPClient$updateReconnectButton();
+            this.updateReconnectButton();
         }
     }
 
-    @Unique
-    private void fDPClient$updateSliderText() {
-        if (this.fDPClient$autoReconnectDelaySlider == null)
+    private void updateSliderText() {
+        if (this.autoReconnectDelaySlider == null)
             return;
 
         if (!AutoReconnect.INSTANCE.isEnabled()) {
-            this.fDPClient$autoReconnectDelaySlider.displayString = "AutoReconnect: Off";
+            this.autoReconnectDelaySlider.displayString = "AutoReconnect: Off";
         } else {
-            this.fDPClient$autoReconnectDelaySlider.displayString = "AutoReconnect: " + DECIMAL_FORMAT.format(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
+            this.autoReconnectDelaySlider.displayString = "AutoReconnect: " + DECIMAL_FORMAT.format(AutoReconnect.INSTANCE.getDelay() / 1000.0) + "s";
         }
     }
 
-    @Unique
-    private void fDPClient$updateReconnectButton() {
-        if (fDPClient$reconnectButton != null)
-            fDPClient$reconnectButton.displayString = "Reconnect" + (AutoReconnect.INSTANCE.isEnabled() ? " (" + (AutoReconnect.INSTANCE.getDelay() / 1000 - fDPClient$reconnectTimer / 20) + ")" : "");
+    private void updateReconnectButton() {
+        if (reconnectButton != null)
+            reconnectButton.displayString = "Reconnect" + (AutoReconnect.INSTANCE.isEnabled() ? " (" + (AutoReconnect.INSTANCE.getDelay() / 1000 - reconnectTimer / 20) + ")" : "");
     }
 
     @Inject(method = "keyTyped", at = @At("HEAD"))
