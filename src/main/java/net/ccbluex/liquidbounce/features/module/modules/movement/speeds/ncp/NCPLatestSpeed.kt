@@ -27,7 +27,7 @@ class NCPLatestSpeed : SpeedMode("NCPLatest") {
             mc.timer.timerSpeed = 0.98f
         }
       
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 wasSlow = false
                 mc.thePlayer.jump()

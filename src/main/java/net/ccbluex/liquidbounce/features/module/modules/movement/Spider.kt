@@ -38,8 +38,8 @@ object Spider : Module() {
             mc.timer.timerSpeed = 1.0f
         }
 
-        if (!mc.thePlayer.isCollidedHorizontally || !MovementUtils.isMoving()) {
-            if (!collideBlockIntersects(mc.thePlayer.entityBoundingBox) { block: Block? -> block !is BlockAir } || !MovementUtils.isMoving()) {
+        if (!mc.thePlayer.isCollidedHorizontally || !MovementUtils.isMoving) {
+            if (!collideBlockIntersects(mc.thePlayer.entityBoundingBox) { block: Block? -> block !is BlockAir } || !MovementUtils.isMoving) {
                 ticks = 0
                 return
             }
@@ -159,7 +159,7 @@ object Spider : Module() {
                     0.0, 0.0, 0.0)
         }
 
-        if (!mc.thePlayer.isCollidedHorizontally || !MovementUtils.isMoving()) {
+        if (!mc.thePlayer.isCollidedHorizontally || !MovementUtils.isMoving) {
             return
         }
 

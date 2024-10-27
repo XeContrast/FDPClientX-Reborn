@@ -281,7 +281,7 @@ object Velocity : Module() {
     private var intaveDamageTick = 0
 
     @EventTarget(priority = -1)
-    private fun onPacket(event: PacketEvent) {
+    fun onPacket(event: PacketEvent) {
         val packet = event.packet
         val thePlayer = mc.thePlayer ?: return
 

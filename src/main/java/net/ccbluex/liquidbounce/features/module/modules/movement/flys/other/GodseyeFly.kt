@@ -39,10 +39,10 @@ class GodseyeFly : FlyMode("Godseye") {
         } else {
             mc.thePlayer.motionY = 0.0
         }
-        if(!MovementUtils.isMoving()) {
+        if(!MovementUtils.isMoving) {
             MovementUtils.resetMotion(false)
         }
-        if(timer.hasTimePassed((150 + Math.random() * 50).toLong()) && MovementUtils.isMoving()) {
+        if(timer.hasTimePassed((150 + Math.random() * 50).toLong()) && MovementUtils.isMoving) {
             timer.reset()
             PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX , mc.thePlayer.posY , mc.thePlayer.posZ , true))
         }

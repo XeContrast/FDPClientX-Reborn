@@ -14,7 +14,7 @@ class BlocksMCSpeed : SpeedMode("BlocksMC") {
     private val strafe = BoolValue("DamageStrafe",true)
 
     override fun onPreMotion() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.fallDistance > 0) {
                 mc.thePlayer.motionY -= 0.004f
             }

@@ -12,7 +12,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class MoraLowHopSpeed : SpeedMode("MoraLowHop") {
     override fun onMotion(event: MotionEvent) {
-        if (event.eventState === EventState.POST && MovementUtils.isMoving() && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava) {
+        if (event.eventState === EventState.POST && MovementUtils.isMoving && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava) {
             mc.thePlayer.jumpMovementFactor += 0.00222f
             if (mc.thePlayer.fallDistance <= 1f) {
                 if (mc.thePlayer.onGround) {

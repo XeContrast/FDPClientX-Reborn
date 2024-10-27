@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class AACYPortSpeed : SpeedMode("AACYPort") {
     override fun onPreMotion() {
-        if (MovementUtils.isMoving() && !mc.thePlayer.isSneaking) {
+        if (MovementUtils.isMoving && !mc.thePlayer.isSneaking) {
             mc.thePlayer.cameraPitch = 0f
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.motionY = 0.3425

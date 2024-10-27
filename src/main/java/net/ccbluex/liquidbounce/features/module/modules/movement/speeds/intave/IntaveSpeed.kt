@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 class IntaveSpeed : SpeedMode("Intave") {
 
     override fun onUpdate(){
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.gameSettings.keyBindJump.pressed = false
                 mc.thePlayer.jump()

@@ -11,7 +11,7 @@ class HypixelNewHop : SpeedMode("NewHypixelHop") {
     @EventTarget
     override fun onUpdate() {
         val player = mc.thePlayer
-        if (player.onGround && MovementUtils.isMoving()) {
+        if (player.onGround && MovementUtils.isMoving) {
             if (player.isUsingItem) {
                 player.jump()
             } else {

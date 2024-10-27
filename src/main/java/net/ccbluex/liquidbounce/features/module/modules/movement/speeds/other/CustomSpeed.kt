@@ -48,7 +48,7 @@ class CustomSpeed : SpeedMode("Custom") {
 
     override fun onPreMotion() {
         if (!usePreMotion.get()) return
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             mc.timer.timerSpeed = if (mc.thePlayer.motionY> 0) { upTimerValue.get() } else { downTimerValue.get() }
 
             when {
@@ -151,7 +151,7 @@ class CustomSpeed : SpeedMode("Custom") {
     
     override fun onUpdate() {
         if (usePreMotion.get()) return
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             mc.timer.timerSpeed = if (mc.thePlayer.motionY> 0) { upTimerValue.get() } else { downTimerValue.get() }
 
             when {

@@ -78,7 +78,7 @@ object LongJump : Module() {
             }
         }
         mode.onUpdate(event)
-        if (autoJumpValue.get() && mc.thePlayer.onGround && MovementUtils.isMoving() && airTick < 2) {
+        if (autoJumpValue.get() && mc.thePlayer.onGround && MovementUtils.isMoving && airTick < 2) {
             mode.onAttemptJump()
         }
     }

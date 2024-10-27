@@ -82,7 +82,7 @@ class MinemoraFly : FlyMode("Minemora") {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
             mc.thePlayer.jump()
         } else {
-            if (MovementUtils.isMoving()) {
+            if (MovementUtils.isMoving) {
                 MovementUtils.strafe(1.7f)
             } else {
                 MovementUtils.resetMotion(false)

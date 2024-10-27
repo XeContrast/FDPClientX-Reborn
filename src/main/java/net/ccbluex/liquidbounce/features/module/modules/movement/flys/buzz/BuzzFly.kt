@@ -71,7 +71,7 @@ class BuzzFly : FlyMode("Buzz") {
             fly.antiDesync = true
             MovementUtils.strafe((0.96 + Math.random() / 50).toFloat())
             mc.thePlayer.motionY = 0.0
-            if(!MovementUtils.isMoving()) {
+            if(!MovementUtils.isMoving) {
                 MovementUtils.resetMotion(false)
             }
         }else if (started) {

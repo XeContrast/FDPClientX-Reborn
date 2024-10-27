@@ -13,7 +13,7 @@ class KauriLowHopSpeed : SpeedMode("KauriLowHop") {
             mc.thePlayer.motionY = 0.00
         }
         mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             mc.thePlayer.jump()
             mc.thePlayer.motionY = 0.3001145141919810
@@ -23,7 +23,7 @@ class KauriLowHopSpeed : SpeedMode("KauriLowHop") {
                 MovementUtils.strafe(0.48f)
             }
         }
-        if (!MovementUtils.isMoving()) {
+        if (!MovementUtils.isMoving) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
         }

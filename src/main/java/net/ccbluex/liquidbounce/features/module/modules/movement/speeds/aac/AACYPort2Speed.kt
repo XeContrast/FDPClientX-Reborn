@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class AACYPort2Speed : SpeedMode("AACYPort2") {
     override fun onPreMotion() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             mc.thePlayer.cameraPitch = 0f
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()

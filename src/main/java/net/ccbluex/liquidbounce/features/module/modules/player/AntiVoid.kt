@@ -356,18 +356,19 @@ object AntiVoid : Module() {
     }
 
     private fun checkVoid(): Boolean {
-        return (FallingPlayer(mc.thePlayer).findCollision(60) == null)
+        return (FallingPlayer(mc.thePlayer ?: return false).findCollision(60) == null)
     }
 
     @EventTarget
     fun onMove(event: MoveEvent) {
         if (modeValue.equals("searchpearl")) {
+            val player = mc.thePlayer ?: return
             if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
                 || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE
             ) return
             if (!voidOnlyValue.get() || checkVoid()) {
-                if (mc.thePlayer.fallDistance > maxFallDistValue.get()) {
-                    if (mc.thePlayer.heldItem?.item is ItemEnderPearl && mc.thePlayer.heldItem.item != null) {
+                if (player.fallDistance > maxFallDistValue.get()) {
+                    if (player.heldItem?.item is ItemEnderPearl && player.heldItem.item != null) {
                         if (freezeValue.equals("Cancel")) {
                             event.cancelEvent()
                         } else {
@@ -400,12 +401,13 @@ object AntiVoid : Module() {
             }
 
             "searchpearl" -> {
+                val player = mc.thePlayer ?: return
                 if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
                     || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE) return
                 if (!voidOnlyValue.get() || checkVoid()) {
-                    if (mc.thePlayer.fallDistance > maxFallDistValue.get()) {
+                    if (player.fallDistance > maxFallDistValue.get()) {
                         if (freezeValue.equals("Cancel")) {
-                            if (mc.thePlayer.heldItem!!.item is ItemEnderPearl) {
+                            if (player.heldItem?.item is ItemEnderPearl) {
                                 if (packet is C03PacketPlayer && packet !is C05PacketPlayerLook) {
                                     event.cancelEvent()
                                 }

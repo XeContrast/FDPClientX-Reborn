@@ -37,7 +37,7 @@ class VerusHopSpeed : SpeedMode("VerusHop") {
                                         
     override fun onPreMotion() {
 
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (timerBoost.get() && (jumps >= 1) && !modeValue.equals("Ground")) {
                 mc.timer.timerSpeed = if (mc.thePlayer.motionY < 0) { 0.88f } else { 1.25f }
             }

@@ -16,7 +16,7 @@ class HypixelBhop : SpeedMode("HypixelBhop") {
         if ((mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isSneaking)) {
             return
         }
-        if (mc.thePlayer.fallDistance <= 0 && MovementUtils.isMoving() && mc.currentScreen == null) {
+        if (mc.thePlayer.fallDistance <= 0 && MovementUtils.isMoving && mc.currentScreen == null) {
             if (!mc.thePlayer.onGround) {
                 return
             }

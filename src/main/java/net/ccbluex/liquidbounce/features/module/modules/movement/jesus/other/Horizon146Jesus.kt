@@ -10,7 +10,7 @@ class Horizon146Jesus : JesusMode("Horizon1.4.6") {
         mc.gameSettings.keyBindJump.pressed = mc.thePlayer.isInWater
         if (mc.thePlayer.isInWater) {
             MovementUtils.strafe()
-            if (MovementUtils.isMoving() && !mc.thePlayer.onGround) {
+            if (MovementUtils.isMoving && !mc.thePlayer.onGround) {
                 mc.thePlayer.motionY += 0.13
             }
         }

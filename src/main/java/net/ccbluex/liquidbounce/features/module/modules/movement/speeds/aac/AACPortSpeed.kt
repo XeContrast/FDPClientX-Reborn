@@ -18,7 +18,7 @@ class AACPortSpeed : SpeedMode("AACPort") {
     private val length = FloatValue("${valuePrefix}Length", 1F, 1F, 20F)
 
     override fun onUpdate() {
-        if (!MovementUtils.isMoving()) return
+        if (!MovementUtils.isMoving) return
 
         val f = mc.thePlayer.rotationYaw * 0.017453292f
         var d = 0.2

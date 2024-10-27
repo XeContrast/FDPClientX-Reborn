@@ -24,7 +24,7 @@ class VulcanYPortSpeed : SpeedMode("VulcanYPort") {
         if (MovementUtils.getSpeed() < 0.215f && !mc.thePlayer.onGround) {
             MovementUtils.strafe(0.215f)
         }
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             ticks = 0
             mc.gameSettings.keyBindJump.pressed = false
             mc.thePlayer.jump()
@@ -38,7 +38,7 @@ class VulcanYPortSpeed : SpeedMode("VulcanYPort") {
             }else{
                 MovementUtils.strafe((MovementUtils.getSpeed()*0.985).toFloat())
             }
-        }else if (!MovementUtils.isMoving()) {
+        }else if (!MovementUtils.isMoving) {
             mc.timer.timerSpeed = 1.00f
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0

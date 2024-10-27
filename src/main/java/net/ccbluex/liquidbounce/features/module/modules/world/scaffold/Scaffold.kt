@@ -323,24 +323,24 @@ class Scaffold : Module() {
                 }
                 "telly", "tellyup" -> {
                     canSameY = sameYValue.equals("Telly")
-                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                    if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                         mc.thePlayer.isSprinting = true
                         mc.thePlayer.jump()
                     }
                 }
                 "autojump" -> {
                     canSameY = true
-                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                    if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                     }
                 }
                 "motiony" -> {
                     canSameY = true
-                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) mc.thePlayer.motionY = 0.42
+                    if (MovementUtils.isMoving && mc.thePlayer.onGround) mc.thePlayer.motionY = 0.42
                 }
                 "jumpupy" -> {
                     canSameY = false
-                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                    if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                     }
                 }
@@ -349,7 +349,7 @@ class Scaffold : Module() {
                 }
                 "hypixel" -> {
                     canSameY = true
-                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                    if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                         hypixelPlaceTicks = false
                         mc.thePlayer.jump()
                     } else {
@@ -598,7 +598,7 @@ class Scaffold : Module() {
                             mc.gameSettings.keyBindBack.isKeyDown) && mc.gameSettings.keyBindJump.isKeyDown
                 }
                 "onlymove" -> {
-                    towerStatus = MovementUtils.isMoving() && mc.gameSettings.keyBindJump.isKeyDown
+                    towerStatus = MovementUtils.isMoving && mc.gameSettings.keyBindJump.isKeyDown
                 }
             }
         }
@@ -901,7 +901,7 @@ class Scaffold : Module() {
                     jumpGround = mc.thePlayer.posY
                     mc.thePlayer.motionY = 0.41999998688698
                 }
-                if (mc.thePlayer.posY > jumpGround + 1.04 && MovementUtils.isMoving()) {
+                if (mc.thePlayer.posY > jumpGround + 1.04 && MovementUtils.isMoving) {
                     fakeJump()
                     mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
                     mc.thePlayer.motionY = 0.45
@@ -1457,7 +1457,7 @@ class Scaffold : Module() {
     }
 
     val canSprint: Boolean
-        get() = MovementUtils.isMoving() && when (sprintValue.get().lowercase()) {
+        get() = MovementUtils.isMoving && when (sprintValue.get().lowercase()) {
             "always", "dynamic", "vulcan", "hypixelfast", "hypixelskywars" -> true
             "onground" -> mc.thePlayer.onGround
             "offground" -> !mc.thePlayer.onGround

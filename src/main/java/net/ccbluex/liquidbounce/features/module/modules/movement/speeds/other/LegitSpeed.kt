@@ -16,7 +16,7 @@ class LegitSpeed : SpeedMode("Legit") {
     override fun onUpdate() {
         if (cpuSPEED.get()) mc.timer.timerSpeed = 1.004f
         if (mc.thePlayer.isInWater) return
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) mc.thePlayer.jump()
         }
     }

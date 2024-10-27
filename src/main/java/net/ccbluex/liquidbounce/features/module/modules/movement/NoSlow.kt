@@ -312,7 +312,7 @@ object NoSlow : Module() {
         if (mc.thePlayer == null || mc.theWorld == null)
             return
 
-        if ((!MovementUtils.isMoving() && onlyMove.get()) || (onlyGround.get() && !mc.thePlayer.onGround)) {
+        if ((!MovementUtils.isMoving && onlyMove.get()) || (onlyGround.get() && !mc.thePlayer.onGround)) {
             return
         }
 
@@ -745,7 +745,7 @@ object NoSlow : Module() {
                 }
 
                 "custom" -> {
-                    if (MovementUtils.isMoving()) {
+                    if (MovementUtils.isMoving) {
                         MovementUtils.strafe(teleportCustomSpeedValue.get())
                     }
 

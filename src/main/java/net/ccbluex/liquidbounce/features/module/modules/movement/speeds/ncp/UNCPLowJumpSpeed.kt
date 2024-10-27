@@ -11,7 +11,7 @@ class UNCPLowJumpSpeed : SpeedMode("UNCPLowJump") {
         val player = mc.thePlayer ?: return
         if (player.isInWater || player.isInLava || player.isInWeb || player.isOnLadder) return
 
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (player.onGround) {
                 player.jump()
                 airtick = 0

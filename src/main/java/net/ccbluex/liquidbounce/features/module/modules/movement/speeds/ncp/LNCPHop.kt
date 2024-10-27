@@ -26,7 +26,7 @@ class LNCPHopSpeed : SpeedMode("LNCPHop") {
     }
 
     override fun onUpdate() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
                 mspeed = MovementUtils.defaultSpeed().toDouble() * 1.73

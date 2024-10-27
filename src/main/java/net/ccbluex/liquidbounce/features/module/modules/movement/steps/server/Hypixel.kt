@@ -25,7 +25,7 @@ class Hypixel : StepMode("Hypixel") {
         Step.doncheck = true
         if (event.eventState == EventState.PRE) {
             val time = System.currentTimeMillis()
-            if (mc.thePlayer.onGround && mc.thePlayer.isCollidedHorizontally && MovementUtils.isMoving() && time - lastStep >= Step.delayValue.get()) {
+            if (mc.thePlayer.onGround && mc.thePlayer.isCollidedHorizontally && MovementUtils.isMoving && time - lastStep >= Step.delayValue.get()) {
                 stepping = true
                 lastStep = time
             }
@@ -41,7 +41,7 @@ class Hypixel : StepMode("Hypixel") {
         }
 
         if (stepping) {
-            if (!MovementUtils.isMoving() || !mc.thePlayer.isCollidedHorizontally) {
+            if (!MovementUtils.isMoving || !mc.thePlayer.isCollidedHorizontally) {
                 stepping = false
                 return
             }

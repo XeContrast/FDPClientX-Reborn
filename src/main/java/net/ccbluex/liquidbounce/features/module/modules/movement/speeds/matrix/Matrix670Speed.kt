@@ -36,7 +36,7 @@ class Matrix670Speed : SpeedMode("Matrix6.7.0") {
         }else{
             mc.thePlayer.jumpMovementFactor = 0.0247f
         }
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             mc.thePlayer.jump()
             mc.thePlayer.motionY = 0.4105000114514192
@@ -44,7 +44,7 @@ class Matrix670Speed : SpeedMode("Matrix6.7.0") {
                 MovementUtils.strafe()
             }
         }
-        if (!MovementUtils.isMoving()) {
+        if (!MovementUtils.isMoving) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
         }

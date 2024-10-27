@@ -13,7 +13,7 @@ class NCPYPortSpeed : SpeedMode("NCPYPort") {
     private var jumps = 0
 
     override fun onPreMotion() {
-        if (mc.thePlayer.isOnLadder || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !MovementUtils.isMoving() || mc.thePlayer.isInWater) return
+        if (mc.thePlayer.isOnLadder || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !MovementUtils.isMoving || mc.thePlayer.isInWater) return
 
         if (jumps >= 4 && mc.thePlayer.onGround) jumps = 0
 

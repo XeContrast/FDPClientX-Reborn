@@ -22,6 +22,7 @@ import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.utils.item.ArmorComparator.getBestArmorSet
 import net.ccbluex.liquidbounce.utils.item.ArmorPiece
 import net.ccbluex.liquidbounce.utils.item.ItemUtils
+import net.ccbluex.liquidbounce.utils.item.ItemUtils.isSplashPotion
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
@@ -34,6 +35,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
+import net.minecraft.potion.Potion
 
 @ModuleInfo(name = "InvManager", category = ModuleCategory.PLAYER)
 object InvManager : Module() {
@@ -74,13 +76,10 @@ object InvManager : Module() {
     private val swingValue = BoolValue("Swing", true)
     private val nbtGoalValue =
         ListValue("NBTGoal", ItemUtils.EnumNBTPriorityType.entries.map { it.toString() }.toTypedArray(), "NONE")
-    private val nbtItemNotGarbage = BoolValue("NBTItemNotGarbage", true).displayable { !nbtGoalValue.equals("NONE") }
-    private val nbtArmorPriority =
-        FloatValue("NBTArmorPriority", 0f, 0f, 5f).displayable { !nbtGoalValue.equals("NONE") }
     private val nbtWeaponPriority =
         FloatValue("NBTWeaponPriority", 0f, 0f, 5f).displayable { !nbtGoalValue.equals("NONE") }
     private val ignoreVehiclesValue = BoolValue("IgnoreVehicles", false)
-    private val onlyPositivePotionValue = BoolValue("OnlyPositivePotion", false)
+    private val onlyGoodPotions = BoolValue("OnlyGoodPotion", false)
 //    private val ignoreDurabilityUnder = FloatValue("IgnoreDurabilityUnder", 0.3f, 0f, 1f)
 
     private val items = arrayOf(
@@ -186,11 +185,13 @@ object InvManager : Module() {
                             C08PacketPlayerBlockPlacement(stack)
                         )
                     } else {
-                        PacketUtils.sendPackets(
-                            C09PacketHeldItemChange(hotbarIndex),
-                            C08PacketPlayerBlockPlacement(stack),
-                            C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem)
-                        )
+                        if (hotbarIndex in 0..8) {
+                            PacketUtils.sendPackets(
+                                C09PacketHeldItemChange(hotbarIndex),
+                                C08PacketPlayerBlockPlacement(stack),
+                                C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem)
+                            )
+                        }
                     }
 
                     mc.thePlayer.inventory.armorInventory[armorPos] = stack
@@ -203,7 +204,7 @@ object InvManager : Module() {
                 }
             }
         }
-        if (noMoveValue.get() && isMoving() ||
+        if (noMoveValue.get() && isMoving ||
             mc.thePlayer.openContainer != null && mc.thePlayer.openContainer.windowId != 0 ||
             (FDPClient.combatManager.inCombat && noCombatValue.get())
         ) {
@@ -311,10 +312,10 @@ object InvManager : Module() {
         }
     }
 
-    private fun Int.toHotbarIndex(stacksSize: Int): Int? {
+    private fun Int.toHotbarIndex(stacksSize: Int): Int {
         val parsed = this - stacksSize + 9
 
-        return if (parsed in 0..8) parsed else null
+        return if (parsed in 0..8) parsed else -1
     }
 
 
@@ -392,10 +393,7 @@ object InvManager : Module() {
                 is ItemSnowball, is ItemEgg -> return amount[0] <= maxmiss.get()
                 is ItemFood -> return amount[3] <= maxfood.get()
                 is ItemBlock -> return !InventoryUtils.isBlockListBlock(item) && amount[1] <= maxblock.get()
-                is ItemPotion -> return !onlyPositivePotionValue.get() || InventoryUtils.isPositivePotion(
-                    item,
-                    itemStack
-                )
+                is ItemPotion -> return isUsefulPotion(itemStack)
                 is ItemBoat,is ItemMinecart -> return ignoreVehiclesValue.get()
                 is ItemBed, is ItemEnderPearl,is ItemBucket -> return true
             }
@@ -411,6 +409,22 @@ object InvManager : Module() {
             ClientUtils.logError("(InvManager) Failed to check item: ${itemStack.unlocalizedName}.", ex)
             true
         }
+    }
+
+    private fun isUsefulPotion(stack: ItemStack?): Boolean {
+        val NEGATIVE_EFFECT_IDS = intArrayOf(
+            Potion.moveSlowdown.id, Potion.digSlowdown.id, Potion.harm.id, Potion.confusion.id, Potion.blindness.id,
+            Potion.hunger.id, Potion.weakness.id, Potion.poison.id, Potion.wither.id,
+        )
+        val item = stack?.item ?: return false
+
+        if (item !is ItemPotion) return false
+
+        val isSplash = stack.isSplashPotion()
+        val isHarmful = item.getEffects(stack)?.any { it.potionID in NEGATIVE_EFFECT_IDS } ?: return false
+
+        // Only keep helpful potions and, if 'onlyGoodPotions' is disabled, also splash harmful potions
+        return !isHarmful || (!onlyGoodPotions.get() && isSplash)
     }
 
     private fun findBetterItem(targetSlot: Int, slotStack: ItemStack?): Int? {

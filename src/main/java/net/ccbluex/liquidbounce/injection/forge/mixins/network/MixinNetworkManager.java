@@ -39,8 +39,8 @@ public class MixinNetworkManager {
      * @reason BackTrackFix
      */
     @Overwrite
-    protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception {
-        final PacketEvent event = new PacketEvent(p_channelRead0_2_,EventState.RECEIVE);
+    protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) {
+        final PacketEvent event = new PacketEvent(p_channelRead0_2_, EventState.RECEIVE);
         BackTrack backTrack = FDPClient.moduleManager.getModule(BackTrack.class);
         assert backTrack != null;
         if (backTrack.getState()) {
@@ -52,7 +52,7 @@ public class MixinNetworkManager {
         }
         FDPClient.eventManager.callEvent(event);
 
-        if(event.isCancelled())
+        if (event.isCancelled())
             return;
         if (this.channel.isOpen()) {
             try {
@@ -78,7 +78,7 @@ public class MixinNetworkManager {
         }
         FDPClient.eventManager.callEvent(event);
 
-        if(event.isCancelled()) {
+        if (event.isCancelled()) {
             callback.cancel();
         }
     }
@@ -88,9 +88,8 @@ public class MixinNetworkManager {
      */
     @Inject(method = "getIsencrypted", at = @At("HEAD"), cancellable = true)
     private void getIsencrypted(CallbackInfoReturnable<Boolean> cir) {
-        if(Animations.INSTANCE.getFlagRenderTabOverlay()) {
+        if (Animations.INSTANCE.getFlagRenderTabOverlay()) {
             cir.setReturnValue(true);
         }
     }
-
 }

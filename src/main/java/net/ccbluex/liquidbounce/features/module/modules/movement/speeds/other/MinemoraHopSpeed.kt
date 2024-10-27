@@ -11,7 +11,7 @@ class MinemoraHopSpeed : SpeedMode("MinemoraHop") {
     }
     override fun onPreMotion() {
         if (mc.thePlayer.isInWater) return
-        if (MovementUtils.isMoving() || mc.gameSettings.keyBindForward.pressed || mc.gameSettings.keyBindBack.pressed || mc.gameSettings.keyBindLeft.pressed || mc.gameSettings.keyBindRight.pressed) {
+        if (MovementUtils.isMoving || mc.gameSettings.keyBindForward.pressed || mc.gameSettings.keyBindBack.pressed || mc.gameSettings.keyBindLeft.pressed || mc.gameSettings.keyBindRight.pressed) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
                 movetick = 0

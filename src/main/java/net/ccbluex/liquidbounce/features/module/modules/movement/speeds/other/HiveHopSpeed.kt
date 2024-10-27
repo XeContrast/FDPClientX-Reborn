@@ -20,7 +20,7 @@ class HiveHopSpeed : SpeedMode("HiveHop") {
     }
 
     override fun onUpdate() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) mc.thePlayer.motionY = 0.3
             mc.thePlayer.speedInAir = 0.0425f
             mc.timer.timerSpeed = 1.04f

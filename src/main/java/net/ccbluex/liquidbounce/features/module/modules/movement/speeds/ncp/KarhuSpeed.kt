@@ -6,7 +6,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 class KarhuSpeed : SpeedMode("Karhu") {
 
     override fun onUpdate() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
                 if (mc.gameSettings.keyBindForward.isKeyDown && !mc.gameSettings.keyBindRight.isKeyDown && !mc.gameSettings.keyBindLeft.isKeyDown) {

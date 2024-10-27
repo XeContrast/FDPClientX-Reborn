@@ -52,7 +52,7 @@ class SuperKnockback : Module() {
             val angleDifferenceToPlayer = getAngleDifference(rotationToPlayer, target.rotationYaw)
             if (angleDifferenceToPlayer > minEnemyRotDiffToIgnore.get() && !target.hitBox.isVecInside(player.eyes)) return
             if (event.targetEntity.hurtTime > hurtTimeValue.get() || !timer.hasTimePassed(delayValue.get().toLong()) ||
-                (!MovementUtils.isMoving() && onlyMoveValue.get()) || (!mc.thePlayer.onGround && onlyGroundValue.get())) {
+                (!MovementUtils.isMoving && onlyMoveValue.get()) || (!mc.thePlayer.onGround && onlyGroundValue.get())) {
                 return
             }
 

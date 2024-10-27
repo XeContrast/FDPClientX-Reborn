@@ -35,7 +35,7 @@ class HypixelHopSpeed : SpeedMode("HypixelHop") {
     private var groundTick = 0
 
     override fun onUpdate() {
-        if (!MovementUtils.isMoving()) {
+        if (!MovementUtils.isMoving) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
         }

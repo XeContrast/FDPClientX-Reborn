@@ -45,14 +45,14 @@ object Speed : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.isSneaking || (mc.thePlayer.isInWater && noWater.get())) return
-        if (MovementUtils.isMoving() && forceSprint.get()) mc.thePlayer.isSprinting = true
+        if (MovementUtils.isMoving && forceSprint.get()) mc.thePlayer.isSprinting = true
         mode.onUpdate()
     }
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
 
-        if (MovementUtils.isMoving() && forceSprint.get()) {
+        if (MovementUtils.isMoving && forceSprint.get()) {
             mc.thePlayer.isSprinting = true
         }
 

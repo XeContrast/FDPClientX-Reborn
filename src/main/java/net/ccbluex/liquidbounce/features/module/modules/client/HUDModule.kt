@@ -87,12 +87,12 @@ object HUDModule : Module() {
             else -> {}
         }
         if (eatbar.get()) {
-            if (mc.thePlayer.heldItem.item != null && (mc.thePlayer.heldItem?.item is ItemFood || mc.thePlayer.heldItem
-                    ?.item is ItemPotion)
+            val heldItem = mc.thePlayer.heldItem ?: return
+            if (heldItem.item != null && (heldItem.item is ItemFood || heldItem.item is ItemPotion)
             ) {
-                val scaledResolution = StaticStorage.scaledResolution
+                val scaledResolution = StaticStorage.scaledResolution ?: return
                 val math: Double
-                val height: Double = scaledResolution?.scaledHeight!!.toDouble()
+                val height: Double = scaledResolution.scaledHeight.toDouble()
                 val width: Double = scaledResolution.scaledWidth.toDouble()
                 if (!(tick <= 0)) {
                     idk = (1f - (tick / 32))
@@ -203,7 +203,8 @@ object HUDModule : Module() {
     fun onUpdate(event: UpdateEvent) {
         FDPClient.hud.update()
         if (eatbar.get()) {
-            if (mc.thePlayer.heldItem.item is ItemFood || mc.thePlayer.heldItem.item is ItemPotion
+            val helditem = mc.thePlayer.heldItem ?: return
+            if (helditem.item is ItemFood || helditem.item is ItemPotion
             ) {
                 if (tick < 0) {
                     tick = 0.0

@@ -52,7 +52,7 @@ object Refill : Module() {
         if (invOpenValue.get() && mc.currentScreen !is GuiInventory)
             return
 
-        if (noMoveValue.get() && MovementUtils.isMoving() && if (mc.thePlayer.onGround) noMoveGroundValue.get() else noMoveAirValue.get())
+        if (noMoveValue.get() && MovementUtils.isMoving && if (mc.thePlayer.onGround) noMoveGroundValue.get() else noMoveAirValue.get())
             return
 
         for (slot in 36..44) {

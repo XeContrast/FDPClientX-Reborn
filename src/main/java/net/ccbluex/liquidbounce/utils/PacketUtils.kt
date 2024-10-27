@@ -178,9 +178,19 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 handlePacket(it)
                 val packetEvent = PacketEvent(it, EventState.RECEIVE)
                 FakeLag.onPacket(packetEvent)
+                Velocity.onPacket(packetEvent)
             }
 
             queuedPackets.clear()
+        }
+    }
+
+    @EventTarget(priority = -1)
+    fun onDisconnect(event: WorldEvent) {
+        if (event.worldClient == null) {
+            synchronized(queuedPackets) {
+                queuedPackets.clear()
+            }
         }
     }
 

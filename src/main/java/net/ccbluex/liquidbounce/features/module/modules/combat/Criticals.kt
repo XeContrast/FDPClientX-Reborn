@@ -139,7 +139,7 @@ object Criticals : Module() {
              */
         }
 
-        if (packet is C03PacketPlayer && (MovementUtils.isMoving() || syncTimer.hasTimePassed(1000L) || msTimer.hasTimePassed(
+        if (packet is C03PacketPlayer && (MovementUtils.isMoving || syncTimer.hasTimePassed(1000L) || msTimer.hasTimePassed(
                 ((delayValue.get() / 5) + 75).toLong()
             ))
         )

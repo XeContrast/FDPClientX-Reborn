@@ -54,7 +54,8 @@ class RawInput {
                                     // check if mouse is moving
                                     if (px < -eps || px > eps || py < -eps || py > eps) {
                                         mouse = controller
-                                        Minecraft.getMinecraft().thePlayer.addChatMessage(
+                                        val player = Minecraft.getMinecraft().thePlayer ?: return@Thread
+                                        player.addChatMessage(
                                             ChatComponentText(
                                                 EnumChatFormatting.GREEN.toString() + "[RawInput] Found mouse"
                                             )

@@ -16,7 +16,7 @@ class VerusDamageLongjump : LongJumpMode("VerusDamage") {
 
     override fun onEnable() {
         val player = mc.thePlayer ?: return
-        if (!MovementUtils.isMoving()) {
+        if (!MovementUtils.isMoving) {
             Chat.alert("Pls move while toggling LongJump. Using AutoJump option is recommended.")
             return
         }
@@ -53,7 +53,7 @@ class VerusDamageLongjump : LongJumpMode("VerusDamage") {
         /**
          * You can long jump up to 13-14+ blocks
          */
-        if (damaged && MovementUtils.isMoving()) {
+        if (damaged && MovementUtils.isMoving) {
             player.jumpMovementFactor = 0.15f
             player.motionY += 0.015f
 

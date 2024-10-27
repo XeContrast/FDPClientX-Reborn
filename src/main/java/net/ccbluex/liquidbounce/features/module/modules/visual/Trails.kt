@@ -173,7 +173,7 @@ object Trails : Module() {
     fun onUpdate(event: UpdateEvent) {
     val a1in8chance = (1..8).random()
         var ifrender: Boolean
-        if (a1in8chance == 1 && MovementUtils.isMoving() && mc.gameSettings.thirdPersonView != 0){
+        if (a1in8chance == 1 && MovementUtils.isMoving && mc.gameSettings.thirdPersonView != 0){
             ifrender = true
         } else {
             ifrender = false

@@ -35,7 +35,7 @@ class NCPStableSpeed : SpeedMode("NCPStable") {
     }
 
     override fun onUpdate() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             mc.thePlayer.jumpMovementFactor = jumpMovementFactorValue.get()
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()

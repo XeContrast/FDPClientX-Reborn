@@ -9,7 +9,7 @@ class Intave : NoWebMode("Intave") {
     @EventTarget
     override fun onUpdate() {
         val thePlayer = mc.thePlayer ?: return
-        if (MovementUtils.isMoving() && thePlayer.moveStrafing == 0.0f) {
+        if (MovementUtils.isMoving && thePlayer.moveStrafing == 0.0f) {
             if (thePlayer.onGround) {
                 if (mc.thePlayer.ticksExisted % 3 == 0) {
                     strafe(0.734f)

@@ -25,7 +25,7 @@ class VulcanHopSpeed : SpeedMode("VulcanHop") {
         if (MovementUtils.getSpeed() < 0.215f && !mc.thePlayer.onGround) {
             MovementUtils.strafe(0.215f)
         }
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             mc.thePlayer.jump()
             if (!mc.thePlayer.isAirBorne) {
@@ -37,7 +37,7 @@ class VulcanHopSpeed : SpeedMode("VulcanHop") {
             if(MovementUtils.getSpeed() < 0.5f) {
                 MovementUtils.strafe(0.4849f)
             }
-        }else if (!MovementUtils.isMoving()) {
+        }else if (!MovementUtils.isMoving) {
             mc.timer.timerSpeed = 1.00f
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0

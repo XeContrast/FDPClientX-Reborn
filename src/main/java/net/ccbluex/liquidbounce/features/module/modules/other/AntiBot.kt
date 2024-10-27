@@ -16,27 +16,17 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
-import net.ccbluex.liquidbounce.utils.EntityUtils.speed
-import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
-import net.ccbluex.liquidbounce.utils.extensions.ping
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
-import net.ccbluex.liquidbounce.utils.rotation
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemArmor
-import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 import net.minecraft.world.WorldSettings
-import java.awt.Color
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.regex.Pattern
 import kotlin.math.abs
 
 @ModuleInfo("AntiBot","Prevents KillAura from attacking AntiCheat bots.", category = ModuleCategory.OTHER)
@@ -522,7 +512,16 @@ object  AntiBot : Module() {
             }
         }
 
-        if (matrix7.get()) {
+        if (matrix7.get() && modeValue.get() == "Custom") {
+//            val player = mc.thePlayer ?: return
+//            val world = mc.theWorld ?: return
+//            for (entity in world.playerEntities) {
+//                val profile = entity.gameProfile ?: continue
+//
+//                if (entity.getPing() < 2 || profile.properties?.isEmpty == false) {
+//                    continue
+//                }
+//            }
             mc.theWorld.playerEntities.forEach { entity ->
                 if (entity.inventory.armorInventory.all { it != null } && entity.heldItem != null) {
 
@@ -538,25 +537,22 @@ object  AntiBot : Module() {
                         val rotDiff = abs(entityRot - playerPreRot)
                         val utilDiff = abs(entityRot - RotationUtils.serverRotation?.yaw!!)
 
-                        if ((rotDiff <= 10 || utilDiff <= 10) && matrix.contains(entity.entityId)) {
+                        if ((rotDiff <= 10 || utilDiff <= 10) && !matrix.contains(entity.entityId)) {
 //                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
 //                            world.removeEntityFromWorld(entity.entityId)
                             matrix.add(entity.entityId)
                             if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
                         }
 
-                        if (entity.isSprinting && entity.moveForward == 0f && matrix.contains(entity.entityId)) {
+                        if (entity.isSprinting && entity.moveForward == 0f && !matrix.contains(entity.entityId)) {
 //                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
 //                            world.removeEntityFromWorld(entity.entityId)
                             matrix.add(entity.entityId)
                             if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
                         }
                         if (matrix.contains(entity.entityId)) {
-                            if (player.getDistanceToEntity(entity) <= 10) {
-                                if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
-                                    matrix.remove(entity.entityId)
-                                    if (debugValue.get()) Chat.alert("AntiBot - ${entity.gameProfile.name}")
-                                }
+                            if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
+                                if (player.getDistanceToEntity(entity) < 10) matrix.remove(entity.entityId)
                             }
                         }
                     }

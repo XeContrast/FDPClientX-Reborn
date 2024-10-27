@@ -127,7 +127,7 @@ class Scaffold2 : Module() {
         ListValue("Sprint", arrayOf("Always", "Dynamic", "Smart", "OnGround", "OffGround", "OFF"), "Always")
     private val towerNoSprintSwitch = BoolValue("TowerNoSprintSwitch", false)
     val canSprint: Boolean
-        get() = MovementUtils.isMoving() && when (sprintValue.get().lowercase()) {
+        get() = MovementUtils.isMoving && when (sprintValue.get().lowercase()) {
             "always", "dynamic" -> true
             "smart" -> {
                 if (mc.thePlayer != null && RotationUtils.targetRotation != null) {
@@ -175,7 +175,7 @@ class Scaffold2 : Module() {
     private val expandLengthValue = IntegerValue("ExpandLength", 0, 0, 6)
 
     private val shouldExpand
-        get() = expandLengthValue.get() != 0 && !(jumpCheckValue.get() && mc.gameSettings.keyBindJump.isKeyDown) && !(downCheckValue.get() && shouldGoDown) && (!expandOnlyMove.get() || (MovementUtils.isMoving() || (expandOnlyMoveOnlyGround.get() && !mc.thePlayer.onGround)))
+        get() = expandLengthValue.get() != 0 && !(jumpCheckValue.get() && mc.gameSettings.keyBindJump.isKeyDown) && !(downCheckValue.get() && shouldGoDown) && (!expandOnlyMove.get() || (MovementUtils.isMoving || (expandOnlyMoveOnlyGround.get() && !mc.thePlayer.onGround)))
 
     // Rotation Options
     private val rotationValues = arrayOf("Off", "Normal", "AAC", "GodBridge", "MoveDirection", "Custom")
@@ -566,7 +566,7 @@ class Scaffold2 : Module() {
         }
         // AutoJump
         if (mc.thePlayer.onGround
-            && MovementUtils.isMoving()
+            && MovementUtils.isMoving
             && !mc.thePlayer.isInLava
             && !mc.thePlayer.isInWater
             && !mc.thePlayer.isInWeb

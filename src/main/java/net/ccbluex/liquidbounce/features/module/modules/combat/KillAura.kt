@@ -94,7 +94,7 @@ object KillAura : Module() {
 
     private val attackTimingValue =
         ListValue("AttackTiming", arrayOf("All", "Pre", "Post"), "All").displayable { attackDisplay.get() }
-    val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion","AttackSlow"),"KeepSprint").displayable { attackDisplay.get() }
+    val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion"),"KeepSprint").displayable { attackDisplay.get() }
 
     private val hitselectValue = BoolValue("HitSelect", false).displayable { attackDisplay.get() }
     private val hitselectRangeValue = FloatValue(
@@ -653,6 +653,7 @@ object KillAura : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(nextitem))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(curritem))
         }
+
 
         if (reachMode.equals("Air")) {
             if (mc.thePlayer.onGround) {

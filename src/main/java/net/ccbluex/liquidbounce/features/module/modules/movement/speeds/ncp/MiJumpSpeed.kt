@@ -12,7 +12,7 @@ import kotlin.math.sqrt
 
 class MiJumpSpeed : SpeedMode("MiJump") {
     override fun onPreMotion() {
-        if (!MovementUtils.isMoving()) return
+        if (!MovementUtils.isMoving) return
 
         if (mc.thePlayer.onGround && !mc.thePlayer.movementInput.jump) {
             mc.thePlayer.motionY += 0.1

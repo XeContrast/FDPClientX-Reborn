@@ -10,7 +10,7 @@ class IntaveHopSpeed : SpeedMode("IntaveHop") {
 
     override fun onUpdate() {
         mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.gameSettings.keyBindJump.pressed = false
                 mc.timer.timerSpeed = 1.0f

@@ -5,7 +5,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class GroundStrafeHopSpeed : SpeedMode("GroundStrafeHop") {
     override fun onPreMotion() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
                 MovementUtils.strafe()

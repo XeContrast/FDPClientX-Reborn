@@ -1,3 +1,8 @@
+/*
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
+ */
 package net.ccbluex.liquidbounce.features.module.modules.combat
 
 import kevin.utils.component1
@@ -10,19 +15,19 @@ import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.player.Blink
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
-import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
-import net.ccbluex.liquidbounce.utils.Rotation
-import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.extensions.getNearestPointBB
-import net.ccbluex.liquidbounce.utils.extensions.hitBox
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
+import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.Packet
 import net.minecraft.network.handshake.client.C00Handshake
@@ -37,13 +42,29 @@ import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-@ModuleInfo("FakeLag", category = ModuleCategory.COMBAT)
+@ModuleInfo("FakeLag",category = ModuleCategory.COMBAT)
 object FakeLag : Module() {
+
     private val delay = IntegerValue("Delay", 550, 0,1000)
     private val recoilTime = IntegerValue("RecoilTime", 750, 0,2000)
-    private val distanceToPlayers = FloatValue("AllowedDistanceToPlayers", 3.5f, 0.0f,6.0f)
+
+    private val maxAllowedDistToEnemy: FloatValue = object : FloatValue("MaxAllowedDistToEnemy", 3.5f, 0f,6f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = minAllowedDistToEnemy.get()
+            if (i > newValue) set(i)
+        }
+    }
+    private val minAllowedDistToEnemy: FloatValue = object : FloatValue("MinAllowedDistToEnemy", 1.5f, 0f,6f) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val i = maxAllowedDistToEnemy.get()
+            if (i < newValue) set(i)
+        }
+    }
 
     private val blinkOnAction = BoolValue("BlinkOnAction", true)
+
+    private val pauseOnNoMove = BoolValue("PauseOnNoMove", true)
+    private val pauseOnChest = BoolValue("PauseOnChest", false)
 
     private val line = BoolValue("Line", true)
     private val rainbow = BoolValue("Rainbow", false).displayable { line.get() }
@@ -63,7 +84,7 @@ object FakeLag : Module() {
     private val packetQueue = LinkedHashMap<Packet<*>, Long>()
     private val positions = LinkedHashMap<Vec3, Long>()
     private val resetTimer = MSTimer()
-    private var wasNearPlayer = false
+    private var wasNearEnemy = false
     private var ignoreWholeTick = false
 
     override fun onDisable() {
@@ -87,11 +108,16 @@ object FakeLag : Module() {
         if (event.isCancelled)
             return
 
-        if (distanceToPlayers.get() > 0.0 && wasNearPlayer)
+        if (maxAllowedDistToEnemy.get() > 0.0 && wasNearEnemy)
             return
 
         if (ignoreWholeTick)
             return
+
+        if (pauseOnNoMove.get() && !isMoving) {
+            blink()
+            return
+        }
 
         // Flush on damaged received
         if (player.health < player.maxHealth) {
@@ -101,8 +127,19 @@ object FakeLag : Module() {
             }
         }
 
+        // Flush on scaffold/tower usage
+        if (FDPClient.moduleManager[Scaffold::class.java]!!.state || FDPClient.moduleManager[Scaffold2::class.java]!!.state) {
+            blink()
+            return
+        }
+
         // Flush on attack/interact
         if (blinkOnAction.get() && packet is C02PacketUseEntity) {
+            blink()
+            return
+        }
+
+        if (pauseOnChest.get() && mc.currentScreen is GuiContainer) {
             blink()
             return
         }
@@ -148,9 +185,6 @@ object FakeLag : Module() {
                 synchronized(positions) {
                     positions[packetPos] = System.currentTimeMillis()
                 }
-                if (packet.rotating) {
-                    RotationUtils.serverRotation = Rotation(packet.yaw, packet.pitch)
-                }
             }
             synchronized(packetQueue) {
                 packetQueue[packet] = System.currentTimeMillis()
@@ -165,16 +199,16 @@ object FakeLag : Module() {
             blink(false)
     }
 
-    private fun getTruePositionEyes(player: EntityPlayer): Vec3 {
-        val mixinPlayer = player as? IMixinEntity
-        return Vec3(mixinPlayer!!.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
+    private fun getTruePositionEyes(player: EntityPlayer): Vec3? {
+        val mixinPlayer = player as? IMixinEntity ?: return null
+        return Vec3(mixinPlayer.trueX, mixinPlayer.trueY + player.getEyeHeight().toDouble(), mixinPlayer.trueZ)
     }
 
     @EventTarget
     fun onGameLoop(event: GameLoopEvent) {
         val player = mc.thePlayer ?: return
 
-        if (distanceToPlayers.get() > 0) {
+        if (maxAllowedDistToEnemy.get() > 0) {
             val playerPos = player.positionVector
             val serverPos = positions.keys.firstOrNull() ?: playerPos
 
@@ -183,15 +217,15 @@ object FakeLag : Module() {
             val (dx, dy, dz) = serverPos - playerPos
             val playerBox = player.hitBox.offset(dx, dy, dz)
 
-            wasNearPlayer = false
+            wasNearEnemy = false
 
             for (otherPlayer in otherPlayers) {
                 val entityMixin = otherPlayer as? IMixinEntity
                 if (entityMixin != null) {
-                    val eyes = getTruePositionEyes(otherPlayer)
-                    if (eyes.distanceTo(getNearestPointBB(eyes, playerBox)) <= distanceToPlayers.get().toDouble()) {
+                    val eyes = getTruePositionEyes(otherPlayer) ?: return
+                    if (eyes.distanceTo(getNearestPointBB(eyes, playerBox)) in minAllowedDistToEnemy.get()..maxAllowedDistToEnemy.get()) {
                         blink()
-                        wasNearPlayer = true
+                        wasNearEnemy = true
                         return
                     }
                 }
@@ -214,7 +248,7 @@ object FakeLag : Module() {
     fun onRender3D(event: Render3DEvent) {
         if (!line.get()) return
 
-        val color = if (rainbow.get()) ColorUtils.rainbow() else Color(red.get(), green.get(), blue.get())
+        val color = if (rainbow.get()) rainbow() else Color(red.get(), green.get(), blue.get())
 
         if (FDPClient.moduleManager[Blink::class.java]!!.state)
             return
@@ -278,4 +312,5 @@ object FakeLag : Module() {
             positions.entries.removeAll { (_, timestamp) -> timestamp <= System.currentTimeMillis() - delay.get() }
         }
     }
+
 }

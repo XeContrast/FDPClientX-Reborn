@@ -139,6 +139,9 @@ class ScriptModule(private val moduleObject: JSObject) : Module() {
     fun onWorld(worldEvent: WorldEvent) = callEvent("world", worldEvent)
 
     @EventTarget
+    fun onGameLoop(gameLoopEvent: GameLoopEvent) = callEvent("gameloop",gameLoopEvent)
+
+    @EventTarget
     fun onSession(sessionEvent: SessionEvent) = callEvent("session")
 
     @EventTarget

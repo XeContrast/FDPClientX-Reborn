@@ -9,7 +9,7 @@ class VerusYPortSpeed : SpeedMode("VerusYPort") {
 	private val speedValue = FloatValue("${valuePrefix}Speed", 0.61f, 0.1f, 1f)
 
 	override fun onMove(event: MoveEvent) {
-		if (MovementUtils.isMoving()) {
+		if (MovementUtils.isMoving) {
 			mc.gameSettings.keyBindJump.pressed = false
 			if (mc.thePlayer.onGround) {
 				mc.thePlayer.jump()

@@ -14,7 +14,7 @@ class MinemenHopSpeed : SpeedMode("MinemenHop") {
     private val veloAbuseValue = BoolValue("KnockbackAbuse", false)
     
     override fun onPreMotion() {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.hurtTime < 6 || veloAbuseValue.get()) {
                 MovementUtils.strafe()
             }

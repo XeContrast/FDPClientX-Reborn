@@ -48,7 +48,7 @@ object Crosshair : Module() {
         val width = widthValue.get()
         val size = sizeValue.get()
         val gap = gapValue.get()
-        val isMoving = dynamicValue.get() && MovementUtils.isMoving()
+        val isMoving = dynamicValue.get() && MovementUtils.isMoving
         GL11.glPushMatrix()
         RenderUtils.drawBorderedRect(sr.scaledWidth / 2f - width, sr.scaledHeight / 2f - gap - size - if (isMoving) 2 else 0, sr.scaledWidth / 2f + 1.0f + width, sr.scaledHeight / 2f - gap - if (isMoving) 2 else 0, 0.5f, Color(0, 0, 0).rgb, crosshairColor.rgb)
         RenderUtils.drawBorderedRect(sr.scaledWidth / 2f - width, sr.scaledHeight / 2f + gap + 1 + (if (isMoving) 2 else 0) - 0.15f, sr.scaledWidth / 2f + 1.0f + width, sr.scaledHeight / 2f + 1 + gap + size + (if (isMoving) 2 else 0) - 0.15f, 0.5f, Color(0, 0, 0).rgb, crosshairColor.rgb)

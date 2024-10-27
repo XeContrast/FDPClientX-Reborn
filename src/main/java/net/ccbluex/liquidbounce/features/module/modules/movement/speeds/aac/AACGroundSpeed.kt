@@ -17,7 +17,7 @@ class AACGroundSpeed : SpeedMode("AACGround") {
     private val extraValue = BoolValue("${valuePrefix}ExtraPacket", true)
 
     override fun onUpdate() {
-        if (!MovementUtils.isMoving() || !mc.thePlayer.onGround) return
+        if (!MovementUtils.isMoving || !mc.thePlayer.onGround) return
         mc.timer.timerSpeed = timerValue.get()
         MovementUtils.strafe(speedValue.get())
         if (extraValue.get()) mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))

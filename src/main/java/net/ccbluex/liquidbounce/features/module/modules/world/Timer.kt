@@ -38,11 +38,11 @@ object Timer : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (mode.get() == "Always" || mode.get() == "OnMove" && isMoving() || mode.get() == "NoMove" && !isMoving()) {
+        if (mode.get() == "Always" || mode.get() == "OnMove" && isMoving || mode.get() == "NoMove" && !isMoving) {
             if (bypass.equals("Normal")) {
                 mc.timer.timerSpeed = speed.get()
             } else {
-                if (isMoving()) {
+                if (isMoving) {
                     if (!start) {
                         mc.timer.timerSpeed = 0.1f
                         ticks++

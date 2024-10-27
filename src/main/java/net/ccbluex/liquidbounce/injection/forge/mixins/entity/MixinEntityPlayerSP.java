@@ -419,21 +419,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if (Objects.requireNonNull(scaffold).getState()) {
             this.setSprinting(scaffold.getCanSprint());
         }
-        if (killAura != null && killAura.getCurrentTarget() != null) {
-            switch (killAura.getSprintmode().toString()) {
-                case "Ground":
-                    if (MovementUtils.INSTANCE.isMoving()) {
-                        this.setSprinting(mc.thePlayer.onGround);
-                    }
-                    break;
-                case "StopSprint":
-                    if (MovementUtils.INSTANCE.isMoving()) {
-                        this.setSprinting(false);
-                    }
-                    break;
-                case "AttackSlow":
-                    mc.thePlayer.attackTargetEntityWithCurrentItem(killAura.getCurrentTarget());
-                    break;
+        if (killAura != null && killAura.getCurrentTarget() != null && KillAura.INSTANCE.getSprintmode().get().equals("StopSprint") && killAura.getState()) {
+            if (MovementUtils.INSTANCE.isMoving()) {
+                this.setSprinting(false);
             }
         }
 

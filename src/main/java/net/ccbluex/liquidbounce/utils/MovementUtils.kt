@@ -48,16 +48,15 @@ object MovementUtils : MinecraftInstance() {
         move(getSpeed())
     }
 
-    fun isMoving(): Boolean {
-        return mc.thePlayer != null && (mc.thePlayer.movementInput.moveForward != 0f || mc.thePlayer.movementInput.moveStrafe != 0f)
-    }
+    val isMoving
+        get() = mc.thePlayer?.movementInput?.run { moveForward != 0f || moveStrafe != 0f } ?: false
 
     fun hasMotion(): Boolean {
         return mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0 && mc.thePlayer.motionY != 0.0
     }
 
     fun strafe(speed: Float) {
-        if (!isMoving()) return
+        if (!isMoving) return
         mc.thePlayer.motionX = -sin(direction) * speed
         mc.thePlayer.motionZ = cos(direction) * speed
     }
@@ -76,7 +75,7 @@ object MovementUtils : MinecraftInstance() {
 
 
     fun doTargetStrafe(curTarget: EntityLivingBase, direction_: Float, radius: Float, moveEvent: MoveEvent, mathRadius: Int = 0) {
-        if(!isMoving()) return
+        if(!isMoving) return
 
         var forward_: Double
         var strafe_ = 0.0
@@ -129,7 +128,7 @@ object MovementUtils : MinecraftInstance() {
     }
 
     fun move(speed: Float) {
-        if (!isMoving()) return
+        if (!isMoving) return
         val yaw = direction
         mc.thePlayer.motionX += -sin(yaw) * speed
         mc.thePlayer.motionZ += cos(yaw) * speed

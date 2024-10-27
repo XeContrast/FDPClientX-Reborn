@@ -9,7 +9,7 @@ class FakeCollideCritical : CriticalMode("FakeCollide") {
     override fun onAttack(event: AttackEvent) {
         val motionX: Double
         val motionZ: Double
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             motionX = mc.thePlayer.motionX
             motionZ = mc.thePlayer.motionZ
         } else {

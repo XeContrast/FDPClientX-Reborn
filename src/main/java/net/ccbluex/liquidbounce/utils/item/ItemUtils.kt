@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.item
 import net.ccbluex.liquidbounce.utils.RegexUtils
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemArmor
+import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
 import kotlin.math.roundToInt
 
@@ -181,4 +182,6 @@ object ItemUtils {
         HAS_DISPLAY_TAG,
         NONE // for default
     }
+
+    fun ItemStack.isSplashPotion() = item is ItemPotion && ItemPotion.isSplash(metadata)
 }

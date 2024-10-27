@@ -201,6 +201,6 @@ class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicke
 
 object ClickUpdateEvent : CancellableEvent() {
     fun reInit() {
-        isCancelled = false;
+        isCancelled = false
     }
 }

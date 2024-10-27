@@ -28,7 +28,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
         when (bypassMode.get().lowercase()) {
             "aac" -> {
 
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     mc.timer.timerSpeed = 1.08f
                     if (mc.thePlayer.onGround) {
                         mc.thePlayer.motionY = 0.399
@@ -49,7 +49,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
             }
             "aac2" -> {
 
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     if (mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                         mc.thePlayer.motionX *= 1.02
@@ -65,7 +65,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
                 }
             }
             "aac4" -> {
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     if (legitHop) {
                         if (mc.thePlayer.onGround) {
                             mc.thePlayer.jump()
@@ -89,7 +89,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
             "aac6" -> {
                 mc.timer.timerSpeed = 1f
 
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     if (mc.thePlayer.onGround) {
                         if (legitHop) {
                             mc.thePlayer.motionY = 0.4
@@ -129,7 +129,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
             "lowhop2" -> {
                 mc.timer.timerSpeed = 1f
 
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     mc.timer.timerSpeed = 1.09f
                     if (mc.thePlayer.onGround) {
                         if (legitHop) {
@@ -147,7 +147,7 @@ class AACBHopSpeed : SpeedMode("AACBHop") {
                 }
             }
             "lowhop3" -> {
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     if (mc.thePlayer.hurtTime <= 0) {
                         if (mc.thePlayer.onGround) {
                             waitForGround = false

@@ -37,14 +37,14 @@ class Matrix661Speed : SpeedMode("Matrix6.6.1") {
         } else {
             timer(0.95f)
         }
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             timer(1.03f)
             mc.thePlayer.jump()
             if (mc.thePlayer.movementInput.moveStrafe <= 0.01 && mc.thePlayer.movementInput.moveStrafe >= -0.01) {
                 MovementUtils.strafe((MovementUtils.getSpeed() * 1.0071).toFloat())
             }
-        } else if (!MovementUtils.isMoving()) {
+        } else if (!MovementUtils.isMoving) {
             timer(1.0f)
         }
         if (MovementUtils.getSpeed() < 0.22)
@@ -68,14 +68,14 @@ class Matrix661Speed : SpeedMode("Matrix6.6.1") {
         } else {
             timer(0.95f)
         }
-        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+        if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             timer(1.03f)
             mc.thePlayer.jump()
             if (mc.thePlayer.movementInput.moveStrafe <= 0.01 && mc.thePlayer.movementInput.moveStrafe >= -0.01) {
                 MovementUtils.strafe((MovementUtils.getSpeed() * 1.0071).toFloat())
             }
-        } else if (!MovementUtils.isMoving()) {
+        } else if (!MovementUtils.isMoving) {
             timer(1.0f)
         }
         if (MovementUtils.getSpeed() < 0.22)

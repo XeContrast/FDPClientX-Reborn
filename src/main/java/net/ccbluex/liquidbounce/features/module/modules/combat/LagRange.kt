@@ -47,7 +47,7 @@ class LagRange : Module() {
     private fun shouldStart(): Boolean {
         if (mc.thePlayer == null || mc.theWorld == null) return false
         if (onGround.get() && !mc.thePlayer.onGround) return false
-        if (!MovementUtils.isMoving()) return false
+        if (!MovementUtils.isMoving) return false
         if (fov.get() == 0) return false
         if (System.currentTimeMillis() - lastLagTime < delay.get()) return false
 

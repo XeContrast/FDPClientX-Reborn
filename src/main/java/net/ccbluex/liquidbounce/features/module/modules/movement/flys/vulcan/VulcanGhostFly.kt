@@ -58,7 +58,7 @@ class VulcanGhostFly : FlyMode("VulcanGhost") {
                     mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY+0.5, mc.thePlayer.posZ)
                     modifyTicks = 0
                 }
-                if(!MovementUtils.isMoving() && ticks == 1 && (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) || GameSettings.isKeyDown(mc.gameSettings.keyBindJump)) && modifyTicks>=5) {
+                if(!MovementUtils.isMoving && ticks == 1 && (GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) || GameSettings.isKeyDown(mc.gameSettings.keyBindJump)) && modifyTicks>=5) {
                     val playerYaw = mc.thePlayer.rotationYaw * Math.PI / 180
                     mc.thePlayer.setPosition(mc.thePlayer.posX + 0.05 * -sin(playerYaw)
                         , mc.thePlayer.posY

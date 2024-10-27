@@ -179,7 +179,7 @@ object Breaker : Module() {
 
         if (!onClickMouse.get() || mc.gameSettings.keyBindAttack.isKeyDown) {
             if (noMoveValue.get()) {
-                if (MovementUtils.isMoving()) {
+                if (MovementUtils.isMoving) {
                     firstPos = null
                     firstPosBed = null
                     facing = null

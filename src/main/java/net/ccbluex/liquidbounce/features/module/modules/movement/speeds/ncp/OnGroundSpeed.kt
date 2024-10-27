@@ -10,7 +10,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 
 class OnGroundSpeed : SpeedMode("OnGround") {
     override fun onPreMotion() {
-        if (!MovementUtils.isMoving()) return
+        if (!MovementUtils.isMoving) return
 
         if (mc.thePlayer.fallDistance > 3.994) return
 

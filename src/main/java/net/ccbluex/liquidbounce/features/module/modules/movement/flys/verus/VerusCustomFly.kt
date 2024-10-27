@@ -28,7 +28,7 @@ class VerusCustomFly : FlyMode("VerusCustom") {
     }
 
     override fun onMove(event: MoveEvent) {
-        if (MovementUtils.isMoving()) {
+        if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 MovementUtils.strafe(groundSpeedValue.get())
                 waitTicks++

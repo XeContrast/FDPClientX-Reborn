@@ -56,7 +56,7 @@ class VerusJumpFly : FlyMode("VerusJump") {
             }
         } else {
             mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-            if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+            if (mc.thePlayer.onGround && MovementUtils.isMoving) {
                 mc.gameSettings.keyBindJump.pressed = false
                 mc.thePlayer.jump()
                 MovementUtils.strafe(0.48F)
