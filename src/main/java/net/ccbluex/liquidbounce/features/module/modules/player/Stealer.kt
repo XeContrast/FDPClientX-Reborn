@@ -3,14 +3,13 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.features.module.modules.world
+package net.ccbluex.liquidbounce.features.module.modules.player
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.player.InvManager
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
@@ -133,7 +132,10 @@ object Stealer : Module() {
         }
 
         // Chest title
-        if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName))) {
+        if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(
+                ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName
+            ))
+        ) {
             return
         }
 
@@ -154,7 +156,7 @@ object Stealer : Module() {
 
                         if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
                                 .map { it.item!! }
-                                .contains(slot.stack.item)) && (!invManager.state || InvManager.isUseful(
+                                .contains(slot.stack.item)) && (!invManager.state || invManager.isUseful(
                                 slot.stack,
                                 -1
                             ))
@@ -175,16 +177,18 @@ object Stealer : Module() {
                 val slot = screen.inventorySlots.inventorySlots[slotIndex]
 
                 if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
-                    (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || InvManager.isUseful(
+                    (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(
                         slot.stack,
                         -1
-                    ))) {
+                    ))
+                ) {
                     move(screen, slot)
                 }
             }
         } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
                 nextCloseDelay.toLong()
-            )) {
+            )
+        ) {
             mc.thePlayer.closeScreen()
             nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
         }
@@ -192,29 +196,26 @@ object Stealer : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (chestTimer.hasTimePassed(chestValue.get().toLong())) {
-            if (instantValue.get()) {
-                if (mc.currentScreen is GuiChest) {
-                    val chest = mc.currentScreen as GuiChest
-                    val rows = chest.inventoryRows * 9
-                    for (i in 0 until rows) {
-                        val slot = chest.inventorySlots.getSlot(i)
-                        if (slot.hasStack) {
-                            mc.thePlayer.sendQueue.addToSendQueue(
-                                C0EPacketClickWindow(
-                                    chest.inventorySlots.windowId,
-                                    i,
-                                    0,
-                                    1,
-                                    slot.stack,
-                                    1.toShort()
-                                )
+        if (instantValue.get()) {
+            if (mc.currentScreen is GuiChest) {
+                val chest = mc.currentScreen as GuiChest
+                val rows = chest.inventoryRows * 9
+                for (i in 0 until rows) {
+                    val slot = chest.inventorySlots.getSlot(i)
+                    if (slot.hasStack) {
+                        mc.thePlayer.sendQueue.addToSendQueue(
+                            C0EPacketClickWindow(
+                                chest.inventorySlots.windowId,
+                                i,
+                                0,
+                                1,
+                                slot.stack,
+                                1.toShort()
                             )
-                        }
-                        chestTimer.reset()
+                        )
                     }
-                    mc.thePlayer.closeScreen()
                 }
+                mc.thePlayer.closeScreen()
             }
         }
         val screen = mc.currentScreen ?: return
@@ -262,7 +263,7 @@ object Stealer : Module() {
 
                         if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
                                 .map { it.item!! }
-                                .contains(slot.stack.item)) && (!inventoryCleaner.state || InvManager.isUseful(
+                                .contains(slot.stack.item)) && (!inventoryCleaner.state || inventoryCleaner.isUseful(
                                 slot.stack,
                                 -1
                             ))
@@ -287,7 +288,7 @@ object Stealer : Module() {
                 if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
                     (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
                         .map { it.item!! }
-                        .contains(slot.stack.item)) && (!inventoryCleaner.state || InvManager.isUseful(
+                        .contains(slot.stack.item)) && (!inventoryCleaner.state || inventoryCleaner.isUseful(
                         slot.stack,
                         -1
                     ))
@@ -304,7 +305,7 @@ object Stealer : Module() {
             if (silenceValue.get() && !stillDisplayValue.get()) {
                 FDPClient.hud.addNotification(
                     Notification(
-                        "Stealer","Closed chest.",
+                        "Closed chest.", "!!!",
                         NotifyType.INFO
                     )
                 )
@@ -318,6 +319,7 @@ object Stealer : Module() {
             }
         }
     }
+
     @EventTarget
     private fun onPacket(event: PacketEvent) {
         val packet = event.packet
@@ -345,7 +347,7 @@ object Stealer : Module() {
 
             if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
                     .map { it.item!! }
-                    .contains(slot.stack.item)) && (!inventoryCleaner.state || InvManager.isUseful(
+                    .contains(slot.stack.item)) && (!inventoryCleaner.state || inventoryCleaner.isUseful(
                     slot.stack,
                     -1
                 ))

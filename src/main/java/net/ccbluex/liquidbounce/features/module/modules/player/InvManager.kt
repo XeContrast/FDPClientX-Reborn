@@ -395,6 +395,7 @@ object InvManager : Module() {
                 is ItemBlock -> return !InventoryUtils.isBlockListBlock(item) && amount[1] <= maxblock.get()
                 is ItemPotion -> return isUsefulPotion(itemStack)
                 is ItemBoat,is ItemMinecart -> return ignoreVehiclesValue.get()
+                is ItemFishingRod -> return amount[4] < 1
                 is ItemBed, is ItemEnderPearl,is ItemBucket -> return true
             }
 

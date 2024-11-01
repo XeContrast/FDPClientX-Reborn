@@ -180,6 +180,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             var blockAmount = 0
             var arrowAmount = 0
             var foodAmount = 0
+            var rod = 0
             mc.thePlayer.inventory.mainInventory.forEachIndexed { i, _ ->
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
                 if (itemStack != null) {
@@ -197,12 +198,14 @@ object InventoryUtils : MinecraftInstance(), Listenable {
                         is ItemFood -> {
                             foodAmount += itemStack.stackSize
                         }
+
+                        is ItemFishingRod -> rod += itemStack.stackSize
                     }
                     if (itemStack.unlocalizedName == "item.arrow") {
                         arrowAmount += itemStack.stackSize
                     }
                 }
             }
-            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount)
+            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,rod)
         }
 }

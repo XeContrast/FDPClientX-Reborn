@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.isMoving
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
@@ -24,10 +25,12 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemArmor
 import net.minecraft.network.play.server.*
+import net.minecraft.potion.Potion
 import net.minecraft.world.WorldSettings
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 @ModuleInfo("AntiBot","Prevents KillAura from attacking AntiCheat bots.", category = ModuleCategory.OTHER)
 object  AntiBot : Module() {
@@ -44,6 +47,7 @@ object  AntiBot : Module() {
     private val groundValue = BoolValue("Ground", true).displayable { modeValue.get() == "Custom"}
     private val airValue = BoolValue("Air", false).displayable { modeValue.get() == "Custom"}
     private val invalidGroundValue = BoolValue("InvalidGround", true).displayable { modeValue.get() == "Custom"}
+    private val invalidSpeedValue = BoolValue("InvalidSpeed", true).displayable { modeValue.get() == "Custom"}
     private val swingValue = BoolValue("Swing", false).displayable { modeValue.get() == "Custom"}
     private val healthValue = BoolValue("Health", false).displayable { modeValue.get() == "Custom"}
     private val derpValue = BoolValue("Derp", true).displayable { modeValue.get() == "Custom"}
@@ -119,6 +123,7 @@ object  AntiBot : Module() {
     private val duplicate = mutableListOf<UUID>()
     private val noClip = mutableListOf<Int>()
     private val matrix = mutableListOf<Int>()
+    private val invalidSpeedList = mutableSetOf<Int>()
     private val hasRemovedEntities = mutableListOf<Int>()
     private val regex = Regex("\\w{3,16}")
     private var wasAdded = mc.thePlayer != null
@@ -303,6 +308,9 @@ object  AntiBot : Module() {
             }
         }
 
+        if (invalidSpeedValue.get() && entity.entityId in invalidSpeedList)
+            return true
+
         if (pingValue.get()) {
             if (mc.netHandler.getPlayerInfo(entity.uniqueID)?.responseTime == 0) {
                 return true
@@ -332,9 +340,9 @@ object  AntiBot : Module() {
             return true
         }
 
-        if (matrix7.get() && matrix.contains(entity.entityId)) {
-            return true
-        }
+//        if (matrix7.get() && matrix.contains(entity.entityId)) {
+//            return true
+//        }
 
         if (duplicateCompareModeValue.equals("WhenSpawn") && duplicate.contains(entity.gameProfile.id)) {
             return true
@@ -429,7 +437,7 @@ object  AntiBot : Module() {
         }
     }
 
-    @EventTarget
+    @EventTarget(ignoreCondition = true)
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null || mc.theWorld == null) return
         val packet = event.packet
@@ -441,7 +449,20 @@ object  AntiBot : Module() {
             )
 
             is S14PacketEntity -> {
+                val entity = packet.getEntity(mc.theWorld)
                 if (czechHekValue.get()) wasAdded = false
+                if (invalidSpeedValue.get() && entity is EntityPlayer) {
+                    val deltaX = entity.posX - entity.prevPosX
+                    val deltaZ = entity.posZ - entity.prevPosZ
+                    val speed = sqrt(deltaX * deltaX + deltaZ * deltaZ)
+
+
+                    if (speed in 0.45..0.46 && (!entity.isSprinting || !entity.isMoving ||
+                                entity.getActivePotionEffect(Potion.moveSpeed) == null))
+                    {
+                        invalidSpeedList += entity.entityId
+                    }
+                }
                 processEntityMove(packet.getEntity(mc.theWorld) ?: return, packet.onGround)
             }
 
@@ -513,6 +534,14 @@ object  AntiBot : Module() {
         }
 
         if (matrix7.get() && modeValue.get() == "Custom") {
+            val world = mc.theWorld ?: return
+            val player = mc.thePlayer ?: return
+            world.playerEntities.forEach { entity ->
+                if (entity != player && entity.customNameTag == "") {
+                    world.removeEntity(entity)
+                    if (debugValue.get()) Chat.alert("AntiBot Remove ${entity.gameProfile.name}")
+                }
+            }
 //            val player = mc.thePlayer ?: return
 //            val world = mc.theWorld ?: return
 //            for (entity in world.playerEntities) {
@@ -522,42 +551,42 @@ object  AntiBot : Module() {
 //                    continue
 //                }
 //            }
-            mc.theWorld.playerEntities.forEach { entity ->
-                if (entity.inventory.armorInventory.all { it != null } && entity.heldItem != null) {
-
-                    val player = mc.thePlayer ?: return@forEach
-                    val world = mc.theWorld ?: return@forEach
-                    val playerPosY = player.posY - 2..player.posY + 2
-
-                    if (entity.posY in playerPosY) {
-
-                        val entityRot = entity.rotationYaw
-                        val playerPreRot = player.prevRotationYaw
-
-                        val rotDiff = abs(entityRot - playerPreRot)
-                        val utilDiff = abs(entityRot - RotationUtils.serverRotation?.yaw!!)
-
-                        if ((rotDiff <= 10 || utilDiff <= 10) && !matrix.contains(entity.entityId)) {
-//                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
-//                            world.removeEntityFromWorld(entity.entityId)
-                            matrix.add(entity.entityId)
-                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
-                        }
-
-                        if (entity.isSprinting && entity.moveForward == 0f && !matrix.contains(entity.entityId)) {
-//                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
-//                            world.removeEntityFromWorld(entity.entityId)
-                            matrix.add(entity.entityId)
-                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
-                        }
-                        if (matrix.contains(entity.entityId)) {
-                            if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
-                                if (player.getDistanceToEntity(entity) < 10) matrix.remove(entity.entityId)
-                            }
-                        }
-                    }
-                }
-            }
+//            mc.theWorld.playerEntities.forEach { entity ->
+//                if (entity.inventory.armorInventory.all { it != null } && entity.heldItem != null) {
+//
+//                    val player = mc.thePlayer ?: return@forEach
+//                    val world = mc.theWorld ?: return@forEach
+//                    val playerPosY = player.posY - 2..player.posY + 2
+//
+//                    if (entity.posY in playerPosY) {
+//
+//                        val entityRot = entity.rotationYaw
+//                        val playerPreRot = player.prevRotationYaw
+//
+//                        val rotDiff = abs(entityRot - playerPreRot)
+//                        val utilDiff = abs(entityRot - RotationUtils.serverRotation?.yaw!!)
+//
+//                        if ((rotDiff <= 10 || utilDiff <= 10) && !matrix.contains(entity.entityId)) {
+////                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
+////                            world.removeEntityFromWorld(entity.entityId)
+//                            matrix.add(entity.entityId)
+//                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
+//                        }
+//
+//                        if (entity.isSprinting && entity.moveForward == 0f && !matrix.contains(entity.entityId)) {
+////                            if (debugValue.get()) Chat.alert("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${entity.gameProfile.name} §ffrom spawning.")
+////                            world.removeEntityFromWorld(entity.entityId)
+//                            matrix.add(entity.entityId)
+//                            if (debugValue.get()) Chat.alert("AntiBot + ${entity.gameProfile.name}")
+//                        }
+//                        if (matrix.contains(entity.entityId)) {
+//                            if (packet is S38PacketPlayerListItem && packet.action == S38PacketPlayerListItem.Action.REMOVE_PLAYER) {
+//                                if (player.getDistanceToEntity(entity) < 10) matrix.remove(entity.entityId)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 
@@ -577,6 +606,7 @@ object  AntiBot : Module() {
 
     private fun clearAll() {
         hitted.clear()
+        invalidSpeedList.clear()
         swing.clear()
         ground.clear()
         invalidGround.clear()

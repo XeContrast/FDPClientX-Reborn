@@ -1170,7 +1170,7 @@ object KillAura : Module() {
             }
             "stopmotion" -> {
                 if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                    mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
+                    PlayerUtils.attackTargetEntityWithCurrentItem(entity)
                 }
             }
             "stopsprint" -> mc.thePlayer.serverSprintState = false

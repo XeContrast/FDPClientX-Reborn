@@ -41,6 +41,7 @@ object NoSlow : Module() {
         "WatchDog2",
         "UNCP",
         "NCP",
+        "NewMatrix",
         "AAC",
         "AAC4",
         "AAC5",

@@ -20,6 +20,11 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.DamageSource
 import net.minecraft.util.MathHelper
 import net.minecraftforge.common.ForgeHooks
+import kotlin.math.roundToInt
+
+
+val EntityLivingBase.isMoving: Boolean
+    get() = this.run { moveForward != 0F || moveStrafing != 0F }
 
 object PlayerUtils {
     fun randomUnicode(str: String): String {
@@ -39,7 +44,7 @@ object PlayerUtils {
     }
     fun getIncremental(`val`: Double, inc: Double): Double {
         val one = 1.0 / inc
-        return Math.round(`val` * one) / one
+        return (`val` * one).roundToInt() / one
     }
     fun getAr(player : EntityLivingBase):Double{
         var arPercentage: Double = (player.totalArmorValue / player.maxHealth).toDouble()
@@ -140,7 +145,7 @@ object PlayerUtils {
                     f += f1
                     var flag1 = false
                     val j = EnchantmentHelper.getFireAspectModifier(mc.thePlayer)
-                    if (entity is EntityLivingBase && j > 0 && !entity.isBurning()) {
+                    if (entity is EntityLivingBase && j > 0 && !entity.isBurning) {
                         flag1 = true
                         entity.setFire(1)
                     }
@@ -159,7 +164,7 @@ object PlayerUtils {
                             )
                             mc.thePlayer.motionX *= 0.6
                             mc.thePlayer.motionZ *= 0.6
-                            mc.thePlayer.isSprinting = false
+                            mc.thePlayer.serverSprintState = false
                         }
 
                         if (entity is EntityPlayerMP && entity.velocityChanged) {
@@ -202,15 +207,14 @@ object PlayerUtils {
                             }
                         }
 
-                        if (itemstack != null && entity is EntityLivingBase) {
+                        if (entity is EntityLivingBase) {
                             itemstack.hitEntity(entity, mc.thePlayer)
                             if (itemstack.stackSize <= 0) {
                                 mc.thePlayer.destroyCurrentEquippedItem()
                             }
                         }
-
                         if (entity is EntityLivingBase) {
-                            mc.thePlayer.addStat(StatList.damageDealtStat, Math.round(f * 10.0f))
+                            mc.thePlayer.addStat(StatList.damageDealtStat, (f * 10.0f).roundToInt())
                             if (j > 0) {
                                 entity.setFire(j * 4)
                             }

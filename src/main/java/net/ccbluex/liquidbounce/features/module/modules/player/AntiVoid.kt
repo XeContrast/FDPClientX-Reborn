@@ -138,7 +138,7 @@ object AntiVoid : Module() {
 
         when (modeValue.get().lowercase()) {
             "groundspoof" -> {
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     canSpoof = mc.thePlayer.fallDistance > maxFallDistValue.get()
                 }
             }
@@ -152,7 +152,7 @@ object AntiVoid : Module() {
 
                 val pearl = InventoryUtils.findItem(36, 45, Items.ender_pearl)
                 if (mc.thePlayer.fallDistance > maxFallDistValue.get() && (pearl - 36) > -1) {
-                    if (!voidOnlyValue.get() || checkVoid()) {
+                    if (!voidOnlyValue.get() || checkVoid) {
                         mc.thePlayer.inventory.currentItem = pearl - 36
                     }
                 }
@@ -171,7 +171,7 @@ object AntiVoid : Module() {
                     posY = mc.thePlayer.prevPosY
                     posZ = mc.thePlayer.prevPosZ
                 }
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && !tried) {
                         mc.thePlayer.setPosition(mc.thePlayer.posX, posY, mc.thePlayer.posZ)
                         mc.netHandler.addToSendQueue(
@@ -199,7 +199,7 @@ object AntiVoid : Module() {
             }
 
             "motionflag" -> {
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && !tried) {
                         mc.thePlayer.motionY += motionflagValue.get()
                         mc.thePlayer.fallDistance = 0.0F
@@ -209,7 +209,7 @@ object AntiVoid : Module() {
             }
 
             "packetflag" -> {
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && !tried) {
                         mc.netHandler.addToSendQueue(
                             C03PacketPlayer.C04PacketPlayerPosition(
@@ -237,7 +237,7 @@ object AntiVoid : Module() {
                     posY = mc.thePlayer.prevPosY
                     posZ = mc.thePlayer.prevPosZ
                 }
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && !tried) {
                         mc.thePlayer.setPositionAndUpdate(posX, posY, posZ)
                         mc.thePlayer.fallDistance = 0F
@@ -251,7 +251,7 @@ object AntiVoid : Module() {
 
             "jartex" -> {
                 canSpoof = false
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && mc.thePlayer.posY < lastRecY + 0.01 && mc.thePlayer.motionY <= 0 && !mc.thePlayer.onGround && !flagged) {
                         mc.thePlayer.motionY = 0.0
                         mc.thePlayer.motionZ *= 0.838
@@ -264,7 +264,7 @@ object AntiVoid : Module() {
 
             "oldcubecraft" -> {
                 canSpoof = false
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (mc.thePlayer.fallDistance > maxFallDistValue.get() && mc.thePlayer.posY < lastRecY + 0.01 && mc.thePlayer.motionY <= 0 && !mc.thePlayer.onGround && !flagged) {
                         mc.thePlayer.motionY = 0.0
                         mc.thePlayer.motionZ = 0.0
@@ -288,7 +288,7 @@ object AntiVoid : Module() {
             }
 
             "packet" -> {
-                if (checkVoid()) {
+                if (checkVoid) {
                     canCancel = true
                 }
 
@@ -355,8 +355,14 @@ object AntiVoid : Module() {
         }
     }
 
-    private fun checkVoid(): Boolean {
-        return (FallingPlayer(mc.thePlayer ?: return false).findCollision(60) == null)
+    val checkVoid: Boolean
+    get() {
+        for (i in 0..128) {
+            if (MovementUtils.isOnGround(i.toDouble())) {
+                return false
+            }
+        }
+        return true
     }
 
     @EventTarget
@@ -366,7 +372,7 @@ object AntiVoid : Module() {
             if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
                 || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE
             ) return
-            if (!voidOnlyValue.get() || checkVoid()) {
+            if (!voidOnlyValue.get() || checkVoid) {
                 if (player.fallDistance > maxFallDistValue.get()) {
                     if (player.heldItem?.item is ItemEnderPearl && player.heldItem.item != null) {
                         if (freezeValue.equals("Cancel")) {
@@ -404,7 +410,7 @@ object AntiVoid : Module() {
                 val player = mc.thePlayer ?: return
                 if (mc.currentScreen != null || mc.playerController.currentGameType == WorldSettings.GameType.SPECTATOR
                     || mc.playerController.currentGameType == WorldSettings.GameType.CREATIVE) return
-                if (!voidOnlyValue.get() || checkVoid()) {
+                if (!voidOnlyValue.get() || checkVoid) {
                     if (player.fallDistance > maxFallDistValue.get()) {
                         if (freezeValue.equals("Cancel")) {
                             if (player.heldItem?.item is ItemEnderPearl) {
@@ -466,7 +472,7 @@ object AntiVoid : Module() {
                     3.125f
 
                 if (packet is C03PacketPlayer) {
-                    if (voidOnlyValue.get() && mc.thePlayer.fallDistance >= maxFallDistValue.get() && mc.thePlayer.motionY <= 0 && checkVoid()) {
+                    if (voidOnlyValue.get() && mc.thePlayer.fallDistance >= maxFallDistValue.get() && mc.thePlayer.motionY <= 0 && checkVoid) {
                         packet.y += 11.0
                     }
                     if (!voidOnlyValue.get() && mc.thePlayer.fallDistance >= maxFallDistValue.get()) packet.y += 11.0
