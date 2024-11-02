@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.other.AntiBot.isBot
 import net.ccbluex.liquidbounce.features.module.modules.other.Teams
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
+import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.boss.EntityDragon
@@ -28,6 +29,7 @@ import net.minecraft.entity.passive.EntityBat
 import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -157,5 +159,25 @@ object EntityUtils : MinecraftInstance() {
 
     fun Entity.speed() : Double {
         return hypot(this.posX - this.prevPosX, this.posZ - this.prevPosZ) * 20
+    }
+
+    @JvmStatic
+    fun Entity.getSmoothDistanceToEntity(entityIn: Entity?): Float {
+        val pTicks = Minecraft.getMinecraft().timer.renderPartialTicks
+        val xposme: Double = this.lastTickPosX + (this.posX - this.lastTickPosX) * pTicks.toDouble()
+        val yposme: Double = this.lastTickPosY + (this.posY - this.lastTickPosY) * pTicks.toDouble()
+        val zposme: Double = this.lastTickPosZ + (this.posZ - this.lastTickPosZ) * pTicks.toDouble()
+        var xposent = 0.0
+        var yposent = 0.0
+        var zposent = 0.0
+        if (entityIn != null) {
+            xposent = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * pTicks.toDouble()
+            yposent = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * pTicks.toDouble()
+            zposent = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * pTicks.toDouble()
+        }
+        val f = (xposme - xposent).toFloat()
+        val f1 = (yposme - yposent).toFloat()
+        val f2 = (zposme - zposent).toFloat()
+        return if (entityIn != null) MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble()) else 0.0f
     }
 }

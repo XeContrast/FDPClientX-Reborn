@@ -15,8 +15,12 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.Slight.RenderUtil
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
+import net.ccbluex.liquidbounce.utils.EntityUtils.getSmoothDistanceToEntity
+import net.ccbluex.liquidbounce.utils.animations.Direction
 import net.ccbluex.liquidbounce.utils.animations.impl.DecelerateAnimation
+import net.ccbluex.liquidbounce.utils.animations.impl.SmoothStepAnimation
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.LiquidSlowly
@@ -39,6 +43,7 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.potion.Potion
 import net.minecraft.util.EnumParticleTypes
+import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 import java.io.File
@@ -46,6 +51,7 @@ import java.io.IOException
 import java.util.*
 import javax.sound.sampled.AudioInputStream
 import javax.sound.sampled.AudioSystem
+import kotlin.math.abs
 
 
 @ModuleInfo("CombatVisuals", category = ModuleCategory.VISUAL)
@@ -53,7 +59,7 @@ object CombatVisuals : Module() {
 
     // Mark
     private val colorModeValue = ListValue("Color", arrayOf("Custom", "Rainbow", "Sky", "LiquidSlowly", "Fade", "Mixer", "Health"), "Custom")
-    private val markValue = ListValue("MarkMode", arrayOf("None", "Box", "RoundBox", "Head", "Mark", "Sims","jello", "Zavz"), "Zavz")
+    val markValue = ListValue("MarkMode", arrayOf("None", "Box", "RoundBox", "Head", "Mark", "Sims","Jello", "Zavz","Rectangle","Round"), "Zavz")
     private val saturationValue = FloatValue("Saturation", 1f, 0f, 1f)
     private val brightnessValue = FloatValue("Brightness", 1f, 0f, 1f)
     private val mixerSecondsValue = IntegerValue("Seconds", 2, 1, 10)
@@ -98,6 +104,7 @@ object CombatVisuals : Module() {
     const val DOUBLE_PI = Math.PI * 2
     var start = 0.0
     private var killedAmount = 0
+    private val auraESPAnim = SmoothStepAnimation(650, 1.0)
 
     @EventTarget
     fun onWorld(event: WorldEvent?) {
@@ -162,6 +169,29 @@ object CombatVisuals : Module() {
                 getColor(combat.target).rgb,
                 event
             )
+
+            "rectangle","round" -> {
+                // No null pointer anymore
+                auraESPAnim.setDirection(
+                    if (!(combat.target!!.isDead || mc.thePlayer.getDistanceToEntity(
+                            combat.target
+                        ) > 10)
+                    ) Direction.FORWARDS else Direction.BACKWARDS
+                )
+                if (!auraESPAnim.finished(Direction.BACKWARDS)) {
+                    val dst = mc.thePlayer.getSmoothDistanceToEntity(combat.target)
+                    val vector2f = RenderUtil.targetESPSPos(combat.target, event.partialTicks) ?: return
+                    RenderUtil.drawTargetESP2D(
+                        vector2f.x,
+                        vector2f.y,
+                        getColor(combat.target),
+                        getColor(combat.target),
+                        1.0f - MathHelper.clamp_float(abs((dst - 6.0f)) / 60.0f, 0.0f, 0.75f),
+                        1,
+                        auraESPAnim.output.toFloat()
+                    )
+                }
+            }
 
             "jello" -> {
                 val auraESPAnim = DecelerateAnimation(300, 1.0)

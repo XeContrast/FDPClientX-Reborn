@@ -1,22 +1,33 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.Slight;
 
+import net.ccbluex.liquidbounce.FDPClient;
+import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.EXTFramebufferObject;
+import org.jetbrains.annotations.NotNull;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
+import javax.vecmath.Vector2f;
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector4d;
 import java.awt.*;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.Objects;
 
 public enum RenderUtil {
-
     ;
 
+    static Minecraft mc = Minecraft.getMinecraft();
     public static int reAlpha(int color, float alpha) {
         Color c = new Color(color);
         float r = 0.003921569F * (float) c.getRed();
@@ -186,7 +197,7 @@ public enum RenderUtil {
     public static void arcEllipse(float x, float y, float start, float end, float w, float h, int color) {
         GlStateManager.color(0.0F, 0.0F, 0.0F);
         GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.0F);
-        float temp = 0.0F;
+        float temp;
 
         if (start > end) {
             temp = end;
@@ -238,7 +249,7 @@ public enum RenderUtil {
     public static void arcEllipse(float x, float y, float start, float end, float w, float h, Color color) {
         GlStateManager.color(0.0F, 0.0F, 0.0F);
         GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.0F);
-        float temp = 0.0F;
+        float temp;
 
         if (start > end) {
             temp = end;
@@ -316,6 +327,118 @@ public enum RenderUtil {
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
+    }
+
+    public static double interpolate(double current, double old, double scale) {
+        return old + (current - old) * scale;
+    }
+
+    private static Vector3d project2D(int scaleFactor, double x, double y, double z) {
+        IntBuffer viewport = GLAllocation.createDirectIntBuffer(16);
+        FloatBuffer modelView = GLAllocation.createDirectFloatBuffer(16);
+        FloatBuffer projection = GLAllocation.createDirectFloatBuffer(16);
+        FloatBuffer vector = GLAllocation.createDirectFloatBuffer(4);
+        GL11.glGetFloat(2982, modelView);
+        GL11.glGetFloat(2983, projection);
+        GL11.glGetInteger(2978, viewport);
+        return GLU.gluProject((float)x, (float)y, (float)z, modelView, projection, viewport, vector) ? new Vector3d(vector.get(0) / (float)scaleFactor, ((float) Display.getHeight() - vector.get(1)) / (float)scaleFactor, vector.get(2)) : null;
+    }
+
+    public static Vector2f targetESPSPos(EntityLivingBase entity, float partialTicks) {
+        EntityRenderer entityRenderer = mc.entityRenderer;
+        int scaleFactor = new ScaledResolution(mc).getScaleFactor();
+        Vector3d[] vectors = getVectors(entity, partialTicks);
+        entityRenderer.setupCameraTransform(partialTicks, 0);
+        Vector4d position = null;
+        for (Vector3d vector3d : vectors) {
+            Vector3d vector = vector3d;
+            vector = project2D(scaleFactor, vector.x - mc.getRenderManager().viewerPosX, vector.y - mc.getRenderManager().viewerPosY, vector.z - mc.getRenderManager().viewerPosZ);
+            if (vector == null || !(vector.z >= 0.0) || !(vector.z < 1.0)) continue;
+            if (position == null) {
+                position = new Vector4d(vector.x, vector.y, vector.z, 0.0);
+            }
+            position.x = Math.min(vector.x, position.x);
+            position.y = Math.min(vector.y, position.y);
+            position.z = Math.max(vector.x, position.z);
+            position.w = Math.max(vector.y, position.w);
+        }
+        entityRenderer.setupOverlayRendering();
+        if (position != null) {
+            return new Vector2f((float)position.x, (float)position.y);
+        }
+        return null;
+    }
+
+    @NotNull
+    private static Vector3d [] getVectors(EntityLivingBase entity, float partialTicks) {
+        double x = interpolate(entity.prevPosX, entity.posX, partialTicks);
+        double y = interpolate(entity.prevPosY, entity.posY, partialTicks);
+        double z = interpolate(entity.prevPosZ, entity.posZ, partialTicks);
+        double height = entity.height / (entity.isChild() ? 1.75f : 1.0f) / 2.0f;
+        AxisAlignedBB aabb = new AxisAlignedBB(x - 0.0, y, z - 0.0, x + 0.0, y + height, z + 0.0);
+        return new Vector3d[]{new Vector3d(aabb.minX, aabb.minY, aabb.minZ), new Vector3d(aabb.minX, aabb.maxY, aabb.minZ), new Vector3d(aabb.maxX, aabb.minY, aabb.minZ), new Vector3d(aabb.maxX, aabb.maxY, aabb.minZ), new Vector3d(aabb.minX, aabb.minY, aabb.maxZ), new Vector3d(aabb.minX, aabb.maxY, aabb.maxZ), new Vector3d(aabb.maxX, aabb.minY, aabb.maxZ), new Vector3d(aabb.maxX, aabb.maxY, aabb.maxZ)};
+    }
+
+    private static ResourceLocation getESPImage() {
+        switch (Objects.requireNonNull(FDPClient.moduleManager.getModule(CombatVisuals.class)).getMarkValue().get()) {
+            case "Round":
+                return new ResourceLocation("fdpclient/round.png");
+            case "Rectangle":
+                return new ResourceLocation("fdpclient/rectangle.png");
+        }
+        return null;
+    }
+
+    public static void customRotatedObject2D(float oXpos, float oYpos, float oWidth, float oHeight, float rotate) {
+        GL11.glTranslated(oXpos + oWidth / 2.0f, oYpos + oHeight / 2.0f, 0.0);
+        GL11.glRotated(rotate, 0.0, 0.0, 1.0);
+        GL11.glTranslated(-oXpos - oWidth / 2.0f, -oYpos - oHeight / 2.0f, 0.0);
+    }
+
+    public static void drawTargetESP2D(float x, float y, Color color, Color color2, float scale, int index, float alpha) {
+        ResourceLocation resource = getESPImage();
+        if (resource == null) {
+            return;
+        }
+
+        long millis = System.currentTimeMillis() + (long) index * 400L;
+        double angle = MathHelper.clamp_double((Math.sin((double) millis / 150.0) + 1.0) / 2.0 * 30.0, 0.0, 30.0);
+        double scaled = MathHelper.clamp_double((Math.sin((double) millis / 500.0) + 1.0) / 2.0, 0.8, 1.0);
+        double rotate = MathHelper.clamp_double((Math.sin((double) millis / 1000.0) + 1.0) / 2.0 * 360.0, 0.0, 360.0);
+        rotate = (double) 45 - (angle - 15.0) + rotate;
+        float size = 128.0f * scale * (float) scaled;
+        float x2 = (x -= size / 2.0f) + size;
+        float y2 = (y -= size / 2.0f) + size;
+        GlStateManager.pushMatrix();
+        RenderUtil.customRotatedObject2D(x, y, size, size, (float) rotate);
+        GL11.glDisable(3008);
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.shadeModel(7425);
+        GlStateManager.tryBlendFuncSeparate(770, 1, 1, 0);
+        drawESPImage(resource, x, y, x2, y2, color, color2, alpha);
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.resetColor();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.depthMask(true);
+        GL11.glEnable(3008);
+        GlStateManager.popMatrix();
+    }
+
+    private static void drawESPImage(ResourceLocation resource, double x, double y, double x2, double y2, Color c, Color c2, float alpha) {
+        mc.getTextureManager().bindTexture(resource);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer bufferbuilder = tessellator.getWorldRenderer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        bufferbuilder.pos(x, y2, 0.0).tex(0.0, 1.0).color(c.getRed(), c.getGreen(), c.getBlue(), (int) (alpha * 255)).endVertex();
+        bufferbuilder.pos(x2, y2, 0.0).tex(1.0, 1.0).color(c2.getRed(), c2.getGreen(), c2.getBlue(), (int) (alpha * 255)).endVertex();
+        bufferbuilder.pos(x2, y, 0.0).tex(1.0, 0.0).color(c.getRed(), c.getGreen(), c.getBlue(), (int) (alpha * 255)).endVertex();
+        bufferbuilder.pos(x, y, 0.0).tex(0.0, 0.0).color(c2.getRed(), c2.getGreen(), c2.getBlue(), (int) (alpha * 255)).endVertex();
+        GlStateManager.shadeModel(7425);
+        GlStateManager.depthMask(false);
+        tessellator.draw();
+        GlStateManager.depthMask(true);
+        GlStateManager.shadeModel(7424);
     }
 
 }
