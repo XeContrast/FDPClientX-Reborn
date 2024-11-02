@@ -306,7 +306,7 @@ object Velocity : Module() {
     //GrimVertical
     private var attack = false
     private var motionXZ = 0.0
-    var lastSprinting = false
+    private var lastSprinting = false
 
     //Matrix
     private var flag = false
@@ -553,7 +553,7 @@ object Velocity : Module() {
                             }
                         }
 
-                        "intavereduce", "attackreduce", "grimvertical" -> hasReceivedVelocity = true
+                        "intavereduce", "attackreduce", "grimvertical","kkcraft" -> hasReceivedVelocity = true
 
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
@@ -838,9 +838,17 @@ object Velocity : Module() {
                     }
 
                     "kkcraft" -> {
-                        if (player.hurtTime in 1..7 && player.isSwingInProgress) {
-                            player.motionX *= reduceAmount.get()
-                            player.motionZ *= reduceAmount.get()
+                        if (hasReceivedVelocity) {
+                            if (player.hurtTime in 1..8) {
+                                player.motionX *= reduceAmount.get()
+                                player.motionZ *= reduceAmount.get()
+                            }
+                            if (player.hurtTime == 2 && player.onGround) {
+                                player.jump()
+                                player.motionX *= 0.3
+                                player.motionZ *= 0.3
+                                hasReceivedVelocity = false
+                            }
                         }
                     }
 

@@ -40,6 +40,8 @@ class FamousCheck : Module() {
             HackerData("RN_","Random_Name"),
             HackerData("DouSha","豆沙"),
             HackerData("Zekruin","蒸菜icu"),
+            HackerData("nerock","河南猪"),
+            HackerData("weipu","Weipu42"),
 
             HackerData("Yao_Mao"),
             HackerData("Bad_Smoke"),
