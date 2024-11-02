@@ -838,7 +838,7 @@ object Velocity : Module() {
                     }
 
                     "kkcraft" -> {
-                        if (mc.thePlayer.hurtTime < 8 && player.isSwingInProgress) {
+                        if (player.hurtTime in 1..7 && player.isSwingInProgress) {
                             player.motionX *= reduceAmount.get()
                             player.motionZ *= reduceAmount.get()
                         }
