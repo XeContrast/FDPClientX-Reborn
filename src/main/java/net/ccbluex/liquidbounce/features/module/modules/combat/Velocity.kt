@@ -48,7 +48,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.sqrt
-
+//
 @ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
 object Velocity : Module() {
     private val mainMode =
