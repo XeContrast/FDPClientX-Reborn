@@ -14,9 +14,10 @@ open class ListValue(name: String, val values: Array<String>, value: String) : V
     @JvmField
     var isShown = false
 
-    var anim=0;
+    var anim=0
+
     @JvmField
-    var open=true;
+    var open=true
 
     init {
         this.value = value

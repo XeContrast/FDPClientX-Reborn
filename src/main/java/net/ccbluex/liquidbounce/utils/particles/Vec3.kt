@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.utils.particles
 
+import net.minecraft.util.MathHelper
+
 class Vec3(x: Double, y: Double, z: Double) {
     /**
      * X coordinate of Vec3D
@@ -40,6 +42,10 @@ class Vec3(x: Double, y: Double, z: Double) {
         this.xCoord = x
         this.yCoord = y
         this.zCoord = z
+    }
+
+    fun lengthVector() : Double {
+        return MathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord).toDouble()
     }
 
     override fun toString(): String {

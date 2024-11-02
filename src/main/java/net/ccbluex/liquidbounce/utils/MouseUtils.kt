@@ -34,6 +34,8 @@ object MouseUtils {
         buttons.put(mouseButton, (if (held) 1 else 0).toByte())
         ObfuscationReflectionHelper.setPrivateValue<Mouse?, ByteBuffer>(Mouse::class.java, null, buttons, "buttons")
     }
+
+    @JvmStatic
     fun sendClickBlockToController(leftClick: Boolean) {
         if (!leftClick) {
             mc.leftClickCounter = 0

@@ -764,6 +764,8 @@ class RotationUtils : MinecraftInstance(), Listenable {
                 currentRotation.pitch + if (pitchDifference > turnSpeed) turnSpeed else pitchDifference.coerceAtLeast(-turnSpeed)
             )
         }
+
+        @JvmStatic
         fun limitAngleChange(
             currentRotation: Rotation,
             targetRotation: Rotation?,
@@ -783,6 +785,8 @@ class RotationUtils : MinecraftInstance(), Listenable {
                 ))
             )
         }
+
+
 
         /**
          * Calculate difference between two angle points

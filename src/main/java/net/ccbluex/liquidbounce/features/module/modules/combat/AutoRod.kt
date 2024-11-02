@@ -92,7 +92,7 @@ object AutoRod : Module() {
                     }
                 }
 
-                if (isSelected(facingEntity!!, true)) {
+                if (isSelected(facingEntity ?: return, true)) {
                     // Checks how many enemy is nearby, if <= then should rod.
                     if (nearbyEnemies?.size!! <= enemiesNearby.get()) {
 

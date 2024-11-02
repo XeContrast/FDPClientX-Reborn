@@ -45,6 +45,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return false
     }
 
+    @JvmStatic
     fun findAutoBlockBlock(): Int {
         for (i in 36..44) {
             val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack

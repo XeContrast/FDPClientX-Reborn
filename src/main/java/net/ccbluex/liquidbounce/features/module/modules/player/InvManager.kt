@@ -95,7 +95,8 @@ object InvManager : Module() {
         "Gapple",
         "Pearl",
         "Potion",
-        "Missile"
+        "Missile",
+        "Rod"
     )
     private val maxmiss = IntegerValue("MaxMissile", 128, 0, 2304)
     private val maxblock = IntegerValue("MaxBlock", 128, 0, 2304)
@@ -577,6 +578,18 @@ object InvManager : Module() {
 
                     if (item is ItemEnderPearl && !type(index).equals("Pearl", ignoreCase = true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemEnderPearl
+
+                        return if (replaceCurr) index else null
+                    }
+                }
+            }
+
+            "rod" -> {
+                mc.thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
+                    val item = stack?.item
+
+                    if (item is ItemFishingRod && !type(index).equals("Rod", ignoreCase = true)) {
+                        val replaceCurr = slotStack == null || slotStack.item !is ItemFishingRod
 
                         return if (replaceCurr) index else null
                     }

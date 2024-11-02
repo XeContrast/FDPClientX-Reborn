@@ -82,7 +82,7 @@ object AutoProjectile : Module() {
                     facingEntity = raycastEntity(range.get().toDouble()) { isSelected(it, true) }
                 }
 
-                if (facingEntity?.let { isSelected(it, true) } == true) {
+                if (isSelected(facingEntity ?: return, true)) {
                     throwProjectile = true
                 }
             } else {

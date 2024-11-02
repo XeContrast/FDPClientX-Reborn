@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.script.api.global.Chat
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.utils.RotationUtils
@@ -48,6 +49,7 @@ object  AntiBot : Module() {
     private val airValue = BoolValue("Air", false).displayable { modeValue.get() == "Custom"}
     private val invalidGroundValue = BoolValue("InvalidGround", true).displayable { modeValue.get() == "Custom"}
     private val invalidSpeedValue = BoolValue("InvalidSpeed", true).displayable { modeValue.get() == "Custom"}
+    private val properties = BoolValue("Properties", false).displayable { modeValue.get() == "Custom"}
     private val swingValue = BoolValue("Swing", false).displayable { modeValue.get() == "Custom"}
     private val healthValue = BoolValue("Health", false).displayable { modeValue.get() == "Custom"}
     private val derpValue = BoolValue("Derp", true).displayable { modeValue.get() == "Custom"}
@@ -118,6 +120,7 @@ object  AntiBot : Module() {
     private val hitted = mutableListOf<Int>()
     private val spawnInCombat = mutableListOf<Int>()
     private val notAlwaysInRadius = mutableListOf<Int>()
+    private val propertiesList = mutableSetOf<Int>()
     private val lastDamage = mutableMapOf<Int, Int>()
     private val lastDamageVl = mutableMapOf<Int, Float>()
     private val duplicate = mutableListOf<UUID>()
@@ -288,6 +291,9 @@ object  AntiBot : Module() {
             return true
         }
 
+        if (properties.get() && entity.entityId !in propertiesList)
+            return true
+
         if (entityIDValue.get() && (entity.entityId >= 1000000000 || entity.entityId <= -1)) {
             return true
         }
@@ -448,6 +454,10 @@ object  AntiBot : Module() {
                 packet.onGround
             )
 
+            is S20PacketEntityProperties -> {
+                propertiesList += packet.entityId
+            }
+
             is S14PacketEntity -> {
                 val entity = packet.getEntity(mc.theWorld)
                 if (czechHekValue.get()) wasAdded = false
@@ -506,7 +516,12 @@ object  AntiBot : Module() {
                 }
             }
 
-            is S13PacketDestroyEntities -> hasRemovedEntities.addAll(packet.entityIDs.toTypedArray())
+            is S13PacketDestroyEntities -> {
+                hasRemovedEntities.addAll(packet.entityIDs.toTypedArray())
+                for (entityID in packet.entityIDs) {
+                    propertiesList -= entityID
+                }
+            }
         }
 
         if (packet is S19PacketEntityStatus && packet.opCode.toInt() == 2 || packet is S0BPacketAnimation && packet.animationType == 1) {
@@ -619,6 +634,7 @@ object  AntiBot : Module() {
         noClip.clear()
         hasRemovedEntities.clear()
         matrix.clear()
+        propertiesList.clear()
     }
 
 }

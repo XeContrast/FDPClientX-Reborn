@@ -25,10 +25,12 @@ import net.ccbluex.liquidbounce.utils.PacketUtils.realMotionY
 import net.ccbluex.liquidbounce.utils.PacketUtils.realMotionZ
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
+import net.ccbluex.liquidbounce.utils.particles.Vec3
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.toDegrees
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.*
@@ -75,7 +77,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Matrix" }
     private val aacMode = ListValue(
         "AACMode",
-        arrayOf("AAC4Reduce", "AAC5Reduce", "AAC5.2.0","AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
+        arrayOf("AAC4Reduce", "AAC5Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
         "AAC4Reduce"
     ).displayable { mainMode.get() == "AAC" }
     private val reverseMode = ListValue(
@@ -85,7 +87,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce","IntaveReduce", "Karhu", "Delay", "Phase"),
+        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase", "GrimVertical","KKCraft"),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -93,7 +95,7 @@ object Velocity : Module() {
         mainMode.get() in arrayOf(
             "AAC",
             "Vanilla"
-        ) && (vanillaMode.get() == "Simple" || aacMode.get() == "AAC5Reduce")
+        ) && (vanillaMode.get() == "Simple")
     }
     private val vertical = FloatValue("Vertical", 0F, -1F, 1F).displayable {
         mainMode.get() in arrayOf(
@@ -176,9 +178,9 @@ object Velocity : Module() {
     private val reduceAmount = FloatValue(
         "ReduceAmount",
         0.8f,
-        0.3f,
+        0.0f,
         1f
-    ).displayable { mainMode.get() == "Other" && otherMode.get() == "AttackReduce" }
+    ).displayable { mainMode.get() == "Other" && (otherMode.get() == "AttackReduce" || otherMode.get() == "KKCraft") }
 
     private val jumpCooldownMode = ListValue(
         "JumpCooldownMode",
@@ -232,15 +234,65 @@ object Velocity : Module() {
         "Normal"
     ).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
 
-    private val reduceFactor = FloatValue("Factor", 0.6f, 0.6f,1f).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
-    private val hurtTimeMode = ListValue("HurtTimeMode",arrayOf("Single","Range"),"Single").displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
-    private val hurtTime = IntegerValue("HurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
-    private val minHurtTime = IntegerValue("MinHurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
-    private val maxHurtTime = IntegerValue("MaxHurtTime", 9, 1,10).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val reduceFactor = FloatValue(
+        "Factor",
+        0.6f,
+        0.0f,
+        1f
+    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val hurtTimeMode = ListValue(
+        "HurtTimeMode",
+        arrayOf("Single", "Range"),
+        "Single"
+    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    private val hurtTime = IntegerValue(
+        "HurtTime",
+        9,
+        1,
+        10
+    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Single" }
+    private val minHurtTime = IntegerValue(
+        "MinHurtTime",
+        9,
+        1,
+        10
+    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
+    private val maxHurtTime = IntegerValue(
+        "MaxHurtTime",
+        9,
+        1,
+        10
+    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
+
+    private val smartVelo =
+        BoolValue("SmartVelo", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val sendc0fValue =
+        BoolValue("C0F", false).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val C0fpacketamount = IntegerValue(
+        "C0FPacketAmount",
+        0,
+        1,
+        20
+    ).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" && sendc0fValue.get() }
+    private val C02packetamount = IntegerValue(
+        "C02PacketAmount",
+        1,
+        1,
+        20
+    ).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val sprintSpoof =
+        BoolValue("SpoofSprint", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val playerJump =
+        BoolValue("PlayerJump", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val spoofJump =
+        BoolValue("SpoofJump", false).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    private val callEvent =
+        BoolValue("CallEvent", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
 
     //
     private var hasReceivedVelocity = false
     private val velocityTimer = MSTimer()
+    private var velocityInput = false
 
     //SendC0f
     private var tran = false
@@ -250,6 +302,11 @@ object Velocity : Module() {
     private var resetPersec = 8
     private var grimTCancel = 0
     private var updates = 0
+
+    //GrimVertical
+    private var attack = false
+    private var motionXZ = 0.0
+    var lastSprinting = false
 
     //Matrix
     private var flag = false
@@ -496,7 +553,7 @@ object Velocity : Module() {
                             }
                         }
 
-                        "intavereduce","attackreduce" -> hasReceivedVelocity = true
+                        "intavereduce", "attackreduce", "grimvertical" -> hasReceivedVelocity = true
 
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
@@ -621,6 +678,87 @@ object Velocity : Module() {
                             }
                         }
                     }
+
+                    "grimvertical" -> {
+                        if (packet is S12PacketEntityVelocity) {
+                            if (packet.getMotionX() == 0 && packet.getMotionZ() == 0 || mc.thePlayer == null || (mc.theWorld?.getEntityByID(
+                                    packet.entityID
+                                ) ?: return) != mc.thePlayer
+                            ) { // ignore horizonal velocity
+                                return
+                            }
+                            if (mc.thePlayer!!.onGround && mc.thePlayer.hurtTime > 0) {
+                                if (playerJump.get()) {
+                                    mc.thePlayer.jump()
+                                }
+                            }
+                            velocityInput = true
+                            motionXZ = getMotionNoXZ(packet)
+
+                            if (FDPClient.moduleManager[KillAura::class.java]!!.state && FDPClient.moduleManager[KillAura::class.java]!!.currentTarget != null && mc.thePlayer!!.getDistanceToEntityBox(
+                                    FDPClient.moduleManager[KillAura::class.java]!!.currentTarget!!
+                                ) <= 3.00
+                            ) {
+                                if (mc.thePlayer!!.isSprinting && mc.thePlayer!!.serverSprintState && MovementUtils.isMoving) {
+                                    repeat(C0fpacketamount.get()) {
+                                        if (sendc0fValue.get()) {
+                                            mc.netHandler.addToSendQueue(
+                                                C0FPacketConfirmTransaction(
+                                                    nextInt(
+                                                        102,
+                                                        1000024123
+                                                    ), nextInt(102, 1000024123).toShort(), true
+                                                )
+                                            )
+                                        }
+                                    }
+                                    attack = true
+                                } else {
+                                    if (sprintSpoof.get()) {
+                                        repeat(C0fpacketamount.get()) {
+                                            if (sendc0fValue.get()) {
+                                                mc.netHandler.addToSendQueue(
+                                                    C0FPacketConfirmTransaction(
+                                                        nextInt(
+                                                            102,
+                                                            1000024123
+                                                        ), nextInt(102, 1000024123).toShort(), true
+                                                    )
+                                                )
+                                            }
+                                        }
+                                        mc.netHandler.addToSendQueue(
+                                            C0BPacketEntityAction(
+                                                mc.thePlayer,
+                                                C0BPacketEntityAction.Action.START_SPRINTING
+                                            )
+                                        )
+                                        mc.thePlayer.serverSprintState = false
+                                        attack = true
+                                        mc.netHandler.addToSendQueue(
+                                            C0BPacketEntityAction(
+                                                mc.thePlayer,
+                                                C0BPacketEntityAction.Action.STOP_SPRINTING
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        if (packet is C0BPacketEntityAction && velocityInput && sprintSpoof.get()) {
+                            if (packet.action == C0BPacketEntityAction.Action.START_SPRINTING) {
+                                if (this.lastSprinting) {
+                                    FDPClient.eventManager.callEvent(event)
+                                }
+                                this.lastSprinting = true
+                            } else if (packet.action == C0BPacketEntityAction.Action.STOP_SPRINTING) {
+                                if (!this.lastSprinting) {
+                                    FDPClient.eventManager.callEvent(event)
+                                }
+                                this.lastSprinting = false
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -652,7 +790,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    private fun onBlockBB(event: BlockBBEvent) {
+    fun onBlockBB(event: BlockBBEvent) {
         if (mainMode.get() == "Other" && otherMode.get() == "Karhu") {
             if (event.block is BlockAir && mc.thePlayer.hurtTime > 0) {
                 val x = event.x
@@ -671,7 +809,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    private fun onTick(event: TickEvent) {
+    fun onTick(event: TickEvent) {
         if (mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07") {
             if (hasReceivedVelocity || alwaysValue.get()) { // packet processed event pls
                 val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
@@ -683,7 +821,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    private fun onAttack(event: AttackEvent) {
+    fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
         when (mainMode.get().lowercase()) {
             "other" -> {
@@ -696,6 +834,13 @@ object Velocity : Module() {
                             } else {
                                 hasReceivedVelocity = false
                             }
+                        }
+                    }
+
+                    "kkcraft" -> {
+                        if (mc.thePlayer.hurtTime < 8 && player.isSwingInProgress) {
+                            player.motionX *= reduceAmount.get()
+                            player.motionZ *= reduceAmount.get()
                         }
                     }
 
@@ -715,7 +860,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    private fun onUpdate(event: UpdateEvent) {
+    fun onUpdate(event: UpdateEvent) {
         val player = mc.thePlayer ?: return
 
         if (player.isInWater || player.isInLava || player.isInWeb || player.isDead)
@@ -747,6 +892,7 @@ object Velocity : Module() {
                             blink = false
                         }
                     }
+
                     "intavereduce" -> {
                         if (!hasReceivedVelocity) return
                         intaveTick++
@@ -758,6 +904,32 @@ object Velocity : Module() {
                                 intaveTick = 0
                             }
                             hasReceivedVelocity = false
+                        }
+                    }
+
+                    "grimvertical" -> {
+                        if (attack) {
+                            repeat(C02packetamount.get()) {
+                                FDPClient.moduleManager[KillAura::class.java]!!.currentTarget?.let { it1 ->
+                                    attackEntity(
+                                        it1
+                                    )
+                                }
+                            }
+
+                            if (smartVelo.get()) {
+                                mc.thePlayer!!.motionX *= motionXZ
+                                mc.thePlayer!!.motionZ *= motionXZ
+                            } else {
+                                mc.thePlayer!!.motionX *= 0.077760000
+                                mc.thePlayer!!.motionZ *= 0.077760000
+                            }
+                            velocityInput = false
+                            attack = false
+                        } else if (mc.thePlayer.hurtTime == 6 && mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
+                            if (spoofJump.get()) {
+                                mc.thePlayer.movementInput.jump = true
+                            }
                         }
                     }
                 }
@@ -839,10 +1011,14 @@ object Velocity : Module() {
             "aac" -> {
                 when (aacMode.get().lowercase()) {
                     "aac5reduce" -> {
-                        if (hasReceivedVelocity && velocityTimer.hasTimePassed(120L)) {
-                            player.motionX *= horizontal.get()
-                            player.motionZ *= horizontal.get()
-                            //mc.thePlayer.motionY *= vertical ?
+                        if (mc.thePlayer.hurtTime > 1 && hasReceivedVelocity) {
+                            mc.thePlayer.motionX *= 0.81
+                            mc.thePlayer.motionZ *= 0.81
+                        }
+                        if (hasReceivedVelocity && (mc.thePlayer.hurtTime < 5 || mc.thePlayer.onGround) && velocityTimer.hasTimePassed(
+                                120L
+                            )
+                        ) {
                             hasReceivedVelocity = false
                         }
                     }
@@ -958,7 +1134,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    private fun onJump(event: JumpEvent) {
+    fun onJump(event: JumpEvent) {
         val thePlayer = mc.thePlayer ?: return
 
         if (mainMode.get() == "AAC") {
@@ -987,6 +1163,7 @@ object Velocity : Module() {
         templateX = 0
         templateY = 0
         templateZ = 0
+        motionXZ = 0.01
     }
 
     @EventTarget
@@ -1001,6 +1178,7 @@ object Velocity : Module() {
         templateY = 0
         templateZ = 0
         jump = false
+        velocityInput = false
         clearPackets()
     }
 
@@ -1156,6 +1334,44 @@ object Velocity : Module() {
         Timer().schedule(delayTime) {
             PacketUtils.handlePacket(packets.poll() as Packet<INetHandlerPlayClient?>)
         }
+    }
+
+    private fun runSwing() {
+        mc.netHandler.addToSendQueue(C0APacketAnimation())
+    }
+
+    private fun attackEntity(entity: EntityLivingBase) {
+        val event = AttackEvent(entity)
+        if (callEvent.get()) {
+            FDPClient.eventManager.callEvent(event)
+            if (event.isCancelled) return
+        }
+        runSwing()
+        mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+    }
+
+    private fun getMotionNoXZ(packetEntityVelocity: S12PacketEntityVelocity): Double {
+        val strength: Double = Vec3(
+            packetEntityVelocity.getMotionX().toDouble(),
+            packetEntityVelocity.getMotionY().toDouble(),
+            packetEntityVelocity.getMotionZ().toDouble()
+        ).lengthVector()
+        val motionNoXZ: Double = if (strength >= 20000.0) {
+            if (mc.thePlayer.onGround) {
+                0.06425
+            } else {
+                0.075
+            }
+        } else if (strength >= 5000.0) {
+            if (mc.thePlayer.onGround) {
+                0.02625
+            } else {
+                0.0552
+            }
+        } else {
+            0.0175
+        }
+        return motionNoXZ
     }
 
     override val tag: String

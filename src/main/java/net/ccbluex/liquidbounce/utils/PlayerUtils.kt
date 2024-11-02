@@ -25,6 +25,8 @@ import kotlin.math.roundToInt
 
 val EntityLivingBase.isMoving: Boolean
     get() = this.run { moveForward != 0F || moveStrafing != 0F }
+val Entity.rotation: Rotation
+    get() = Rotation(rotationYaw, rotationPitch)
 
 object PlayerUtils {
     fun randomUnicode(str: String): String {

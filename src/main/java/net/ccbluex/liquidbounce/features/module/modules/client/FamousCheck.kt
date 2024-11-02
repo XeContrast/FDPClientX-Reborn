@@ -24,9 +24,11 @@ class FamousCheck : Module() {
         val hackerList = listOf(
             //Hacker 包含词
             HackerData("A_Equal","A_Equal"),
+            HackerData("Equal","A_Equal"),
             HackerData("AKQ33","A_Equal"),
             HackerData("Holiday_","Holiday"),
-            HackerData("Xe_","Xe及他的儿子"),
+            HackerData("MouCha","Holiday"),
+            HackerData("Xe_","Xebook1(Owner)"),
             HackerData("longyan","LongYan"),
             HackerData("longsir","WanFan"),
             HackerData("RealLonbg","WanFan"),
@@ -36,7 +38,12 @@ class FamousCheck : Module() {
             HackerData("Rem_","沭桦Next"),
             HackerData("ImSad_","BoySir_"),
             HackerData("RN_","Random_Name"),
+            HackerData("DouSha","豆沙"),
+            HackerData("Zekruin","蒸菜icu"),
 
+            HackerData("Yao_Mao"),
+            HackerData("Bad_Smoke"),
+            HackerData("tea_tea"),
             )
 
         world.playerEntities.forEach { other ->
@@ -49,6 +56,28 @@ class FamousCheck : Module() {
                         when (sendMode.get().lowercase()) {
                             "sendchat" -> player.sendChatMessage("发现Hacker:${name}(${checker.message})")
                             "alert" -> Chat.alert("发现Hacker:${name}(${checker.message})")
+                        }
+                    }
+                }
+
+                val playerInfoMap = mc.netHandler?.playerInfoMap ?: return
+
+                val playerInfos = synchronized(playerInfoMap) {
+                    playerInfoMap.mapNotNull { playerInfo ->
+                        playerInfo?.gameProfile?.name?.let { playerName ->
+                            playerName to playerInfo.responseTime
+                        }
+                    }
+                }
+
+                playerInfos.forEach { (player, _) ->
+                    hackerList.forEach { checker ->
+                        if (checker.check(player) && !sentMessages.contains(player) && player != mc.thePlayer.name) {
+                            sentMessages.add(player)
+                            when (sendMode.get().lowercase()) {
+                                "sendchat" -> mc.thePlayer.sendChatMessage("发现Hacker:${player}(${checker.message})")
+                                "alert" -> Chat.alert("发现Hacker:${player}(${checker.message})")
+                            }
                         }
                     }
                 }
@@ -88,7 +117,7 @@ class FamousCheck : Module() {
     }
 
     @EventTarget
-    private fun onWorld(event: WorldEvent) {
+    fun onWorld(event: WorldEvent) {
         sentMessages.clear()
     }
 }

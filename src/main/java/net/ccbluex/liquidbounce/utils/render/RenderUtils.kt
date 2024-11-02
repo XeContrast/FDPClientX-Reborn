@@ -2049,6 +2049,7 @@ object RenderUtils : MinecraftInstance() {
         tessellator.draw()
     }
 
+    @JvmStatic
     fun drawBlockBox(blockPos: BlockPos, color: Color, outline: Boolean) {
         val renderManager = mc.renderManager
         val timer = mc.timer

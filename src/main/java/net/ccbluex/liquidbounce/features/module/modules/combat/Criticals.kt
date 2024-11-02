@@ -128,15 +128,6 @@ object Criticals : Module() {
         if (packet is S08PacketPlayerPosLook) {
             flagTimer.reset()
             antiDesync = false
-            if (debugValue.get()) {
-                alert("FLAG")
-            }
-            /*
-            if (s08FlagValue.get()) {
-                jState = 0
-            }
-
-             */
         }
 
         if (packet is C03PacketPlayer && (MovementUtils.isMoving || syncTimer.hasTimePassed(1000L) || msTimer.hasTimePassed(
