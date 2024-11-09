@@ -25,6 +25,10 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.getEyeVec3
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBlockBox
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
+import net.ccbluex.liquidbounce.utils.render.RenderUtils.resetCaps
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
@@ -37,16 +41,21 @@ import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
+import net.minecraft.util.Vec3i
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.*
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
-@ModuleInfo(name = "Breaker", category = ModuleCategory.PLAYER)
-object Breaker : Module() {
+@ModuleInfo(name = "Fucker", category = ModuleCategory.PLAYER)
+object Fucker : Module() {
 
     /**
      * SETTINGS
@@ -74,8 +83,9 @@ object Breaker : Module() {
     private val coolDownValue = IntegerValue("Cooldown-Seconds", 15, 0, 60)
     private val toggleResetCDValue = BoolValue("ResetCoolDownWhenToggled", false)
     private val resetOnWorldValue = BoolValue("ResetOnWorldChange", false).displayable { ignoreFirstBlockValue.get() }
-    private val renderValue = ListValue("Render-Mode", arrayOf("Box", "Outline", "2D", "None"), "Box")
-    private val renderBed = BoolValue("RenderBed", true)
+
+    private val ignoreOwnBed = BoolValue("IgnoreOwnBed", true)
+    private val ownBedDist = IntegerValue("MaxBedDistance", 16, 1,32)
 
     /**
      * VALUES
@@ -95,6 +105,8 @@ object Breaker : Module() {
     private var damage = 0F
 
     private var lastWorld: WorldClient? = null
+
+    private var spawnLocation: Vec3? = null
 
     //Bed ESP
     private val searchTimer = MSTimer()
@@ -207,6 +219,10 @@ object Breaker : Module() {
 
             var currentPos = pos ?: return
             var rotations = RotationUtils.faceBlock(currentPos) ?: return
+
+            if (ignoreOwnBed.get() && isBedNearSpawn(currentPos)) {
+                return
+            }
 
             // Surroundings
             var surroundings = false
@@ -348,28 +364,74 @@ object Breaker : Module() {
     }
 
     @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (packet is S08PacketPlayerPosLook) {
+            val pos = BlockPos(packet.x, packet.y, packet.z)
+
+            spawnLocation = Vec3(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+        }
+    }
+
+    /**
+     * Check if the bed at the given position is near the spawn location
+     */
+    private fun isBedNearSpawn(currentPos: BlockPos): Boolean {
+        if (getBlock(currentPos) != Block.getBlockById(blockValue.get()) || spawnLocation == null) {
+            return false
+        }
+
+        val spawnPos = BlockPos(spawnLocation)
+        return currentPos.distanceSq(Vec3i(spawnPos.x, spawnPos.y, spawnPos.z)) < ownBedDist.get().toDouble().pow(2).roundToInt()
+    }
+
+    @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        val blockPoss = pos!!
-        val x = blockPoss.x - mc.renderManager.renderPosX
-        val y = blockPoss.y - mc.renderManager.renderPosY
-        val z = blockPoss.z - mc.renderManager.renderPosZ
-        if (renderBed.get()) {
-            synchronized(posList) {
-                for (blockPos in posList) {
-                    val bedx = blockPos.x - mc.renderManager.renderPosX
-                    val bedy = blockPos.y - mc.renderManager.renderPosY
-                    val bedz = blockPos.z - mc.renderManager.renderPosZ
-                    RenderUtils.renderBox(bedx + 0.5, bedy - 0.5, bedz + 0.5, 1.0F, 1.0F, color)
-                    GlStateManager.resetColor()
-                }
-            }
-        }
-        when (renderValue.get().lowercase()) {
-            "box" -> RenderUtils.drawBlockBox(pos ?: return, if (!coolDownTimer.hasTimePassed(coolDownValue.get().toLong() * 1000L)) Color.DARK_GRAY else Color.RED, false)
-            "outline" -> RenderUtils.drawBlockBox(pos ?: return, if (!coolDownTimer.hasTimePassed(coolDownValue.get().toLong() * 1000L)) Color.DARK_GRAY else Color.RED, true)
-            "2d" -> RenderUtils.draw2D(pos ?: return, if (!coolDownTimer.hasTimePassed(coolDownValue.get().toLong() * 1000L)) Color.DARK_GRAY.rgb else Color.RED.rgb, Color.BLACK.rgb)
-            else -> RenderUtils.drawBlockBox(pos ?: return, if (!coolDownTimer.hasTimePassed(coolDownValue.get().toLong() * 1000L)) Color.DARK_GRAY else Color.RED, false)
-        }
+        val pos = pos ?: return
+        val player = mc.thePlayer ?: return
+        val renderManager = mc.renderManager
+
+        if (getBlockName(blockValue.get()) == "Air") return
+
+        val progress = ((currentDamage * 100).coerceIn(0f, 100f)).toInt()
+        val progressText = "%d%%".format(progress)
+
+        glPushAttrib(GL_ENABLE_BIT)
+        glPushMatrix()
+
+        // Translate to block position
+        glTranslated(
+            pos.x + 0.5 - renderManager.renderPosX,
+            pos.y + 0.5 - renderManager.renderPosY,
+            pos.z + 0.5 - renderManager.renderPosZ
+        )
+
+        glRotatef(-renderManager.playerViewY, 0F, 1F, 0F)
+        glRotatef(renderManager.playerViewX, 1F, 0F, 0F)
+
+        disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
+        enableGlCap(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        val fontRenderer = Fonts.font40
+        val color = Color.RED.rgb
+
+        // Scale
+        val scale = ((player.getDistanceSq(pos) / 8F).coerceAtLeast(1.5) / 150F) * 2f
+        glScaled(-scale, -scale, scale)
+
+        // Draw text
+        val width = mc.fontRendererObj.getStringWidth(progressText) * 0.5f
+        mc.fontRendererObj.drawString(
+            progressText, -width, if (fontRenderer == Fonts.minecraftFont) 1F else 1.5F, color, true
+        )
+
+        resetCaps()
+        glPopMatrix()
+        glPopAttrib()
+
+        // Render block box
+        drawBlockBox(pos, Color.RED, true)
     }
 
     @EventTarget

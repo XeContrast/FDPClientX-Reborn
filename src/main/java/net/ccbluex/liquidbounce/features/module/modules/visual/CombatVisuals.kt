@@ -45,6 +45,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.io.File
 import java.io.IOException
@@ -171,16 +172,12 @@ object CombatVisuals : Module() {
             )
 
             "rectangle","round" -> {
-                // No null pointer anymore
-                auraESPAnim.setDirection(
-                    if (!(combat.target!!.isDead || mc.thePlayer.getDistanceToEntity(
-                            combat.target
-                        ) > 10)
-                    ) Direction.FORWARDS else Direction.BACKWARDS
-                )
-                if (!auraESPAnim.finished(Direction.BACKWARDS)) {
+                if (!(combat.target!!.isDead || mc.thePlayer.getDistanceToEntity(
+                        combat.target
+                    ) > 10)
+                ) {
                     val dst = mc.thePlayer.getSmoothDistanceToEntity(combat.target)
-                    val vector2f = RenderUtil.targetESPSPos(combat.target, event.partialTicks) ?: return
+                    val vector2f = RenderUtil.targetESPSPos(combat.target, event.partialTicks)
                     RenderUtil.drawTargetESP2D(
                         vector2f.x,
                         vector2f.y,

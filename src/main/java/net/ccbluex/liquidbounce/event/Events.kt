@@ -105,6 +105,7 @@ class SlowDownEvent(var strafe: Float, var forward: Float) : Event()
  */
 class StrafeEvent(var strafe: Float, var forward: Float, var friction: Float, var yaw: Float) : CancellableEvent()
 
+class RotationUpdateEvent : Event()
 
 /**
  * Called when an other entity moves
@@ -181,9 +182,13 @@ class TextEvent(var text: String?) : Event()
 /**
  * tick... tack... tick... tack
  */
-class TickEvent : Event()
-
 class GameTickEvent : Event()
+
+/**
+ * tick tack for player
+ */
+class PlayerTickEvent(val state: EventState) : CancellableEvent()
+
 /**
  * Called when minecraft player will be updated
  */

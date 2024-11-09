@@ -6,9 +6,8 @@
 package net.ccbluex.liquidbounce.utils.timing
 
 import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.TickEvent
+import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
@@ -21,7 +20,7 @@ object WaitTickUtils : MinecraftInstance(), Listenable {
     }
 
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         val currentTick = ClientUtils.runTimeTicks
         val iterator = scheduledActions.iterator()
 

@@ -8,7 +8,7 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.ClickBlockEvent
 import net.ccbluex.liquidbounce.features.module.modules.exploit.MultiActions
-import net.ccbluex.liquidbounce.features.module.modules.world.Breaker
+import net.ccbluex.liquidbounce.features.module.modules.world.Fucker
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.minecraft.block.material.Material
 import net.minecraft.util.BlockPos
@@ -64,7 +64,7 @@ object MouseUtils {
                     mc.effectRenderer.addBlockHitEffects(blockpos, mc.objectMouseOver.sideHit)
                     mc.thePlayer.swingItem()
                 }
-            } else if (!FDPClient.moduleManager.getModule(Breaker::class.java)!!.state) {
+            } else if (!FDPClient.moduleManager.getModule(Fucker::class.java)!!.state) {
                 mc.playerController.resetBlockRemoving()
             }
         }

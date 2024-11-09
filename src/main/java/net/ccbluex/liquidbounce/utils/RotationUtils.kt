@@ -5,16 +5,14 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import kevin.utils.component1
-import kevin.utils.component2
-import kevin.utils.component3
-import kevin.utils.minus
+import kevin.utils.*
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.TickEvent
+import net.ccbluex.liquidbounce.event.GameTickEvent
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.extensions.eyes
+import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.projectile.EntityEgg
@@ -30,7 +28,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
      * @param event Tick event
      */
     @EventTarget
-    fun onTick(event: TickEvent?) {
+    fun onTick(event: GameTickEvent?) {
         if (targetRotation != null) {
             //ClientUtils.INSTANCE.displayAlert(keepLength + " " + revTick);
             keepLength--
@@ -960,6 +958,25 @@ class RotationUtils : MinecraftInstance(), Listenable {
             val yaw = (atan2(z, x) * 180.0 / 3.141592653589793).toFloat() - 90.0f
             val pitch = (-(atan2(y, dist) * 180.0 / 3.141592653589793)).toFloat()
             return Rotation(yaw, pitch)
+        }
+
+        @JvmStatic
+        fun performRaytrace(
+            blockPos: BlockPos,
+            rotation: Rotation,
+            reach: Float = mc.playerController.blockReachDistance,
+        ): MovingObjectPosition? {
+            val world = mc.theWorld ?: return null
+            val player = mc.thePlayer ?: return null
+
+            val eyes = player.eyes
+
+            return blockPos.getBlock()?.collisionRayTrace(
+                world,
+                blockPos,
+                eyes,
+                eyes + (getVectorForRotation(rotation) * reach.toDouble())
+            )
         }
     }
 }

@@ -7,7 +7,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.EventTarget;
-import net.ccbluex.liquidbounce.event.TickEvent;
+import net.ccbluex.liquidbounce.event.GameTickEvent;
 import net.ccbluex.liquidbounce.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
@@ -311,7 +311,7 @@ public class MusicManager {
     }
 
     @EventTarget
-    public void onTick(TickEvent evt) {
+    public void onTick(GameTickEvent evt) {
         if (this.getMediaPlayer() != null) {
             long mill = (long) this.getMediaPlayer().getCurrentTime().toMillis();
             if (!this.lrc.isEmpty()) {

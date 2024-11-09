@@ -150,6 +150,25 @@ object BlockUtils : MinecraftInstance() {
         return false
     }
 
+    /**
+     * Check if block bounding box is full or partial (non-full)
+     */
+    fun isBlockBBValid(blockPos: BlockPos, blockState: IBlockState? = null, supportSlabs: Boolean = false, supportPartialBlocks: Boolean = false): Boolean {
+        val state = blockState ?: getState(blockPos) ?: return false
+
+        val box = state.block.getCollisionBoundingBox(mc.theWorld, blockPos, state) ?: return false
+
+        // Support blocks like stairs, slab (1x), dragon-eggs, glass-panes, fences, etc
+        if (supportPartialBlocks && (box.maxY - box.minY < 1.0 || box.maxX - box.minX < 1.0 || box.maxZ - box.minZ < 1.0)) {
+            return true
+        }
+
+        // The slab will only return true if it's placed at a level that can be placed like any normal full block
+        return box.maxX - box.minX == 1.0 && (box.maxY - box.minY == 1.0 || supportSlabs && box.maxY % 1.0 == 0.0) && box.maxZ - box.minZ == 1.0
+    }
+
+    fun BlockPos.toVec() = Vec3(this)
+
     @JvmStatic
     fun floorVec3(vec3: Vec3) = Vec3(floor(vec3.xCoord), floor(vec3.yCoord), floor(vec3.zCoord))
 }

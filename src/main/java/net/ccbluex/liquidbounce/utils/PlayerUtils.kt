@@ -1,8 +1,12 @@
 package net.ccbluex.liquidbounce.utils
 
+import kevin.utils.minus
 import kevin.utils.multiply
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.toVec
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.minecraft.block.BlockSlime
 import net.minecraft.client.entity.EntityPlayerSP
@@ -12,14 +16,14 @@ import net.minecraft.entity.boss.EntityDragonPart
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.item.*
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.potion.Potion
 import net.minecraft.stats.AchievementList
 import net.minecraft.stats.StatList
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.DamageSource
-import net.minecraft.util.MathHelper
+import net.minecraft.util.*
 import net.minecraftforge.common.ForgeHooks
+import net.minecraftforge.event.ForgeEventFactory
 import kotlin.math.roundToInt
 
 
@@ -120,8 +124,7 @@ object PlayerUtils {
                 var f: Float =
                     mc.thePlayer.getEntityAttribute(SharedMonsterAttributes.attackDamage).attributeValue.toFloat()
                 var i = 0
-                var f1 = 0.0f
-                f1 = if (entity is EntityLivingBase) {
+                val f1: Float = if (entity is EntityLivingBase) {
                     EnchantmentHelper.getModifierForCreature(
                         mc.thePlayer.heldItem,
                         entity.creatureAttribute
@@ -227,6 +230,68 @@ object PlayerUtils {
                         entity.extinguish()
                     }
                 }
+            }
+        }
+    }
+
+    // Modified mc.playerController.onPlayerRightClick() that sends correct stack in its C08
+    fun EntityPlayerSP.onPlayerRightClick(
+        clickPos: BlockPos, side: EnumFacing, clickVec: Vec3,
+        stack: ItemStack?,
+    ): Boolean {
+        if (clickPos !in worldObj.worldBorder)
+            return false
+
+        mc.playerController?.updateController()
+
+        val (facingX, facingY, facingZ) = (clickVec - clickPos.toVec()).toFloatTriple()
+
+        val sendClick = {
+            sendPacket(C08PacketPlayerBlockPlacement(clickPos, side.index, stack, facingX, facingY, facingZ))
+            true
+        }
+
+        // If player is a spectator, send click and return true
+        if (mc.playerController.isSpectator)
+            return sendClick()
+
+        val item = stack?.item
+
+        if (item?.onItemUseFirst(stack, this, worldObj, clickPos, side, facingX, facingY, facingZ) == true)
+            return true
+
+        val blockState = getState(clickPos)
+
+        // If click had activated a block, send click and return true
+        if ((!isSneaking || item == null || item.doesSneakBypassUse(worldObj, clickPos, this))
+            && blockState.block?.onBlockActivated(worldObj,
+                clickPos,
+                blockState,
+                this,
+                side,
+                facingX,
+                facingY,
+                facingZ
+            ) == true)
+            return sendClick()
+
+        if (item is ItemBlock && !item.canPlaceBlockOnSide(worldObj, clickPos, side, this, stack))
+            return false
+
+        sendClick()
+
+        if (stack == null)
+            return false
+
+        val prevMetadata = stack.metadata
+        val prevSize = stack.stackSize
+
+        return stack.onItemUse(this, worldObj, clickPos, side, facingX, facingY, facingZ).also {
+            if (mc.playerController.isInCreativeMode) {
+                stack.itemDamage = prevMetadata
+                stack.stackSize = prevSize
+            } else if (stack.stackSize <= 0) {
+                ForgeEventFactory.onPlayerDestroyItem(this, stack)
             }
         }
     }

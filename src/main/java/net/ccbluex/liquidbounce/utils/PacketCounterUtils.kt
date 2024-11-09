@@ -26,7 +26,7 @@ object PacketCounterUtils : Listenable {
     }
 
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         if (packetTimer.hasTimePassed(1000L)) {
             avgInBound = inBound
             avgOutBound = outBound

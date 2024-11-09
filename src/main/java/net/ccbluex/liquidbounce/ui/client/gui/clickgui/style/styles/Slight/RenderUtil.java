@@ -24,6 +24,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public enum RenderUtil {
     ;
 
@@ -89,7 +91,7 @@ public enum RenderUtil {
         GL11.glVertex2d(x2, y);
         GL11.glVertex2d(x, y2);
         GL11.glVertex2d(x2, y2);
-        GL11.glEnd();
+        glEnd();
         GL11.glPopMatrix();
         GL11.glEnable(3553);
         GL11.glDisable(3042);
@@ -116,12 +118,12 @@ public enum RenderUtil {
         new ScaledResolution(Minecraft.getMinecraft());
         GL11.glDisable(2929);
         GL11.glEnable(3042);
-        GL11.glDepthMask(false);
+        glDepthMask(false);
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
         Minecraft.getMinecraft().getTextureManager().bindTexture(image);
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, width, height2, (float) width, (float) height2);
-        GL11.glDepthMask(true);
+        glDepthMask(true);
         GL11.glDisable(3042);
         GL11.glEnable(2929);
     }
@@ -229,7 +231,7 @@ public enum RenderUtil {
                 GL11.glVertex2f(x + ldx, y + ldy);
             }
 
-            GL11.glEnd();
+            glEnd();
             GL11.glDisable(2848);
         }
 
@@ -241,7 +243,7 @@ public enum RenderUtil {
             GL11.glVertex2f(x + ldx, y + ldy);
         }
 
-        GL11.glEnd();
+        glEnd();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
@@ -276,7 +278,7 @@ public enum RenderUtil {
                 GL11.glVertex2f(x + ldx, y + ldy);
             }
 
-            GL11.glEnd();
+            glEnd();
             GL11.glDisable(2848);
         }
 
@@ -288,7 +290,7 @@ public enum RenderUtil {
             GL11.glVertex2f(x + ldx, y + ldy);
         }
 
-        GL11.glEnd();
+        glEnd();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
@@ -439,6 +441,16 @@ public enum RenderUtil {
         tessellator.draw();
         GlStateManager.depthMask(true);
         GlStateManager.shadeModel(7424);
+        glEnd();
+
+        glShadeModel(GL_FLAT);
+        glDepthMask(true);
+        glEnable(GL_DEPTH_TEST);
+        GlStateManager.enableCull();
+        glDisable(GL_LINE_SMOOTH);
+        glEnable(GL_TEXTURE_2D);
+        glPopMatrix();
+        glColor4f(1f, 1f, 1f, 1f);
     }
 
 }

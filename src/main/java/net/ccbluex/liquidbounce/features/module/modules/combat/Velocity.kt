@@ -92,10 +92,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Other" }
 
     private val horizontal = FloatValue("Horizontal", 0F, -1F, 1F).displayable {
-        mainMode.get() in arrayOf(
-            "AAC",
-            "Vanilla"
-        ) && (vanillaMode.get() == "Simple")
+        mainMode.get() == "Vanilla" && (vanillaMode.get() == "Simple")
     }
     private val vertical = FloatValue("Vertical", 0F, -1F, 1F).displayable {
         mainMode.get() in arrayOf(
@@ -340,6 +337,9 @@ object Velocity : Module() {
     private var lastAttackTime = 0L
     private var intaveDamageTick = 0
 
+    //KKCraft
+    private var lastGround = false
+
     @EventTarget(priority = -1)
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
@@ -553,8 +553,13 @@ object Velocity : Module() {
                             }
                         }
 
-                        "intavereduce", "attackreduce", "grimvertical","kkcraft" -> hasReceivedVelocity = true
+                        "intavereduce", "attackreduce", "grimvertical" -> hasReceivedVelocity = true
 
+                        "kkcraft" -> {
+                            hasReceivedVelocity = true
+                            if (mc.thePlayer.onGround) lastGround = true
+                            if (packet is S12PacketEntityVelocity) motionXZ = getMotionNoXZ(packet)
+                        }
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
                                 if (!mc.thePlayer.onGround && phaseOnlyGroundValue.get()) {
@@ -809,7 +814,7 @@ object Velocity : Module() {
     }
 
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         if (mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07") {
             if (hasReceivedVelocity || alwaysValue.get()) { // packet processed event pls
                 val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
@@ -838,17 +843,20 @@ object Velocity : Module() {
                     }
 
                     "kkcraft" -> {
+                        if (player.hurtTime in 3..8 && lastGround) {
+                            player.motionX *= reduceAmount.get()
+                            player.motionZ *= reduceAmount.get()
+                        }
+                        if (player.hurtTime == 0 && lastGround && player.onGround) {
+                            lastGround = false
+                        }
                         if (hasReceivedVelocity) {
-                            if (player.hurtTime in 1..8) {
-                                player.motionX *= reduceAmount.get()
-                                player.motionZ *= reduceAmount.get()
-                            }
-                            if (player.hurtTime == 2 && player.onGround) {
+                            if (player.hurtTime == 6 && player.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
                                 player.jump()
-                                player.motionX *= 0.3
-                                player.motionZ *= 0.3
-                                hasReceivedVelocity = false
+                                player.motionX *= motionXZ
+                                player.motionZ *= motionXZ
                             }
+                            hasReceivedVelocity = false
                         }
                     }
 
@@ -1176,6 +1184,7 @@ object Velocity : Module() {
 
     @EventTarget
     override fun onDisable() {
+        lastGround = false
         mc.timer.timerSpeed = 1f
         flag = false
         isMatrixOnGround = false

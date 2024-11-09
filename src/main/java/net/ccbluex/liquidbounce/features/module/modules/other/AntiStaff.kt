@@ -30,9 +30,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 @ModuleInfo("AntiStaff", category = ModuleCategory.OTHER)
 object AntiStaff : Module() {
-
-    const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
-
     private val staffMode = object : ListValue("StaffMode", arrayOf("BlocksMC", "CubeCraft", "Gamster",
         "AgeraPvP", "HypeMC", "Hypixel", "SuperCraft", "PikaNetwork", "GommeHD","KKCraft"), "BlocksMC") {
     }

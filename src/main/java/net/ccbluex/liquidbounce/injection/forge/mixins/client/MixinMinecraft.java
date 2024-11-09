@@ -52,8 +52,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-import static net.minecraft.client.Minecraft.getSystemTime;
-
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
 
@@ -214,7 +212,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE, ordinal = 0))
     private void onTick(final CallbackInfo callbackInfo) {
-        FDPClient.eventManager.callEvent(new TickEvent());
+        FDPClient.eventManager.callEvent(new GameTickEvent());
     }
 
     @Inject(method = "dispatchKeypresses", at = @At(value = "HEAD"))

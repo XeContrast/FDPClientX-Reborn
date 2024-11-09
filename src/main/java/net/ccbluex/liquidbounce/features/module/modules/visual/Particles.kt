@@ -32,12 +32,12 @@ class Particles : Module() {
 
     private val physics = BoolValue("Physics", true)
 
-    private val startred = IntegerValue("StartRed", 255 ,0, 255)
-    private val startgreen = IntegerValue("StartGreen", 150 ,0, 255)
-    private val startblue = IntegerValue("StartBlue", 200 ,0, 255)
-    private val endred = IntegerValue("EndRed", 100 ,0, 255)
-    private val endgreen = IntegerValue("EndGreen", 110 ,0, 255)
-    private val endblue = IntegerValue("EndBlue", 195 ,0, 255)
+    private val startred = IntegerValue("StartRed", 255, 0, 255)
+    private val startgreen = IntegerValue("StartGreen", 150, 0, 255)
+    private val startblue = IntegerValue("StartBlue", 200, 0, 255)
+    private val endred = IntegerValue("EndRed", 100, 0, 255)
+    private val endgreen = IntegerValue("EndGreen", 110, 0, 255)
+    private val endblue = IntegerValue("EndBlue", 195, 0, 255)
 
     private val particles: MutableList<Particle> = EvictingList(100)
     private val timer = ParticleTimer()
@@ -69,6 +69,7 @@ class Particles : Module() {
             target = null
         }
     }
+
     private fun renderParticles(particles: List<Particle>) {
         GL11.glEnable(GL11.GL_BLEND)
         GL11.glDisable(GL11.GL_TEXTURE_2D)
@@ -112,7 +113,8 @@ class Particles : Module() {
                         0.0
                     )
                     val c = RenderUtils.getGradientOffset(
-                        Color(startred.get(), startgreen.get(), startblue.get(), 1), Color(endred.get(), endgreen.get(), endblue.get(), 1),
+                        Color(startred.get(), startgreen.get(), startblue.get(), 1),
+                        Color(endred.get(), endgreen.get(), endblue.get(), 1),
                         (abs(
                             (System.currentTimeMillis() / 100 + (20 / 10)).toDouble()
                         ) / 10)
@@ -151,25 +153,26 @@ class Particles : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
-        if (particles.isEmpty()) return
+        if (particles.isNotEmpty()) {
 
-        var i = 0
-        while (i <= timer.elapsedTime / 1E+11) {
-            if (physics.get()) particles.forEach(Consumer { obj: Particle -> obj.update() })
-            else particles.forEach(Consumer { obj: Particle -> obj.updateWithoutPhysics() })
-            i++
+            var i = 0
+            while (i <= timer.elapsedTime / 1E+11) {
+                if (physics.get()) particles.forEach(Consumer { obj: Particle -> obj.update() })
+                else particles.forEach(Consumer { obj: Particle -> obj.updateWithoutPhysics() })
+                i++
+            }
+
+            particles.removeIf { particle: Particle ->
+                mc.thePlayer.getDistanceSq(
+                    particle.position.xCoord,
+                    particle.position.yCoord,
+                    particle.position.zCoord
+                ) > 50 * 10
+            }
+
+            timer.reset()
+
+            renderParticles(particles)
         }
-
-        particles.removeIf { particle: Particle ->
-            mc.thePlayer.getDistanceSq(
-                particle.position.xCoord,
-                particle.position.yCoord,
-                particle.position.zCoord
-            ) > 50 * 10
-        }
-
-        timer.reset()
-
-        renderParticles(particles)
     }
 }

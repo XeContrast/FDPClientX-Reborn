@@ -89,7 +89,7 @@ object TickBase : Module() {
         playerTicks = 0
     }
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onTick(event: GameTickEvent) {
         if (onlykillaura.get() && !FDPClient.moduleManager[KillAura::class.java]!!.state) {
             return
         }

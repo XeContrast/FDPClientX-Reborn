@@ -39,6 +39,7 @@ object  AntiBot : Module() {
     private val removeFromWorld = BoolValue("RemoveFromWord", false)
     private val debugValue = BoolValue("Debug", true)
 
+    private val kkBot = BoolValue("KKBot",false)
     private val tabValue = BoolValue("Tab", true).displayable { modeValue.get() == "Custom"}
     private val tabModeValue = ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains").displayable { modeValue.get() == "Custom"}
     private val entityIDValue = BoolValue("EntityID", true).displayable { modeValue.get() == "Custom"}
@@ -118,6 +119,7 @@ object  AntiBot : Module() {
     private val swing = mutableListOf<Int>()
     private val invisible = mutableListOf<Int>()
     private val hitted = mutableListOf<Int>()
+    private val KKList = mutableListOf<Int>()
     private val spawnInCombat = mutableListOf<Int>()
     private val notAlwaysInRadius = mutableListOf<Int>()
     private val propertiesList = mutableSetOf<Int>()
@@ -224,6 +226,14 @@ object  AntiBot : Module() {
             for (bot in bots)
                 removeBot(bot)
         }
+
+        if (kkBot.get()) {
+            mc.theWorld.playerEntities.forEach { player ->
+                if (player.inventory.armorInventory.all { it == null }) {
+                    KKList.add(player.entityId)
+                }
+            }
+        }
     }
 
     private fun removeBot(bot: Entity) {
@@ -245,6 +255,9 @@ object  AntiBot : Module() {
         }
 
         if (entity in botList)
+            return true
+
+        if (kkBot.get() && KKList.contains(entity.entityId))
             return true
 
         if (modeValue.get() != "Custom")
@@ -635,6 +648,7 @@ object  AntiBot : Module() {
         hasRemovedEntities.clear()
         matrix.clear()
         propertiesList.clear()
+        KKList.clear()
     }
 
 }

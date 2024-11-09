@@ -38,6 +38,7 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -137,100 +138,99 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      */
     @Inject(method = "onUpdateWalkingPlayer", at = @At("HEAD"), cancellable = true)
     public void onUpdateWalkingPlayer(CallbackInfo ci) {
-        try {
-            final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
-            Objects.requireNonNull(strafeFix).updateOverwrite();
+        final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
+        Objects.requireNonNull(strafeFix).updateOverwrite();
 
-            MotionEvent motionEvent = new MotionEvent(
-                    posX,
-                    getEntityBoundingBox().minY,
-                    posZ,
-                    onGround,
-                    EventState.PRE
-            );
-            
-            FDPClient.eventManager.callEvent(motionEvent);
+        MotionEvent motionEvent = new MotionEvent(
+                posX,
+                getEntityBoundingBox().minY,
+                posZ,
+                onGround,
+                EventState.PRE
+        );
 
-            boolean flag = this.isSprinting();
-            //alert("Attempt: " + debug_AttemptSprint + " Actual: " + this.isSprinting() + " Server: " + this.serverSprintState);
-            if (flag != this.serverSprintState) {
-                if (flag) {
-                    this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SPRINTING));
-                } else {
-                    this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SPRINTING));
-                }
+        FDPClient.eventManager.callEvent(motionEvent);
 
-                this.serverSprintState = flag;
+        boolean flag = this.isSprinting();
+        //alert("Attempt: " + debug_AttemptSprint + " Actual: " + this.isSprinting() + " Server: " + this.serverSprintState);
+        if (flag != this.serverSprintState) {
+            if (flag) {
+                this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SPRINTING));
+            } else {
+                this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SPRINTING));
             }
 
-            boolean flag1 = this.isSneaking();
-            if (flag1 != this.serverSneakState) {
-                if (flag1) {
-                    this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SNEAKING));
-                } else {
-                    this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SNEAKING));
-                }
-
-                this.serverSneakState = flag1;
-            }
-
-            if (this.isCurrentViewEntity()) {
-                float yaw = rotationYaw;
-                float pitch = rotationPitch;
-                float lastReportedYaw = Objects.requireNonNull(RotationUtils.serverRotation).getYaw();
-                float lastReportedPitch = RotationUtils.serverRotation.getPitch();
-
-                if (RotationUtils.targetRotation != null) {
-                    yaw = RotationUtils.targetRotation.getYaw();
-                    pitch = RotationUtils.targetRotation.getPitch();
-                }
-
-                double xDiff = this.posX - this.lastReportedPosX;
-                double yDiff = this.getEntityBoundingBox().minY - this.lastReportedPosY;
-                double zDiff = this.posZ - this.lastReportedPosZ;
-                double yawDiff = yaw - lastReportedYaw;
-                double pitchDiff = pitch - lastReportedPitch;
-                
-                final Flight fly = FDPClient.moduleManager.getModule(Flight.class);
-                final Criticals criticals = FDPClient.moduleManager.getModule(Criticals.class);
-                final AntiDesync antiDesync = FDPClient.moduleManager.getModule(AntiDesync.class);
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 9.0E-4D || this.positionUpdateTicks >= 20 || (Objects.requireNonNull(fly).getState() && fly.getAntiDesync()) || (Objects.requireNonNull(criticals).getState() && criticals.getAntiDesync()) || (Objects.requireNonNull(antiDesync).getState() && xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > 0.0D);
-                boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
-
-                if (this.ridingEntity == null) {
-                    if (moved && rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.posX, this.getEntityBoundingBox().minY, this.posZ, yaw, pitch, this.onGround));
-                    } else if (moved) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.onGround));
-                    } else if (rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, this.onGround));
-                    } else {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer(this.onGround));
-                    }
-                } else {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, this.onGround));
-                    moved = false;
-                }
-
-                ++this.positionUpdateTicks;
-
-                if (moved) {
-                    this.lastReportedPosX = this.posX;
-                    this.lastReportedPosY = this.getEntityBoundingBox().minY;
-                    this.lastReportedPosZ = this.posZ;
-                    this.positionUpdateTicks = 0;
-                }
-
-                if (rotated) {
-                    this.lastReportedYaw = this.rotationYaw;
-                    this.lastReportedPitch = this.rotationPitch;
-                }
-            }
-
-            FDPClient.eventManager.callEvent(new MotionEvent(posX, getEntityBoundingBox().minY, posZ, onGround, EventState.POST));
-        } catch (final Exception e) {
-            e.printStackTrace();
+            this.serverSprintState = flag;
         }
+
+        boolean flag1 = this.isSneaking();
+        if (flag1 != this.serverSneakState) {
+            if (flag1) {
+                this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.START_SNEAKING));
+            } else {
+                this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SNEAKING));
+            }
+
+            this.serverSneakState = flag1;
+        }
+
+        if (this.isCurrentViewEntity()) {
+            float yaw = rotationYaw;
+            float pitch = rotationPitch;
+            float lastReportedYaw = Objects.requireNonNull(RotationUtils.serverRotation).getYaw();
+            float lastReportedPitch = RotationUtils.serverRotation.getPitch();
+
+            if (RotationUtils.targetRotation != null) {
+                yaw = RotationUtils.targetRotation.getYaw();
+                pitch = RotationUtils.targetRotation.getPitch();
+            }
+
+            double xDiff = motionEvent.getX() - this.lastReportedPosX;
+            double yDiff = motionEvent.getY() - this.lastReportedPosY;
+            double zDiff = motionEvent.getZ() - this.lastReportedPosZ;
+            double yawDiff = yaw - lastReportedYaw;
+            double pitchDiff = pitch - lastReportedPitch;
+
+            final Flight fly = FDPClient.moduleManager.getModule(Flight.class);
+            final Criticals criticals = FDPClient.moduleManager.getModule(Criticals.class);
+            final AntiDesync antiDesync = FDPClient.moduleManager.getModule(AntiDesync.class);
+            double v = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff;
+            boolean moved = v > 9.0E-4D || this.positionUpdateTicks >= 20 || (Objects.requireNonNull(fly).getState() && fly.getAntiDesync()) || (Objects.requireNonNull(criticals).getState() && criticals.getAntiDesync()) || (Objects.requireNonNull(antiDesync).getState() && v > 0.0D);
+            boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
+
+            if (this.ridingEntity == null) {
+                if (moved && rotated) {
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), yaw, pitch, motionEvent.getOnGround()));
+                } else if (moved) {
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(motionEvent.getX(), motionEvent.getY(), motionEvent.getZ(), motionEvent.getOnGround()));
+                } else if (rotated) {
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, motionEvent.getOnGround()));
+                } else {
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer(motionEvent.getOnGround()));
+                }
+            } else {
+                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, motionEvent.getOnGround()));
+                moved = false;
+            }
+
+            ++this.positionUpdateTicks;
+
+            if (moved) {
+                this.lastReportedPosX = motionEvent.getX();
+                this.lastReportedPosY = motionEvent.getY();
+                this.lastReportedPosZ = motionEvent.getZ();
+                this.positionUpdateTicks = 0;
+            }
+
+            if (rotated) {
+                this.lastReportedYaw = this.rotationYaw;
+                this.lastReportedPitch = this.rotationPitch;
+            }
+        }
+
+        FDPClient.eventManager.callEvent(new MotionEvent(posX, getEntityBoundingBox().minY, posZ, onGround, EventState.POST));
+
+        FDPClient.eventManager.callEvent(new RotationUpdateEvent());
 
         ci.cancel();
     }
@@ -789,6 +789,23 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
             worldObj.theProfiler.endSection();
         }
+    }
+
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.BEFORE, ordinal = 0), cancellable = true)
+    private void preTickEvent(CallbackInfo ci) {
+        final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.PRE);
+        FDPClient.eventManager.callEvent(tickEvent);
+
+        if (tickEvent.isCancelled()) {
+            FDPClient.eventManager.callEvent(new RotationUpdateEvent());
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;onUpdate()V", shift = At.Shift.AFTER, ordinal = 0))
+    private void postTickEvent(CallbackInfo ci) {
+        final PlayerTickEvent tickEvent = new PlayerTickEvent(EventState.POST);
+        FDPClient.eventManager.callEvent(tickEvent);
     }
 }
 
