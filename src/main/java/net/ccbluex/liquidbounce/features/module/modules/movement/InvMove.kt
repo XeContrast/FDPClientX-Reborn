@@ -143,12 +143,12 @@ object InvMove : Module() {
 
                         event.cancelEvent()
 
-                        PacketUtils.sendPacketNoEvent(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
+                        PacketUtils.sendPacket(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT),false)
                         packetListYes.forEach {
-                            PacketUtils.sendPacketNoEvent(it)
+                            PacketUtils.sendPacket(it,false)
                         }
                         packetListYes.clear()
-                        PacketUtils.sendPacketNoEvent(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId))
+                        PacketUtils.sendPacket(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId),false)
                     }
                 }
             }
@@ -166,7 +166,7 @@ object InvMove : Module() {
                         blinkPacketList.add(packet)
                         event.cancelEvent()
                         blinkPacketList.forEach {
-                            PacketUtils.sendPacketNoEvent(it)
+                            PacketUtils.sendPacket(it,false)
                         }
                         blinkPacketList.clear()
                     }

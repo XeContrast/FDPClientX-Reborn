@@ -15,19 +15,13 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.utils.BlinkUtils
+import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
-import net.ccbluex.liquidbounce.utils.MovementUtils
-import net.ccbluex.liquidbounce.utils.PacketUtils
-import net.ccbluex.liquidbounce.utils.PacketUtils.realMotionX
-import net.ccbluex.liquidbounce.utils.PacketUtils.realMotionY
-import net.ccbluex.liquidbounce.utils.PacketUtils.realMotionZ
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.particles.Vec3
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
-import net.ccbluex.liquidbounce.utils.toDegrees
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -177,7 +171,7 @@ object Velocity : Module() {
         0.8f,
         0.0f,
         1f
-    ).displayable { mainMode.get() == "Other" && (otherMode.get() == "AttackReduce" || otherMode.get() == "KKCraft") }
+    ).displayable { mainMode.get() == "Other" && otherMode.get() == "AttackReduce" }
 
     private val jumpCooldownMode = ListValue(
         "JumpCooldownMode",
@@ -843,16 +837,20 @@ object Velocity : Module() {
                     }
 
                     "kkcraft" -> {
-                        if (player.hurtTime in 3..8 && lastGround) {
-                            player.motionX *= reduceAmount.get()
-                            player.motionZ *= reduceAmount.get()
+                        if (player.hurtTime in 2..8) {
+                            if (lastGround) {
+                                player.motionX *= 0.59999999999
+                                player.motionZ *= 0.59999999999
+                            }
                         }
                         if (player.hurtTime == 0 && lastGround && player.onGround) {
                             lastGround = false
                         }
                         if (hasReceivedVelocity) {
-                            if (player.hurtTime == 6 && player.onGround && !mc.gameSettings.keyBindJump.isKeyDown) {
-                                player.jump()
+                            if (player.hurtTime == 7 && player.onGround) {
+                                if (!mc.gameSettings.keyBindJump.isKeyDown) {
+                                    player.jump()
+                                }
                                 player.motionX *= motionXZ
                                 player.motionZ *= motionXZ
                             }
@@ -1234,7 +1232,7 @@ object Velocity : Module() {
                 var motionY = packet.realMotionY
 
                 if (limitMaxMotionValue.get())
-                    motionY = motionY.coerceAtMost(maxYMotion.get() + 0.00075F)
+                    motionY = motionY.coerceAtMost(maxYMotion.get() + 0.00075)
 
                 mc.thePlayer.motionY = motionY * vertical.get().toDouble()
             }

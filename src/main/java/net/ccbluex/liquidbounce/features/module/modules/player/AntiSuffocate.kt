@@ -19,7 +19,7 @@ object AntiSuffocate : Module(){
     fun onPreMotion(){
 
         if (mc.thePlayer.isEntityInsideOpaqueBlock){
-            PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, BlockPos(mc.thePlayer).down(), EnumFacing.UP))
+            PacketUtils.sendPacket(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK, BlockPos(mc.thePlayer).down(), EnumFacing.UP),false)
 
             if (swing.get()){
                 mc.thePlayer.swingItem()

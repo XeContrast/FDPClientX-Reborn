@@ -52,7 +52,7 @@ class HypixelHopSpeed : SpeedMode("HypixelHop") {
             
             "latest" -> {
                 if (sussyPacket.get()) 
-                    PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos(-1,-1,-1), EnumFacing.UP))
+                    PacketUtils.sendPacket(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos(-1,-1,-1), EnumFacing.UP),false)
                     
                 if (mc.thePlayer.onGround) {
                     mc.thePlayer.jump()

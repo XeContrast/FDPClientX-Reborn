@@ -9,6 +9,7 @@ import com.google.common.base.Predicates;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.HurtCam;
+import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.visual.CameraModule;
 import net.ccbluex.liquidbounce.features.module.modules.world.Ambience;
@@ -318,6 +319,11 @@ public abstract class MixinEntityRenderer {
 
                 final ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
                 boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+
+                Backtrack.INSTANCE.loopThroughBacktrackData(entity1, () -> {
+                    boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+                    return false;
+                });
 
                 for (final AxisAlignedBB axisalignedbb : boxes) {
                     MovingObjectPosition movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32);

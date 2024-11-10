@@ -46,6 +46,7 @@ class FamousCheck : Module() {
             HackerData("Yao_Mao"),
             HackerData("Bad_Smoke"),
             HackerData("tea_tea"),
+            HackerData("L1ne"),
             )
 
         world.playerEntities.forEach { other ->

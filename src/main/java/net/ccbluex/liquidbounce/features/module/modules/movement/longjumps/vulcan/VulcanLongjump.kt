@@ -104,7 +104,7 @@ class VulcanLongjump : LongJumpMode("Vulcan") {
             val transUID = (packet.uid).toInt()
             if (transUID >= -31767 && transUID <= -30769) {
                 event.cancelEvent()
-                PacketUtils.sendPacketNoEvent(packet)
+                PacketUtils.sendPacket(packet,false)
             }
         }
     }

@@ -171,7 +171,7 @@ object InfiniteAura : Module() {
             val z = event.packet.getZ() - mc.thePlayer.posZ
             val diff = Math.sqrt(x * x + y * y + z * z)
             event.cancelEvent() // cancel
-            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(event.packet.getX(), event.packet.getY(), event.packet.getZ(), event.packet.getYaw(), event.packet.getPitch(), true))
+            PacketUtils.sendPacket(C06PacketPlayerPosLook(event.packet.getX(), event.packet.getY(), event.packet.getZ(), event.packet.getYaw(), event.packet.getPitch(), true),false)
                         
         }
     }

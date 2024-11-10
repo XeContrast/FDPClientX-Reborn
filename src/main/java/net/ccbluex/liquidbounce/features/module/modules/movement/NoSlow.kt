@@ -239,7 +239,7 @@ object NoSlow : Module() {
 
                     if (getEmptySlot() != -1) {
                         if (mc.thePlayer.ticksExisted % 3 == 0)
-                            PacketUtils.sendPacketNoEvent(
+                            PacketUtils.sendPacket(
                                 C08PacketPlayerBlockPlacement(
                                     BlockPos(-1, -1, -1),
                                     1,
@@ -247,7 +247,8 @@ object NoSlow : Module() {
                                     0f,
                                     0f,
                                     0f
-                                )
+                                ),
+                                false
                             )
                     }
                 }
@@ -292,7 +293,7 @@ object NoSlow : Module() {
             "uncp" -> {
                 if (start && (shouldSwap)) {
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
-                    PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.heldItem, 0f, 0f, 0f))
+                    PacketUtils.sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.heldItem, 0f, 0f, 0f),false)
                     shouldSwap = false
                 }
             }
@@ -392,11 +393,12 @@ object NoSlow : Module() {
                 "UNCP" -> {
                     if (event.eventState == EventState.POST && usingItemFunc()) {
                         mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
-                        PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.heldItem, 0f, 0f, 0f))
-                        PacketUtils.sendPacketNoEvent(
+                        PacketUtils.sendPacket(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.heldItem, 0f, 0f, 0f),false)
+                        PacketUtils.sendPacket(
                             C08PacketPlayerBlockPlacement(
                                 BlockPos(-1, -1, -1), 255, mc.thePlayer.heldItem, 0f, 0f, 0f
-                            )
+                            ),
+                            false
                         )
                     }
                 }
@@ -451,7 +453,7 @@ object NoSlow : Module() {
 
                         if (getEmptySlot() != -1) {
                             if (mc.thePlayer.ticksExisted % 3 == 0)
-                                PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f))
+                                PacketUtils.sendPacket(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 1, null, 0f, 0f, 0f),false)
                         }
                     }
                 }
@@ -459,7 +461,7 @@ object NoSlow : Module() {
                 "hypixel" -> {
                     postPlace = false
                     if (mc.thePlayer.ticksExisted % 3 == 0) {
-                        PacketUtils.sendPacketNoEvent(
+                        PacketUtils.sendPacket(
                             C08PacketPlayerBlockPlacement(
                                 BlockPos(-1, -1, -1),
                                 EnumFacing.UP.index,
@@ -467,7 +469,8 @@ object NoSlow : Module() {
                                 0.0f,
                                 0.0f,
                                 0.0f
-                            )
+                            ),
+                            false
                         )
                     }
                 }
@@ -513,8 +516,8 @@ object NoSlow : Module() {
                 }
 
                 "switchitem" -> {
-                    PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
-                    PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                    PacketUtils.sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1),false)
+                    PacketUtils.sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem),false)
                 }
 
                 "hypixelnew" -> {
@@ -585,15 +588,16 @@ object NoSlow : Module() {
             if (msTimer.hasTimePassed(230) && nextTemp) {
                 nextTemp = false
                 if (modeValue.equals("GrimAC")) {
-                    PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
-                    PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                    PacketUtils.sendPacket(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9),false)
+                    PacketUtils.sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem),false)
                 } else {
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C07PacketPlayerDigging(
                             C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
                             BlockPos(-1, -1, -1),
                             EnumFacing.DOWN
-                        )
+                        ),
+                        false
                     )
                 }
                 if (packetBuf.isNotEmpty()) {
@@ -603,7 +607,7 @@ object NoSlow : Module() {
                             canAttack = true
                         }
                         if (!((packet is C02PacketUseEntity || packet is C0APacketAnimation) && !canAttack)) {
-                            PacketUtils.sendPacketNoEvent(packet)
+                            PacketUtils.sendPacket(packet,false)
                         }
                     }
                     packetBuf.clear()
@@ -614,7 +618,7 @@ object NoSlow : Module() {
                 if (!isBlocking) {
                     return
                 }
-                PacketUtils.sendPacketNoEvent(
+                PacketUtils.sendPacket(
                     C08PacketPlayerBlockPlacement(
                         BlockPos(-1, -1, -1),
                         255,
@@ -622,7 +626,8 @@ object NoSlow : Module() {
                         0f,
                         0f,
                         0f
-                    )
+                    ),
+                    false
                 )
                 nextTemp = true
                 waitC03 = false
@@ -686,11 +691,12 @@ object NoSlow : Module() {
 
         if (modeValue.equals("Medusa")) {
             if ((mc.thePlayer.isUsingItem || mc.thePlayer.isBlocking) && sendPacket) {
-                PacketUtils.sendPacketNoEvent(
+                PacketUtils.sendPacket(
                     C0BPacketEntityAction(
                         mc.thePlayer,
                         C0BPacketEntityAction.Action.STOP_SPRINTING
-                    )
+                    ),
+                    false
                 )
                 sendPacket = false
             }
@@ -720,7 +726,7 @@ object NoSlow : Module() {
                     if (diff <= 8) {
                         event.cancelEvent()
                         pendingFlagApplyPacket = false
-                        PacketUtils.sendPacketNoEvent(
+                        PacketUtils.sendPacket(
                             C06PacketPlayerPosLook(
                                 packet.x,
                                 packet.y,
@@ -728,7 +734,8 @@ object NoSlow : Module() {
                                 packet.getYaw(),
                                 packet.getPitch(),
                                 mc.thePlayer.onGround
-                            )
+                            ),
+                            false
                         )
                     }
                 }

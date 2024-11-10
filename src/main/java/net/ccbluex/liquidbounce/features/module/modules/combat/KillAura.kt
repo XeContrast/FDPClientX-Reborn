@@ -30,6 +30,8 @@ import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.isVisible
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
@@ -1014,6 +1016,14 @@ object KillAura : Module() {
 
             var distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
+            if (Backtrack.handleEvents()) {
+                val trackedDistance = Backtrack.getNearestTrackedDistance(entity)
+
+                if (distance > trackedDistance) {
+                    distance = trackedDistance
+                }
+            }
+
             val entityFov = RotationUtils.getRotationDifference(entity)
 
             if (distance <= discoverRangeValue.get() && (fov == 180F || entityFov <= fov)) {
@@ -1024,7 +1034,14 @@ object KillAura : Module() {
 
         // Sort targets by priority
         when (priorityValue.get().lowercase()) {
-            "distance" -> discoveredTargets.sortBy { mc.thePlayer.getDistanceToEntityBox(it) } // Sort by distance
+            "distance" -> discoveredTargets.sortBy {
+                var result = 0.0
+
+                Backtrack.runWithNearestTrackedDistance(it) {
+                    result = mc.thePlayer.getDistanceToEntityBox(it) // Sort by distance
+                }
+
+                result } // Sort by distance
             "health" -> discoveredTargets.sortBy { it.health + it.absorptionAmount } // Sort by health
             "fov" -> discoveredTargets.sortBy { RotationUtils.getRotationDifference(it) } // Sort by FOV
             "livingtime" -> discoveredTargets.sortBy { -it.ticksExisted } // Sort by existence
@@ -1052,7 +1069,11 @@ object KillAura : Module() {
         for (entity in inRangeDiscoveredTargets) {
             // Update rotations to current target
             if (!updateRotations(entity)) {
-                val success = false
+                var success = false
+
+                Backtrack.runWithNearestTrackedDistance(entity) {
+                    success = updateRotations(entity)
+                }
 
                 if (!success) {
                     // when failed then try another target
@@ -1306,6 +1327,9 @@ object KillAura : Module() {
             hitable = false
             return
         }
+        var chosenEntity: Entity? = null
+        val eyes = mc.thePlayer.eyes
+        val currentRotation = targetRotation ?: mc.thePlayer.rotation
         val entityDist = mc.thePlayer.getDistanceToEntityBox(currentTarget as Entity)
         canSwing = entityDist < rangeValue.get() && (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get()
         if (hitAbleValue.get()) {
@@ -1317,8 +1341,63 @@ object KillAura : Module() {
             hitable = true
             return
         }
+        var shouldExcept = false
+
+        val targetToCheck = this.currentTarget ?: return
+
+        var checkNormally = true
+
+        if (Backtrack.handleEvents()) {
+            Backtrack.loopThroughBacktrackData(targetToCheck) {
+                var result = false
+
+                checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = {
+                    checkNormally = false
+
+                    result = true
+                }, onFail = {
+                    result = false
+                })
+
+                return@loopThroughBacktrackData result
+            }
+        }
+
+        if (!checkNormally) {
+            return
+        }
+
         val wallTrace = mc.thePlayer.rayTraceWithServerSideRotation(entityDist)
         hitable = RotationUtils.isFaced(currentTarget!!, maxRange.toDouble()) && (entityDist < discoverRangeValue.get() || wallTrace?.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) && (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get()
+    }
+
+    private fun checkIfAimingAtBox(
+        targetToCheck: Entity, currentRotation: Rotation, eyes: Vec3, onSuccess: () -> Unit,
+        onFail: () -> Unit = { },
+    ) {
+        if (targetToCheck.hitBox.isVecInside(eyes)) {
+            onSuccess()
+            return
+        }
+
+        // Recreate raycast logic
+        val intercept = targetToCheck.hitBox.calculateIntercept(
+            eyes,
+            eyes + getVectorForRotation(currentRotation) * rangeValue.get().toDouble()
+        )
+
+        if (intercept != null) {
+            // Is the entity box raycast vector visible? If not, check through-wall range
+            hitable =
+                isVisible(intercept.hitVec) || throughWallsValue.get()
+
+            if (hitable) {
+                onSuccess()
+                return
+            }
+        }
+
+        onFail()
     }
 
     /**

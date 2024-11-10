@@ -37,29 +37,32 @@ class BuzzFly : FlyMode("Buzz") {
             mc.thePlayer.onGround = false
             started = true
             mc.timer.timerSpeed = 0.2f
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C04PacketPlayerPosition(
                     mc.thePlayer.posX,
                     mc.thePlayer.posY,
                     mc.thePlayer.posZ,
                     true
-                )
+                ),
+                false
             )
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C04PacketPlayerPosition(
                     mc.thePlayer.posX,
                     mc.thePlayer.posY - 2 + Math.random() / 2,
                     mc.thePlayer.posZ,
                     false
-                )
+                ),
+                false
             )
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C04PacketPlayerPosition(
                     mc.thePlayer.posX,
                     mc.thePlayer.posY,
                     mc.thePlayer.posZ,
                     true
-                )
+                ),
+                false
             )
         }
     }

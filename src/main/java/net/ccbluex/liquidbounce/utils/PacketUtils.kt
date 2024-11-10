@@ -1,7 +1,7 @@
 /*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
@@ -9,30 +9,20 @@ import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag
 import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.extensions.*
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
-import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
+import net.minecraft.util.Vec3
+import kotlin.math.roundToInt
 
 object PacketUtils : MinecraftInstance(), Listenable {
-    val packets = ArrayList<Packet<*>>()
+
     val queuedPackets = mutableListOf<Packet<*>>()
-
-    @JvmStatic
-    fun handleSendPacket(packet: Packet<*>): Boolean {
-        if (packets.contains(packet)) {
-            packets.remove(packet)
-            return true
-        }
-        return false
-    }
-
-    @JvmStatic
-    fun sendPackets(vararg packets: Packet<*>, triggerEvents: Boolean = true) =
-        packets.forEach { sendPacket(it, triggerEvents) }
 
     @EventTarget(priority = 2)
     fun onTick(event: GameTickEvent) {
@@ -40,10 +30,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
             if (entity is EntityLivingBase) {
                 (entity as? IMixinEntity)?.apply {
                     if (!truePos) {
-                        trueX = entity.posX
-                        trueY = entity.posY
-                        trueZ = entity.posZ
-                        truePos = true
+                        updateSpawnPosition(entity.currPos)
                     }
                 }
             }
@@ -56,21 +43,13 @@ object PacketUtils : MinecraftInstance(), Listenable {
         val world = mc.theWorld ?: return
 
         when (packet) {
-            is S0CPacketSpawnPlayer ->
-                (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
+            is S0CPacketSpawnPlayer -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+            }
 
-            is S0FPacketSpawnMob ->
-                (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
+            is S0FPacketSpawnMob -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+            }
 
             is S14PacketEntity -> {
                 val entity = packet.getEntity(world)
@@ -78,10 +57,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
                 mixinEntity?.apply {
                     if (!truePos) {
-                        trueX = entity.posX
-                        trueY = entity.posY
-                        trueZ = entity.posZ
-                        truePos = true
+                        updateSpawnPosition(entity.currPos)
                     }
 
                     trueX += packet.realMotionX
@@ -90,84 +66,9 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 }
             }
 
-            is S18PacketEntityTeleport ->
-                (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
-                    trueX = packet.realX
-                    trueY = packet.realY
-                    trueZ = packet.realZ
-                    truePos = true
-                }
-        }
-    }
-
-    @JvmStatic
-    fun sendPacket(packet: Packet<*>, triggerEvent: Boolean = true) {
-        if (triggerEvent) {
-            mc.netHandler?.addToSendQueue(packet)
-            return
-        }
-
-        val netManager = mc.netHandler?.networkManager ?: return
-
-        if (netManager.isChannelOpen) {
-            netManager.flushOutboundQueue()
-            netManager.dispatchPacket(packet, null)
-        } else {
-            netManager.readWriteLock.writeLock().lock()
-            try {
-                netManager.outboundPacketsQueue += NetworkManager.InboundHandlerTuplePacketListener(packet, null)
-            } finally {
-                netManager.readWriteLock.writeLock().unlock()
+            is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
+                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
             }
-        }
-    }
-
-    @JvmStatic
-    fun sendPacketNoEvent(packet: Packet<INetHandlerPlayServer>) {
-        packets.add(packet)
-        mc.netHandler.addToSendQueue(packet)
-    }
-
-    val S12PacketEntityVelocity.realMotionX: Float
-        get() = motionX / 8000f
-
-    val S12PacketEntityVelocity.realMotionY: Float
-        get() = motionY / 8000f
-
-    val S12PacketEntityVelocity.realMotionZ: Float
-        get() = motionZ / 8000f
-    val S0CPacketSpawnPlayer.realX
-        get() = x / 32.0
-    val S0CPacketSpawnPlayer.realY
-        get() = y / 32.0
-    val S0CPacketSpawnPlayer.realZ
-        get() = z / 32.0
-
-    val S0FPacketSpawnMob.realX
-        get() = x / 32.0
-    val S0FPacketSpawnMob.realY
-        get() = y / 32.0
-    val S0FPacketSpawnMob.realZ
-        get() = z / 32.0
-
-    val S18PacketEntityTeleport.realX
-        get() = x / 32.0
-    val S18PacketEntityTeleport.realY
-        get() = y / 32.0
-    val S18PacketEntityTeleport.realZ
-        get() = z / 32.0
-    val S14PacketEntity.realMotionX
-        get() = func_149062_c() / 32.0
-    val S14PacketEntity.realMotionY
-        get() = func_149061_d() / 32.0
-    val S14PacketEntity.realMotionZ
-        get() = func_149064_e() / 32.0
-
-    fun handlePackets(vararg packets: Packet<*>) =
-        packets.forEach { handlePacket(it) }
-
-    fun handlePacket(packet: Packet<*>?) {
-        runCatching { (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler) }.onSuccess {
         }
     }
 
@@ -194,25 +95,129 @@ object PacketUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    fun getPacketType(packet: Packet<*>): PacketType {
-        val className = packet.javaClass.simpleName
-        if (className.startsWith("C", ignoreCase = true)) {
-                return PacketType.CLIENTSIDE
-        } else if (className.startsWith("S", ignoreCase = true)) {
-                return PacketType.SERVERSIDE
+    @JvmStatic
+    fun sendPacket(packet: Packet<*>, triggerEvent: Boolean = true) {
+        if (triggerEvent) {
+            mc.netHandler?.addToSendQueue(packet)
+            return
         }
-        // idk...
-        return PacketType.UNKNOWN
+
+        val netManager = mc.netHandler?.networkManager ?: return
+
+        if (netManager.isChannelOpen) {
+            netManager.flushOutboundQueue()
+            netManager.dispatchPacket(packet, null)
+        } else {
+            netManager.readWriteLock.writeLock().lock()
+            try {
+                netManager.outboundPacketsQueue += NetworkManager.InboundHandlerTuplePacketListener(packet, null)
+            } finally {
+                netManager.readWriteLock.writeLock().unlock()
+            }
+        }
     }
 
-    enum class PacketType {
-        SERVERSIDE,
-        CLIENTSIDE,
-        UNKNOWN
+    @JvmStatic
+    fun sendPackets(vararg packets: Packet<*>, triggerEvents: Boolean = true) =
+        packets.forEach { sendPacket(it, triggerEvents) }
+
+    fun handlePackets(vararg packets: Packet<*>) =
+        packets.forEach { handlePacket(it) }
+
+    fun handlePacket(packet: Packet<*>?) {
+        runCatching { (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler) }.onSuccess {
+        }
     }
 
-    override fun handleEvents(): Boolean = true
+    val Packet<*>.type
+        get() = when (this.javaClass.simpleName[0]) {
+            'C' -> PacketType.CLIENT
+            'S' -> PacketType.SERVER
+            else -> PacketType.UNKNOWN
+        }
+
+    enum class PacketType { CLIENT, SERVER, UNKNOWN }
 }
+
+fun IMixinEntity.updateSpawnPosition(target: Vec3, ignoreInterpolation: Boolean = false) {
+    trueX = target.xCoord
+    trueY = target.yCoord
+    trueZ = target.zCoord
+    if (!ignoreInterpolation) {
+        lerpX = trueX
+        lerpY = trueY
+        lerpZ = trueZ
+    }
+    truePos = true
+}
+
+fun interpolatePosition(entity: IMixinEntity) = entity.run {
+    val delta = RenderUtils.deltaTimeNormalized(150)
+
+    lerpX += (trueX - lerpX) * delta
+    lerpY += (trueY - lerpY) * delta
+    lerpZ += (trueZ - lerpZ) * delta
+}
+
+var S12PacketEntityVelocity.realMotionX
+    get() = motionX / 8000.0
+    set(value) {
+        motionX = (value * 8000.0).roundToInt()
+    }
+var S12PacketEntityVelocity.realMotionY
+    get() = motionY / 8000.0
+    set(value) {
+        motionX = (value * 8000.0).roundToInt()
+    }
+var S12PacketEntityVelocity.realMotionZ
+    get() = motionZ / 8000.0
+    set(value) {
+        motionX = (value * 8000.0).roundToInt()
+    }
+
+val S14PacketEntity.realMotionX
+    get() = func_149062_c() / 32.0
+val S14PacketEntity.realMotionY
+    get() = func_149061_d() / 32.0
+val S14PacketEntity.realMotionZ
+    get() = func_149064_e() / 32.0
+
+var S0EPacketSpawnObject.realX
+    get() = x / 32.0
+    set(value) {
+        x = (value * 32.0).roundToInt()
+    }
+var S0EPacketSpawnObject.realY
+    get() = y / 32.0
+    set(value) {
+        y = (value * 32.0).roundToInt()
+    }
+var S0EPacketSpawnObject.realZ
+    get() = z / 32.0
+    set(value) {
+        z = (value * 32.0).roundToInt()
+    }
+
+val S0CPacketSpawnPlayer.realX
+    get() = x / 32.0
+val S0CPacketSpawnPlayer.realY
+    get() = y / 32.0
+val S0CPacketSpawnPlayer.realZ
+    get() = z / 32.0
+
+val S0FPacketSpawnMob.realX
+    get() = x / 32.0
+val S0FPacketSpawnMob.realY
+    get() = y / 32.0
+val S0FPacketSpawnMob.realZ
+    get() = z / 32.0
+
+val S18PacketEntityTeleport.realX
+    get() = x / 32.0
+val S18PacketEntityTeleport.realY
+    get() = y / 32.0
+val S18PacketEntityTeleport.realZ
+    get() = z / 32.0
 
 var C03PacketPlayer.rotation
     get() = Rotation(yaw, pitch)

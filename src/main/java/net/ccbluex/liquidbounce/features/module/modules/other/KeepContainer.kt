@@ -25,7 +25,7 @@ object KeepContainer : Module() {
 
     override fun onDisable() {
         if (container != null)
-            PacketUtils.sendPacketNoEvent(C0DPacketCloseWindow(container!!.inventorySlots.windowId))
+            PacketUtils.sendPacket(C0DPacketCloseWindow(container!!.inventorySlots.windowId),false)
 
         container = null
     }

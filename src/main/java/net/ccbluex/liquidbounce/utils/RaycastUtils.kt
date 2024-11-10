@@ -7,6 +7,8 @@ package net.ccbluex.liquidbounce.utils
 
 import com.google.common.base.Predicate
 import com.google.common.base.Predicates
+import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack
+import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.loopThroughBacktrackData
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.serverRotation
 import net.ccbluex.liquidbounce.utils.extensions.eyes
@@ -82,6 +84,8 @@ object RaycastUtils : MinecraftInstance() {
 
                 // Check newest entity first
                 checkEntity()
+                if (Backtrack.mode.get() == "Legacy")
+                    loopThroughBacktrackData(entity, checkEntity)
             }
 
             return pointedEntity

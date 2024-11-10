@@ -12,8 +12,8 @@ import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacketNoEvent
 import net.ccbluex.liquidbounce.features.value.FloatValue
+import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.util.BlockPos
@@ -46,12 +46,13 @@ object SpeedMine : Module() {
                         ex.printStackTrace()
                         return
                     }
-                    sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C07PacketPlayerDigging(
                             C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
                             pos,
                             facing
-                        )
+                        ),
+                        false
                     )
                     damage = 0f
                     boost = false

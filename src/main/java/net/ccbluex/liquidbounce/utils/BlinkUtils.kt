@@ -50,7 +50,7 @@ object BlinkUtils : MinecraftInstance() {
                 for (packets in playerBuffer) {
                     val packetID = BigInteger(packets.javaClass.simpleName.substring(1..2), 16).toInt()
                     if (packetToggleStat[packetID] || !onlySelected) {
-                        PacketUtils.sendPacketNoEvent(packets)
+                        PacketUtils.sendPacket(packets,false)
                     }
                 }
             }
@@ -63,7 +63,7 @@ object BlinkUtils : MinecraftInstance() {
                     }
                 }
                 while(tempBuffer.size > minBuff && (count < amount || amount <= 0)) {
-                    PacketUtils.sendPacketNoEvent(tempBuffer.pop())
+                    PacketUtils.sendPacket(tempBuffer.pop(),false)
                     count++
                 }
             }

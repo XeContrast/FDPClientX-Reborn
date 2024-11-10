@@ -47,6 +47,8 @@ object RenderUtils : MinecraftInstance() {
     private var startTime: Long = 0
     private val fakePlayers: MutableMap<Int, EntityOtherPlayerMP> = HashMap()
 
+    fun deltaTimeNormalized(ticks: Int = 50) = (deltaTime / ticks.toDouble()).coerceAtMost(1.0)
+
     @JvmField
     var deltaTime: Int = 0
 

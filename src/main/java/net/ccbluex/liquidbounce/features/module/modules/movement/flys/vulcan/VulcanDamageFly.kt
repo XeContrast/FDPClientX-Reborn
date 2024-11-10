@@ -165,7 +165,7 @@ class VulcanDamageFly : FlyMode("VulcanDamage") {
                         flyTicks++
                         val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())
                         mc.thePlayer.setPosition(mc.thePlayer.posX + (-sin(yaw) * flyDistanceValue.get()), mc.thePlayer.posY + 0.42, mc.thePlayer.posZ + (cos(yaw) * flyDistanceValue.get()))
-                        PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
+                        PacketUtils.sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false),false)
                     }
                 }
             }
@@ -192,7 +192,7 @@ class VulcanDamageFly : FlyMode("VulcanDamage") {
 
                 if (sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ) > flyDistanceValue.get()) {
                     flyTicks++
-                    PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(lastTickX, lastTickY, lastTickZ, false))
+                    PacketUtils.sendPacket(C04PacketPlayerPosition(lastTickX, lastTickY, lastTickZ, false),false)
                     lastSentX = lastTickX
                     lastSentY = lastTickY
                     lastSentZ = lastTickZ
@@ -216,7 +216,7 @@ class VulcanDamageFly : FlyMode("VulcanDamage") {
         }
         
         if (packet is S08PacketPlayerPosLook && waitFlag && !flyMode.equals("cancelmove")) {
-            if (bypassMode.equals("InstantDamage")) PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false))
+            if (bypassMode.equals("InstantDamage")) PacketUtils.sendPacket(C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false),false)
             mc.timer.timerSpeed = 1.0f
             flyTicks = 0
             
@@ -228,14 +228,14 @@ class VulcanDamageFly : FlyMode("VulcanDamage") {
             if (!bypassMode.equals("InstantDamage")) event.cancelEvent()
             
             TransferUtils.noMotionSet = true
-            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false))
+            PacketUtils.sendPacket(C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false),false)
         }
         
         if (packet is C0FPacketConfirmTransaction) { //Make sure it works with Vulcan Velocity
             val transUID = (packet.uid).toInt()
             if (transUID >= -31767 && transUID <= -30769) {
                 event.cancelEvent()
-                PacketUtils.sendPacketNoEvent(packet)
+                PacketUtils.sendPacket(packet,false)
             }
         }
     }

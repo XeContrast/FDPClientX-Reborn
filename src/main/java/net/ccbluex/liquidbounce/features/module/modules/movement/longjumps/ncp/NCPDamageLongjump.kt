@@ -54,10 +54,10 @@ class NCPDamageLongjump : LongJumpMode("NCPDamage") {
             if (balance >= jumpYPosArr.size * 3) {
                 repeat(3) {
                     jumpYPosArr.forEach {
-                        PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(x, y + it, z, false))
+                        PacketUtils.sendPacket(C03PacketPlayer.C04PacketPlayerPosition(x, y + it, z, false),false)
                     }
                 }
-                PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(x, y, z, true))
+                PacketUtils.sendPacket(C03PacketPlayer.C04PacketPlayerPosition(x, y, z, true),false)
                 damageStat = true
                 mc.thePlayer.onGround = true
                 longjump.airTick = 0

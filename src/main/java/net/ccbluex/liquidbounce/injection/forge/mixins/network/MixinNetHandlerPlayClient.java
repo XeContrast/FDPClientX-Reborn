@@ -7,9 +7,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.network;
 
 import io.netty.buffer.Unpooled;
 import net.ccbluex.liquidbounce.FDPClient;
-import net.ccbluex.liquidbounce.event.EntityDamageEvent;
-import net.ccbluex.liquidbounce.event.EventState;
-import net.ccbluex.liquidbounce.event.PacketEvent;
+import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.PackSpoofer;
 import net.ccbluex.liquidbounce.features.module.modules.other.NoRotateSet;
 import net.ccbluex.liquidbounce.features.module.modules.other.SilentDisconnect;
@@ -124,6 +122,14 @@ public abstract class MixinNetHandlerPlayClient {
             callbackInfo.cancel();
         }
         }
+    }
+
+    @Inject(method = "handleEntityMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z"))
+    private void handleEntityMovementEvent(S14PacketEntity packetIn, final CallbackInfo callbackInfo) {
+        final Entity entity = packetIn.getEntity(clientWorldController);
+
+        if (entity != null)
+            FDPClient.eventManager.callEvent(new EntityMovementEvent(entity));
     }
 
 

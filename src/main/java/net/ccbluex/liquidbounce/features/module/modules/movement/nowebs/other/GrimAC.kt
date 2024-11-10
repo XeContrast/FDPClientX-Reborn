@@ -9,12 +9,13 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
 class GrimAC : NoWebMode("GrimAC") {
-    private val breakeronworld = BoolValue("BreakerOnWordl",true)
+    private val breakeronworld = BoolValue("BreakerOnWorld",true)
 
     @EventTarget
     override fun onUpdate() {
         mc.thePlayer.isInWeb = false
     }
+
     @EventTarget
     override fun blockPos(pos: BlockPos) {
         if (breakeronworld.get()) mc.theWorld.setBlockState(pos, Blocks.air.defaultState)

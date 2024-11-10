@@ -441,16 +441,6 @@ public enum RenderUtil {
         tessellator.draw();
         GlStateManager.depthMask(true);
         GlStateManager.shadeModel(7424);
-        glEnd();
-
-        glShadeModel(GL_FLAT);
-        glDepthMask(true);
-        glEnable(GL_DEPTH_TEST);
-        GlStateManager.enableCull();
-        glDisable(GL_LINE_SMOOTH);
-        glEnable(GL_TEXTURE_2D);
-        glPopMatrix();
-        glColor4f(1f, 1f, 1f, 1f);
     }
 
 }

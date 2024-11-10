@@ -32,9 +32,9 @@ class VerusBoostFly : FlyMode("VerusBoost") {
             "Boost1" -> {
                 val speed = speedValue.get()
                 val pos = mc.thePlayer.position.add(0.0, -1.5, 0.0)
-                PacketUtils.sendPacketNoEvent(
+                PacketUtils.sendPacket(
                     C08PacketPlayerBlockPlacement(pos, 1,
-                        ItemStack(Blocks.stone.getItem(mc.theWorld, pos)), 0.0F, 0.5F + Math.random().toFloat() * 0.44.toFloat(), 0.0F)
+                        ItemStack(Blocks.stone.getItem(mc.theWorld, pos)), 0.0F, 0.5F + Math.random().toFloat() * 0.44.toFloat(), 0.0F),false
                 )
                 if (ticks < 3)
                     event.cancelEvent()
@@ -56,16 +56,17 @@ class VerusBoostFly : FlyMode("VerusBoost") {
                 }
                 if(ticks == 3) {
                     val pos = mc.thePlayer.position.add(0.0, -1.5, 0.0)
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C08PacketPlayerBlockPlacement(pos, 1,
                             ItemStack(Blocks.stone.getItem(mc.theWorld, pos)), 0.0F, 0.5F + Math.random().toFloat() * 0.44.toFloat(), 0.0F)
+                        ,false
                     )
                     val x = mc.thePlayer.posX
                     val y = mc.thePlayer.posY
                     val z = mc.thePlayer.posZ
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(x, y+3+Math.random()*0.07, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(x, y, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(x, y, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true))
+                    PacketUtils.sendPacket(C03PacketPlayer.C06PacketPlayerPosLook(x, y+3+Math.random()*0.07, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false),false)
+                    PacketUtils.sendPacket(C03PacketPlayer.C06PacketPlayerPosLook(x, y, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false),false)
+                    PacketUtils.sendPacket(C03PacketPlayer.C06PacketPlayerPosLook(x, y, z, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true),false)
                     mc.timer.timerSpeed = 0.25f
                 }
                 if(mc.thePlayer.hurtTime > 2) {
@@ -177,9 +178,9 @@ class VerusBoostFly : FlyMode("VerusBoost") {
                     return
                 ticks++
                 if(ticks == 3) {
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX,mc.thePlayer.posY+3.25,mc.thePlayer.posZ,false))
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX,mc.thePlayer.posY,mc.thePlayer.posZ,false))
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer(true))
+                    PacketUtils.sendPacket(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX,mc.thePlayer.posY+3.25,mc.thePlayer.posZ,false),false)
+                    PacketUtils.sendPacket(C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX,mc.thePlayer.posY,mc.thePlayer.posZ,false),false)
+                    PacketUtils.sendPacket(C03PacketPlayer(true),false)
                     mc.timer.timerSpeed = 0.4f
                     mc.thePlayer.jump()
                 }else {

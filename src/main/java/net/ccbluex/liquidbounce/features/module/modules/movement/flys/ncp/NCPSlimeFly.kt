@@ -74,7 +74,7 @@ class NCPSlimeFly : FlyMode("NCPSlime") {
     override fun onDisable() {
         mc.timer.timerSpeed = 1.0f
         for (packet in packetBuffer) {
-            PacketUtils.sendPacketNoEvent(packet)
+            PacketUtils.sendPacket(packet,false)
         }
         packetBuffer.clear()
     }
@@ -83,7 +83,7 @@ class NCPSlimeFly : FlyMode("NCPSlime") {
         if(timer.hasTimePassed((Math.random() * 1000).toLong())) {
             timer.reset()
             for (packet in packetBuffer) {
-                PacketUtils.sendPacketNoEvent(packet)
+                PacketUtils.sendPacket(packet,false)
             }
             packetBuffer.clear()
         }

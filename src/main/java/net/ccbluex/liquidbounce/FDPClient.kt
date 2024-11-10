@@ -139,6 +139,7 @@ object FDPClient {
         eventManager.registerListener(SessionUtils())
         eventManager.registerListener(StatisticsUtils())
         eventManager.registerListener(LocationCache())
+        eventManager.registerListener(PacketUtils)
         eventManager.registerListener(macroManager)
         eventManager.registerListener(combatManager)
 

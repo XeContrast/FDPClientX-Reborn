@@ -39,7 +39,7 @@ class BlockdropFly : FlyMode("BlockDrop") {
         MovementUtils.strafe(hSpeedValue.get())
         
         repeat(2) {
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C03PacketPlayer.C06PacketPlayerPosLook(
                     startx,
                     starty,
@@ -47,11 +47,12 @@ class BlockdropFly : FlyMode("BlockDrop") {
                     startyaw,
                     startpitch,
                     true
-                )
+                ),
+                false
             )
         }
         repeat(2) {
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C03PacketPlayer.C06PacketPlayerPosLook(
                     mc.thePlayer.posX,
                     mc.thePlayer.posY,
@@ -59,7 +60,8 @@ class BlockdropFly : FlyMode("BlockDrop") {
                     startyaw,
                     startpitch,
                     false
-                )
+                ),
+                false
             )
         }
     }

@@ -103,10 +103,10 @@ object FreeCam : Module() {
             if (packet is C03PacketPlayer.C04PacketPlayerPosition || packet is C03PacketPlayer.C05PacketPlayerLook || packet is C03PacketPlayer.C06PacketPlayerPosLook) {
                 if (packetCount >= 20) {
                     packetCount = 0
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(fakePlayer!!.posX, fakePlayer!!.posY, fakePlayer!!.posZ, fakePlayer!!.rotationYaw, fakePlayer!!.rotationPitch, fakePlayer!!.onGround))
+                    PacketUtils.sendPacket(C03PacketPlayer.C06PacketPlayerPosLook(fakePlayer!!.posX, fakePlayer!!.posY, fakePlayer!!.posZ, fakePlayer!!.rotationYaw, fakePlayer!!.rotationPitch, fakePlayer!!.onGround),false)
                 } else {
                     packetCount++
-                    PacketUtils.sendPacketNoEvent(C03PacketPlayer(fakePlayer!!.onGround))
+                    PacketUtils.sendPacket(C03PacketPlayer(fakePlayer!!.onGround),false)
                 }
                 event.cancelEvent()
             }
@@ -121,7 +121,7 @@ object FreeCam : Module() {
             motionY = 0.0
             motionZ = 0.0
             // apply the flag to bypass some anticheat
-            PacketUtils.sendPacketNoEvent(C03PacketPlayer.C06PacketPlayerPosLook(fakePlayer!!.posX, fakePlayer!!.posY, fakePlayer!!.posZ, fakePlayer!!.rotationYaw, fakePlayer!!.rotationPitch, fakePlayer!!.onGround))
+            PacketUtils.sendPacket(C03PacketPlayer.C06PacketPlayerPosLook(fakePlayer!!.posX, fakePlayer!!.posY, fakePlayer!!.posZ, fakePlayer!!.rotationYaw, fakePlayer!!.rotationPitch, fakePlayer!!.onGround),false)
 
             event.cancelEvent()
         }

@@ -21,7 +21,7 @@ class GodseyeFly : FlyMode("Godseye") {
         flag = false
         timer.reset()
         if(mc.thePlayer.onGround) {
-            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 2 + Math.random() / 2, mc.thePlayer.posZ, false))
+            PacketUtils.sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 2 + Math.random() / 2, mc.thePlayer.posZ, false),false)
         } else {
             fly.state = false
         }
@@ -44,7 +44,7 @@ class GodseyeFly : FlyMode("Godseye") {
         }
         if(timer.hasTimePassed((150 + Math.random() * 50).toLong()) && MovementUtils.isMoving) {
             timer.reset()
-            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX , mc.thePlayer.posY , mc.thePlayer.posZ , true))
+            PacketUtils.sendPacket(C04PacketPlayerPosition(mc.thePlayer.posX , mc.thePlayer.posY , mc.thePlayer.posZ , true),false)
         }
     }
 
@@ -65,7 +65,7 @@ class GodseyeFly : FlyMode("Godseye") {
 
                 if (sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ) < 10) {
                     event.cancelEvent()
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C06PacketPlayerPosLook(
                             packet.x,
                             packet.y,
@@ -73,7 +73,8 @@ class GodseyeFly : FlyMode("Godseye") {
                             packet.getYaw(),
                             packet.getPitch(),
                             false
-                        )
+                        ),
+                        false
                     )
                 }
             }

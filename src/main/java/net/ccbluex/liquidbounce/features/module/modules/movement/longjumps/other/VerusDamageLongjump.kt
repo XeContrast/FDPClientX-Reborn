@@ -20,8 +20,8 @@ class VerusDamageLongjump : LongJumpMode("VerusDamage") {
             Chat.alert("Pls move while toggling LongJump. Using AutoJump option is recommended.")
             return
         }
-        PacketUtils.sendPacketNoEvent(C03PacketPlayer.C04PacketPlayerPosition(player.posX, player.posY + 3.0001, player.posZ, false))
-        PacketUtils.sendPacketNoEvent(
+        PacketUtils.sendPacket(C03PacketPlayer.C04PacketPlayerPosition(player.posX, player.posY + 3.0001, player.posZ, false),false)
+        PacketUtils.sendPacket(
             C03PacketPlayer.C06PacketPlayerPosLook(
                 player.posX,
                 player.posY,
@@ -29,9 +29,10 @@ class VerusDamageLongjump : LongJumpMode("VerusDamage") {
                 player.rotationYaw,
                 player.rotationPitch,
                 false
-            )
+            ),
+            false
         )
-        PacketUtils.sendPacketNoEvent(
+        PacketUtils.sendPacket(
             C03PacketPlayer.C06PacketPlayerPosLook(
                 player.posX,
                 player.posY,
@@ -39,7 +40,8 @@ class VerusDamageLongjump : LongJumpMode("VerusDamage") {
                 player.rotationYaw,
                 player.rotationPitch,
                 true
-            )
+            ),
+            false
         )
         damaged = true
     }

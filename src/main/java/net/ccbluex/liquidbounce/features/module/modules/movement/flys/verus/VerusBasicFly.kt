@@ -41,9 +41,10 @@ class VerusBasicFly : FlyMode("VerusBasic") {
     override fun onMove(event: MoveEvent) {
         if(verusMode.get() === "Packet2") {
             val pos = mc.thePlayer.position.add(0.0, -1.5, 0.0)
-            PacketUtils.sendPacketNoEvent(
+            PacketUtils.sendPacket(
                 C08PacketPlayerBlockPlacement(pos, 1,
-                    ItemStack(Blocks.stone.getItem(mc.theWorld, pos)), 0.0F, 0.5F + Math.random().toFloat() * 0.44.toFloat(), 0.0F)
+                    ItemStack(Blocks.stone.getItem(mc.theWorld, pos)), 0.0F, 0.5F + Math.random().toFloat() * 0.44.toFloat(), 0.0F),
+                false
             )
             if(mc.thePlayer.onGround && !jumped) {
                 mc.thePlayer.jump()

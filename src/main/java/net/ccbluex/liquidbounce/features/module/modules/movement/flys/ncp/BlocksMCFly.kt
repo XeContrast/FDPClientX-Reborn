@@ -42,7 +42,7 @@ class BlocksMCFly : FlyMode("BlocksMc") {
             if (starteds) {
                 val pos = mc.thePlayer.position.add(0.0, -1.5, 0.0)
                 if (mc.thePlayer.onGround) {
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C08PacketPlayerBlockPlacement(
                             pos,
                             1,
@@ -50,12 +50,13 @@ class BlocksMCFly : FlyMode("BlocksMc") {
                             0.0F,
                             0.5F + Math.random().toFloat() * 0.44.toFloat(),
                             0.0F
-                        )
+                        ),
+                        false
                     )
                 }
                 if (mc.thePlayer.ticksExisted % 4 == 0) {
                     alert("sent c08")
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C08PacketPlayerBlockPlacement(
                             pos,
                             1,
@@ -63,7 +64,8 @@ class BlocksMCFly : FlyMode("BlocksMc") {
                             0.0F,
                             0.5F + Math.random().toFloat() * 0.44.toFloat(),
                             0.0F
-                        )
+                        ),
+                        false
                     )
                 }
                 MovementUtils.strafe(0.95f.let { bmcSpeed *= it; bmcSpeed }.toFloat())

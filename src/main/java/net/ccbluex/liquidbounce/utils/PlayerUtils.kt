@@ -3,6 +3,7 @@ package net.ccbluex.liquidbounce.utils
 import kevin.utils.minus
 import kevin.utils.multiply
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations
+import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
 import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
@@ -31,6 +32,8 @@ val EntityLivingBase.isMoving: Boolean
     get() = this.run { moveForward != 0F || moveStrafing != 0F }
 val Entity.rotation: Rotation
     get() = Rotation(rotationYaw, rotationPitch)
+val IMixinEntity.interpolatedPosition
+    get() = Vec3(lerpX, lerpY, lerpZ)
 
 object PlayerUtils {
     fun randomUnicode(str: String): String {

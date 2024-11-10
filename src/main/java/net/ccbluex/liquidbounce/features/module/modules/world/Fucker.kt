@@ -553,12 +553,13 @@ object Fucker : Module() {
                         ex.printStackTrace()
                         return
                     }
-                    PacketUtils.sendPacketNoEvent(
+                    PacketUtils.sendPacket(
                         C07PacketPlayerDigging(
                             C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
                             pos,
                             facing
-                        )
+                        ),
+                        false
                     )
                     damage = 0f
                     boost = false

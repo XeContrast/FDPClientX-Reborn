@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MovementUtils.strafe
-import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacketNoEvent
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.init.Items
@@ -89,8 +89,8 @@ class BowJump : Module() {
                     bowState = 5
                 } else if (lastPlayerTick == -1L) {
 
-                    if (lastSlot != slot) sendPacketNoEvent(C09PacketHeldItemChange(slot))
-                    sendPacketNoEvent(
+                    if (lastSlot != slot) sendPacket(C09PacketHeldItemChange(slot),false)
+                    sendPacket(
                         C08PacketPlayerBlockPlacement(
                             BlockPos(-1, -1, -1),
                             255,
@@ -98,7 +98,8 @@ class BowJump : Module() {
                             0f,
                             0f,
                             0f
-                        )
+                        ),
+                        false
                     )
 
                     lastPlayerTick = mc.thePlayer.ticksExisted.toLong()
@@ -109,16 +110,17 @@ class BowJump : Module() {
             1 -> {
                 val reSlot = bowSlot
                 if (mc.thePlayer.ticksExisted - lastPlayerTick > delayBeforeLaunch.get()) {
-                    sendPacketNoEvent(C05PacketPlayerLook(mc.thePlayer.rotationYaw, -90f, mc.thePlayer.onGround))
-                    sendPacketNoEvent(
+                    sendPacket(C05PacketPlayerLook(mc.thePlayer.rotationYaw, -90f, mc.thePlayer.onGround),false)
+                    sendPacket(
                         C07PacketPlayerDigging(
                             C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
                             BlockPos.ORIGIN,
                             EnumFacing.DOWN
-                        )
+                        ),
+                        false
                     )
 
-                    if (lastSlot != reSlot) sendPacketNoEvent(C09PacketHeldItemChange(lastSlot))
+                    if (lastSlot != reSlot) sendPacket(C09PacketHeldItemChange(lastSlot),false)
                     bowState = 2
                 }
             }
