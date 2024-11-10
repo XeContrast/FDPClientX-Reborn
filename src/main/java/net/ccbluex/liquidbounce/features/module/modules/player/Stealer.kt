@@ -114,112 +114,116 @@ object Stealer : Module() {
     }
 
     @EventTarget
-    fun onRender3D(event: Render3DEvent) {
-        if (!chestTimer.hasTimePassed(chestValue.get().toLong())) {
-            return
-        }
-
-        val screen = mc.currentScreen
-
-        if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay.toLong())) {
-            autoCloseTimer.reset()
-            return
-        }
-
-        // No Compass
-        if (noCompassValue.get() && mc.thePlayer.inventory.getCurrentItem()?.item?.unlocalizedName == "item.compass") {
-            return
-        }
-
-        // Chest title
-        if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(
-                ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName
-            ))
-        ) {
-            return
-        }
-
-        // inventory cleaner
-        val invManager = FDPClient.moduleManager[InvManager::class.java]!!
-
-        // check if it's empty?
-        if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
-            autoCloseTimer.reset()
-
-            // Randomized
-            if (takeRandomizedValue.get()) {
-                do {
-                    val items = mutableListOf<Slot>()
-
-                    for (slotIndex in 0 until screen.inventoryRows * 9) {
-                        val slot = screen.inventorySlots.inventorySlots[slotIndex]
-
-                        if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
-                                .map { it.item!! }
-                                .contains(slot.stack.item)) && (!invManager.state || invManager.isUseful(
-                                slot.stack,
-                                -1
-                            ))
-                        )
-                            items.add(slot)
-                    }
-
-                    val randomSlot = Random.nextInt(items.size)
-                    val slot = items[randomSlot]
-
-                    move(screen, slot)
-                } while (delayTimer.hasTimePassed(nextDelay.toLong()) && items.isNotEmpty())
+    fun onTick(event: PlayerTickEvent) {
+        if (event.state == EventState.PRE) {
+            if (!chestTimer.hasTimePassed(chestValue.get().toLong())) {
                 return
             }
 
-            // Non randomized
-            for (slotIndex in 0 until screen.inventoryRows * 9) {
-                val slot = screen.inventorySlots.inventorySlots[slotIndex]
+            val screen = mc.currentScreen ?: return
 
-                if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
-                    (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(
-                        slot.stack,
-                        -1
-                    ))
-                ) {
-                    move(screen, slot)
-                }
+            if (screen !is GuiChest || !delayTimer.hasTimePassed(nextDelay.toLong())) {
+                autoCloseTimer.reset()
+                return
             }
-        } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
-                nextCloseDelay.toLong()
-            )
-        ) {
-            mc.thePlayer.closeScreen()
-            nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
-        }
-    }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (instantValue.get()) {
-            if (mc.currentScreen is GuiChest) {
-                val chest = mc.currentScreen as GuiChest
-                val rows = chest.inventoryRows * 9
-                for (i in 0 until rows) {
-                    val slot = chest.inventorySlots.getSlot(i)
-                    if (slot.hasStack) {
-                        mc.thePlayer.sendQueue.addToSendQueue(
-                            C0EPacketClickWindow(
+            // No Compass
+            if (noCompassValue.get() && mc.thePlayer.inventory.getCurrentItem()?.item?.unlocalizedName == "item.compass") {
+                return
+            }
+
+            // Chest title
+            if (chestTitleValue.get() && (screen.lowerChestInventory == null || !screen.lowerChestInventory.name.contains(
+                    ItemStack(Item.itemRegistry.getObject(ResourceLocation("minecraft:chest"))).displayName
+                ))
+            ) {
+                return
+            }
+
+            // inventory cleaner
+            val invManager = FDPClient.moduleManager[InvManager::class.java]!!
+
+            // check if it's empty?
+            if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
+                autoCloseTimer.reset()
+
+                // Randomized
+                if (takeRandomizedValue.get()) {
+                    do {
+                        val items = mutableListOf<Slot>()
+
+                        for (slotIndex in 0 until screen.inventoryRows * 9) {
+                            val slot = screen.inventorySlots.inventorySlots[slotIndex]
+
+                            if (slot.stack != null && (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!noDuplicateValue.get() || slot.stack.maxStackSize > 1 || !mc.thePlayer.inventory.mainInventory.filter { it != null && it.item != null }
+                                    .map { it.item!! }
+                                    .contains(slot.stack.item)) && (!invManager.state || invManager.isUseful(
+                                    slot.stack,
+                                    -1
+                                ))
+                            )
+                                items.add(slot)
+                        }
+
+                        val randomSlot = Random.nextInt(items.size)
+                        val slot = items[randomSlot]
+
+                        move(screen, slot)
+                    } while (delayTimer.hasTimePassed(nextDelay.toLong()) && items.isNotEmpty())
+                    return
+                }
+
+                // Non randomized
+                for (slotIndex in 0 until screen.inventoryRows * 9) {
+                    val slot = screen.inventorySlots.inventorySlots[slotIndex]
+
+                    if (delayTimer.hasTimePassed(nextDelay.toLong()) && slot.stack != null &&
+                        (!onlyItemsValue.get() || slot.stack.item !is ItemBlock) && (!invManager.state || invManager.isUseful(
+                            slot.stack,
+                            -1
+                        ))
+                    ) {
+                        move(screen, slot)
+                    }
+                }
+            } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(
+                    nextCloseDelay.toLong()
+                )
+            ) {
+                mc.thePlayer.closeScreen()
+                nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
+            }
+            if (instantValue.get()) {
+                if (mc.currentScreen is GuiChest) {
+                    val chest = mc.currentScreen as GuiChest
+                    val rows = chest.inventoryRows * 9
+                    for (i in 0 until rows) {
+                        val slot = chest.inventorySlots.getSlot(i)
+                        if (slot.hasStack) {
+                            mc.playerController?.windowClick(
                                 chest.inventorySlots.windowId,
                                 i,
                                 0,
-                                1,
-                                slot.stack,
-                                1.toShort()
-                            )
-                        )
+                                2,
+                                mc.thePlayer
+                                )
+//                            mc.thePlayer.sendQueue.addToSendQueue(
+//                                C0EPacketClickWindow(
+//                                    chest.inventorySlots.windowId,
+//                                    i,
+//                                    0,
+//                                    1,
+//                                    slot.stack,
+//                                    1.toShort()
+//                                )
+//                            )
+                        }
                     }
                 }
                 mc.thePlayer.closeScreen()
             }
+            performStealer(screen)
         }
-        val screen = mc.currentScreen ?: return
-        performStealer(screen)
     }
 
     private fun performStealer(screen: GuiScreen) {

@@ -35,18 +35,19 @@ class FamousCheck : Module() {
             HackerData("wansir","WanFan"),
             HackerData("Float","FloatMemory_Official"),
             HackerData("HuHua","沭桦Next"),
-            HackerData("Rem_","沭桦Next"),
+            HackerData("Rem_ai","沭桦Next"),
             HackerData("ImSad_","BoySir_"),
             HackerData("RN_","Random_Name"),
             HackerData("DouSha","豆沙"),
             HackerData("Zekruin","蒸菜icu"),
             HackerData("nerock","河南猪"),
-            HackerData("weipu","Weipu42"),
+            HackerData("weipu","Wei/pu42"),
 
             HackerData("Yao_Mao"),
             HackerData("Bad_Smoke"),
             HackerData("tea_tea"),
             HackerData("L1ne"),
+            HackerData("Fanscom"),
             )
 
         world.playerEntities.forEach { other ->
