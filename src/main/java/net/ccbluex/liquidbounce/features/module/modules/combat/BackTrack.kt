@@ -74,9 +74,8 @@ object Backtrack : Module() {
     // Modern
     private val style = ListValue("Style", arrayOf("Pulse", "Smooth"), "Smooth").displayable { mode.get() == "Modern" }
 
-    private val maxDistanceValue: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f,3.5f) {
+    private val maxDistance: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f,3.5f) {
     }
-    private val maxDistance = maxDistanceValue
     private val minDistance = object : FloatValue("MinDistance", 2.0f, 0.0f,3.0f) {
     }
     private val smart = BoolValue("Smart", true).displayable { mode.get() == "Modern" }

@@ -200,23 +200,16 @@ object Stealer : Module() {
                     for (i in 0 until rows) {
                         val slot = chest.inventorySlots.getSlot(i)
                         if (slot.hasStack) {
-                            mc.playerController?.windowClick(
-                                chest.inventorySlots.windowId,
-                                i,
-                                0,
-                                2,
-                                mc.thePlayer
+                            mc.thePlayer.sendQueue.addToSendQueue(
+                                C0EPacketClickWindow(
+                                    chest.inventorySlots.windowId,
+                                    i,
+                                    0,
+                                    1,
+                                    slot.stack,
+                                    1.toShort()
                                 )
-//                            mc.thePlayer.sendQueue.addToSendQueue(
-//                                C0EPacketClickWindow(
-//                                    chest.inventorySlots.windowId,
-//                                    i,
-//                                    0,
-//                                    1,
-//                                    slot.stack,
-//                                    1.toShort()
-//                                )
-//                            )
+                            )
                         }
                     }
                 }
