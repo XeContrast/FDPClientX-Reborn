@@ -1343,7 +1343,29 @@ object KillAura : Module() {
         }
         var shouldExcept = false
 
-        val targetToCheck = this.currentTarget ?: return
+        chosenEntity ?: this.currentTarget?.run {
+            if (ForwardTrack.handleEvents()) {
+                ForwardTrack.includeEntityTruePos(this) {
+                    checkIfAimingAtBox(this, currentRotation, eyes, onSuccess = {
+                        hitable = true
+
+                        shouldExcept = true
+                    })
+                }
+            }
+        }
+
+        if (!hitable || shouldExcept) {
+            return
+        }
+
+        val targetToCheck = chosenEntity ?: this.currentTarget ?: return
+
+        // If player is inside entity, automatic yes because the intercept below cannot check for that
+        // Minecraft does the same, see #EntityRenderer line 353
+        if (targetToCheck.hitBox.isVecInside(eyes)) {
+            return
+        }
 
         var checkNormally = true
 
@@ -1360,6 +1382,10 @@ object KillAura : Module() {
                 })
 
                 return@loopThroughBacktrackData result
+            }
+        } else if (ForwardTrack.handleEvents()) {
+            ForwardTrack.includeEntityTruePos(targetToCheck) {
+                checkIfAimingAtBox(targetToCheck, currentRotation, eyes, onSuccess = { checkNormally = false })
             }
         }
 

@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.Render3DEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.HurtCam;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack;
+import net.ccbluex.liquidbounce.features.module.modules.combat.ForwardTrack;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Reach;
 import net.ccbluex.liquidbounce.features.module.modules.visual.CameraModule;
 import net.ccbluex.liquidbounce.features.module.modules.world.Ambience;
@@ -323,6 +324,11 @@ public abstract class MixinEntityRenderer {
                 Backtrack.INSTANCE.loopThroughBacktrackData(entity1, () -> {
                     boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
                     return false;
+                });
+
+                ForwardTrack.INSTANCE.includeEntityTruePos(entity1, () -> {
+                    boxes.add(entity1.getEntityBoundingBox().expand(f1, f1, f1));
+                    return null;
                 });
 
                 for (final AxisAlignedBB axisalignedbb : boxes) {

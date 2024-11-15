@@ -584,54 +584,59 @@ object NoSlow : Module() {
         if (mc.thePlayer == null || mc.theWorld == null || (onlyGround.get() && !mc.thePlayer.onGround))
             return
 
-        if ((modeValue.equals("Matrix") || modeValue.equals("GrimAC")) && (lastBlockingStat || isBlocking)) {
-            if (msTimer.hasTimePassed(230) && nextTemp) {
-                nextTemp = false
-                if (modeValue.equals("GrimAC")) {
-                    PacketUtils.sendPacket(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9),false)
-                    PacketUtils.sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem),false)
-                } else {
+        if (blockModifyValue.get()) {
+            if ((modeValue.equals("Matrix") || modeValue.equals("GrimAC")) && (lastBlockingStat || isBlocking)) {
+                if (msTimer.hasTimePassed(230) && nextTemp) {
+                    nextTemp = false
+                    if (modeValue.equals("GrimAC")) {
+                        PacketUtils.sendPacket(
+                            C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9),
+                            false
+                        )
+                        PacketUtils.sendPacket(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem), false)
+                    } else {
+                        PacketUtils.sendPacket(
+                            C07PacketPlayerDigging(
+                                C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                                BlockPos(-1, -1, -1),
+                                EnumFacing.DOWN
+                            ),
+                            false
+                        )
+                    }
+                    if (packetBuf.isNotEmpty()) {
+                        var canAttack = false
+                        for (packet in packetBuf) {
+                            if (packet is C03PacketPlayer) {
+                                canAttack = true
+                            }
+                            if (!((packet is C02PacketUseEntity || packet is C0APacketAnimation) && !canAttack)) {
+                                PacketUtils.sendPacket(packet, false)
+                            }
+                        }
+                        packetBuf.clear()
+                    }
+                }
+                if (!nextTemp) {
+                    lastBlockingStat = isBlocking
+                    if (!isBlocking) {
+                        return
+                    }
                     PacketUtils.sendPacket(
-                        C07PacketPlayerDigging(
-                            C07PacketPlayerDigging.Action.RELEASE_USE_ITEM,
+                        C08PacketPlayerBlockPlacement(
                             BlockPos(-1, -1, -1),
-                            EnumFacing.DOWN
+                            255,
+                            mc.thePlayer.inventory.getCurrentItem(),
+                            0f,
+                            0f,
+                            0f
                         ),
                         false
                     )
+                    nextTemp = true
+                    waitC03 = false
+                    msTimer.reset()
                 }
-                if (packetBuf.isNotEmpty()) {
-                    var canAttack = false
-                    for (packet in packetBuf) {
-                        if (packet is C03PacketPlayer) {
-                            canAttack = true
-                        }
-                        if (!((packet is C02PacketUseEntity || packet is C0APacketAnimation) && !canAttack)) {
-                            PacketUtils.sendPacket(packet,false)
-                        }
-                    }
-                    packetBuf.clear()
-                }
-            }
-            if (!nextTemp) {
-                lastBlockingStat = isBlocking
-                if (!isBlocking) {
-                    return
-                }
-                PacketUtils.sendPacket(
-                    C08PacketPlayerBlockPlacement(
-                        BlockPos(-1, -1, -1),
-                        255,
-                        mc.thePlayer.inventory.getCurrentItem(),
-                        0f,
-                        0f,
-                        0f
-                    ),
-                    false
-                )
-                nextTemp = true
-                waitC03 = false
-                msTimer.reset()
             }
         }
     }

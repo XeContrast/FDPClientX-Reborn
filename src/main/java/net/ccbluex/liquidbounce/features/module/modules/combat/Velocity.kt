@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
@@ -25,6 +26,7 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.*
@@ -35,6 +37,7 @@ import net.minecraft.network.play.server.S32PacketConfirmTransaction
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.MovingObjectPosition
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 import kotlin.concurrent.schedule
@@ -46,13 +49,19 @@ import kotlin.math.sqrt
 @ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
 object Velocity : Module() {
     private val mainMode =
-        ListValue("MainMode", arrayOf("Vanilla", "Cancel", "AAC", "Matrix", "Reverse", "Other"), "Vanilla")
+        ListValue("MainMode", arrayOf("Vanilla", "Cancel", "AAC", "Matrix","GrimAC", "Reverse", "Other"), "Vanilla")
     private val vanillaMode =
         ListValue(
             "VanillaMode",
             arrayOf("Jump", "Simple", "Glitch"),
             "Jump"
         ).displayable { mainMode.get() == "Vanilla" }
+    private val grimMode =
+        ListValue(
+            "GrimACMode",
+            arrayOf("GrimReduce","GrimVertical"),
+            "GrimReduce"
+        ).displayable { mainMode.get() == "GrimAC" }
     private val cancelMode = ListValue(
         "CancelMode",
         arrayOf("S12Cancel", "S32Cancel", "SendC0F", "HighVersion", "GrimS32Cancel", "GrimC07", "Spoof"),
@@ -81,7 +90,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase", "GrimVertical","KKCraft"),
+        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase","KKCraft"),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -256,29 +265,32 @@ object Velocity : Module() {
     ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
 
     private val smartVelo =
-        BoolValue("SmartVelo", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("SmartVelo", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val sendc0fValue =
-        BoolValue("C0F", false).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("C0F", false).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val C0fpacketamount = IntegerValue(
         "C0FPacketAmount",
         0,
         1,
         20
-    ).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" && sendc0fValue.get() }
+    ).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" && sendc0fValue.get() }
     private val C02packetamount = IntegerValue(
         "C02PacketAmount",
         1,
         1,
         20
-    ).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+    ).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val sprintSpoof =
-        BoolValue("SpoofSprint", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("SpoofSprint", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val playerJump =
-        BoolValue("PlayerJump", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("PlayerJump", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val spoofJump =
-        BoolValue("SpoofJump", false).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("SpoofJump", false).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val callEvent =
-        BoolValue("CallEvent", true).displayable { otherMode.get() == "GrimVertical" && mainMode.get() == "Other" }
+        BoolValue("CallEvent", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+
+    private val reduceCount = IntegerValue("ReduceCount",4,1,10).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
+    private val reduceTimes = IntegerValue("ReduceTimes",1,1,5).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
 
     //
     private var hasReceivedVelocity = false
@@ -334,6 +346,9 @@ object Velocity : Module() {
     //KKCraft
     private var lastGround = false
 
+    //GrimSimple
+    private var unReduceTimes = 0
+
     @EventTarget(priority = -1)
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
@@ -348,6 +363,12 @@ object Velocity : Module() {
         ) {
             velocityTimer.reset()
             when (mainMode.get().lowercase()) {
+                "grimac" -> {
+                    when (grimMode.get().lowercase()) {
+                        "grimreduce" -> unReduceTimes = reduceTimes.get()
+                        "grimvertical" -> hasReceivedVelocity = true
+                    }
+                }
                 "vanilla" -> {
                     when (vanillaMode.get().lowercase()) {
                         "Jump" -> {
@@ -547,7 +568,7 @@ object Velocity : Module() {
                             }
                         }
 
-                        "intavereduce", "attackreduce", "grimvertical" -> hasReceivedVelocity = true
+                        "intavereduce", "attackreduce" -> hasReceivedVelocity = true
 
                         "kkcraft" -> {
                             hasReceivedVelocity = true
@@ -596,6 +617,88 @@ object Velocity : Module() {
         }
 
         when (mainMode.get().lowercase()) {
+            "grimac" -> when (grimMode.get().lowercase()) {
+                "grimvertical" -> {
+                    if (packet is S12PacketEntityVelocity) {
+                        if (packet.getMotionX() == 0 && packet.getMotionZ() == 0 || mc.thePlayer == null || (mc.theWorld?.getEntityByID(
+                                packet.entityID
+                            ) ?: return) != mc.thePlayer
+                        ) { // ignore horizonal velocity
+                            return
+                        }
+                        if (mc.thePlayer!!.onGround && mc.thePlayer.hurtTime > 0) {
+                            if (playerJump.get()) {
+                                mc.thePlayer.jump()
+                            }
+                        }
+                        velocityInput = true
+                        motionXZ = getMotionNoXZ(packet)
+
+                        if (FDPClient.moduleManager[KillAura::class.java]!!.state && FDPClient.moduleManager[KillAura::class.java]!!.currentTarget != null && mc.thePlayer!!.getDistanceToEntityBox(
+                                FDPClient.moduleManager[KillAura::class.java]!!.currentTarget!!
+                            ) <= 3.00
+                        ) {
+                            if (mc.thePlayer!!.isSprinting && mc.thePlayer!!.serverSprintState && MovementUtils.isMoving) {
+                                repeat(C0fpacketamount.get()) {
+                                    if (sendc0fValue.get()) {
+                                        mc.netHandler.addToSendQueue(
+                                            C0FPacketConfirmTransaction(
+                                                nextInt(
+                                                    102,
+                                                    1000024123
+                                                ), nextInt(102, 1000024123).toShort(), true
+                                            )
+                                        )
+                                    }
+                                }
+                                attack = true
+                            } else {
+                                if (sprintSpoof.get()) {
+                                    repeat(C0fpacketamount.get()) {
+                                        if (sendc0fValue.get()) {
+                                            mc.netHandler.addToSendQueue(
+                                                C0FPacketConfirmTransaction(
+                                                    nextInt(
+                                                        102,
+                                                        1000024123
+                                                    ), nextInt(102, 1000024123).toShort(), true
+                                                )
+                                            )
+                                        }
+                                    }
+                                    mc.netHandler.addToSendQueue(
+                                        C0BPacketEntityAction(
+                                            mc.thePlayer,
+                                            C0BPacketEntityAction.Action.START_SPRINTING
+                                        )
+                                    )
+                                    mc.thePlayer.serverSprintState = false
+                                    attack = true
+                                    mc.netHandler.addToSendQueue(
+                                        C0BPacketEntityAction(
+                                            mc.thePlayer,
+                                            C0BPacketEntityAction.Action.STOP_SPRINTING
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    if (packet is C0BPacketEntityAction && velocityInput && sprintSpoof.get()) {
+                        if (packet.action == C0BPacketEntityAction.Action.START_SPRINTING) {
+                            if (this.lastSprinting) {
+                                FDPClient.eventManager.callEvent(event)
+                            }
+                            this.lastSprinting = true
+                        } else if (packet.action == C0BPacketEntityAction.Action.STOP_SPRINTING) {
+                            if (!this.lastSprinting) {
+                                FDPClient.eventManager.callEvent(event)
+                            }
+                            this.lastSprinting = false
+                        }
+                    }
+                }
+            }
             "cancel" -> when (cancelMode.get().lowercase()) {
                 "s32cancel" -> {
                     if (packet is S32PacketConfirmTransaction && hasReceivedVelocity) {
@@ -674,87 +777,6 @@ object Velocity : Module() {
                                 event.cancelEvent()
                                 packets.add(packet)
                                 queuePacket(delayValue.get().toLong())
-                            }
-                        }
-                    }
-
-                    "grimvertical" -> {
-                        if (packet is S12PacketEntityVelocity) {
-                            if (packet.getMotionX() == 0 && packet.getMotionZ() == 0 || mc.thePlayer == null || (mc.theWorld?.getEntityByID(
-                                    packet.entityID
-                                ) ?: return) != mc.thePlayer
-                            ) { // ignore horizonal velocity
-                                return
-                            }
-                            if (mc.thePlayer!!.onGround && mc.thePlayer.hurtTime > 0) {
-                                if (playerJump.get()) {
-                                    mc.thePlayer.jump()
-                                }
-                            }
-                            velocityInput = true
-                            motionXZ = getMotionNoXZ(packet)
-
-                            if (FDPClient.moduleManager[KillAura::class.java]!!.state && FDPClient.moduleManager[KillAura::class.java]!!.currentTarget != null && mc.thePlayer!!.getDistanceToEntityBox(
-                                    FDPClient.moduleManager[KillAura::class.java]!!.currentTarget!!
-                                ) <= 3.00
-                            ) {
-                                if (mc.thePlayer!!.isSprinting && mc.thePlayer!!.serverSprintState && MovementUtils.isMoving) {
-                                    repeat(C0fpacketamount.get()) {
-                                        if (sendc0fValue.get()) {
-                                            mc.netHandler.addToSendQueue(
-                                                C0FPacketConfirmTransaction(
-                                                    nextInt(
-                                                        102,
-                                                        1000024123
-                                                    ), nextInt(102, 1000024123).toShort(), true
-                                                )
-                                            )
-                                        }
-                                    }
-                                    attack = true
-                                } else {
-                                    if (sprintSpoof.get()) {
-                                        repeat(C0fpacketamount.get()) {
-                                            if (sendc0fValue.get()) {
-                                                mc.netHandler.addToSendQueue(
-                                                    C0FPacketConfirmTransaction(
-                                                        nextInt(
-                                                            102,
-                                                            1000024123
-                                                        ), nextInt(102, 1000024123).toShort(), true
-                                                    )
-                                                )
-                                            }
-                                        }
-                                        mc.netHandler.addToSendQueue(
-                                            C0BPacketEntityAction(
-                                                mc.thePlayer,
-                                                C0BPacketEntityAction.Action.START_SPRINTING
-                                            )
-                                        )
-                                        mc.thePlayer.serverSprintState = false
-                                        attack = true
-                                        mc.netHandler.addToSendQueue(
-                                            C0BPacketEntityAction(
-                                                mc.thePlayer,
-                                                C0BPacketEntityAction.Action.STOP_SPRINTING
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        if (packet is C0BPacketEntityAction && velocityInput && sprintSpoof.get()) {
-                            if (packet.action == C0BPacketEntityAction.Action.START_SPRINTING) {
-                                if (this.lastSprinting) {
-                                    FDPClient.eventManager.callEvent(event)
-                                }
-                                this.lastSprinting = true
-                            } else if (packet.action == C0BPacketEntityAction.Action.STOP_SPRINTING) {
-                                if (!this.lastSprinting) {
-                                    FDPClient.eventManager.callEvent(event)
-                                }
-                                this.lastSprinting = false
                             }
                         }
                     }
@@ -899,29 +921,30 @@ object Velocity : Module() {
                 }
             }
 
-            "other" -> {
-                when (otherMode.get().lowercase()) {
-                    "delay" -> {
-                        if (blink && blinkValue.get() && delayTimer.hasTimePassed(delayValue.get().toLong())) {
-                            clearPackets()
-                            blink = false
-                        }
-                    }
-
-                    "intavereduce" -> {
-                        if (!hasReceivedVelocity) return
-                        intaveTick++
-
-                        if (mc.thePlayer.hurtTime == 2) {
-                            intaveDamageTick++
-                            if (player.onGround && intaveTick % 2 == 0 && intaveDamageTick <= 10) {
-                                player.jump()
-                                intaveTick = 0
+            "grimac" -> {
+                when (grimMode.get().lowercase()) {
+                    "grimreduce" -> {
+                        if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && mc.objectMouseOver.entityHit is EntityPlayer) {
+                            if (!mc.thePlayer.serverSprintState) {
+                                PacketUtils.sendPacket(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                                mc.thePlayer.serverSprintState = true
+                                mc.thePlayer.isSprinting = true
                             }
-                            hasReceivedVelocity = false
+
+                            for (i in 0 until reduceCount.get()) {
+                                PacketUtils.sendPackets(
+                                    C0APacketAnimation(),
+                                    C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK)
+                                )
+
+                                mc.thePlayer.motionX *= 0.6
+                                mc.thePlayer.motionZ *= 0.6
+                            }
+                            unReduceTimes--
+                        } else {
+                            unReduceTimes = 0
                         }
                     }
-
                     "grimvertical" -> {
                         if (attack) {
                             repeat(C02packetamount.get()) {
@@ -945,6 +968,31 @@ object Velocity : Module() {
                             if (spoofJump.get()) {
                                 mc.thePlayer.movementInput.jump = true
                             }
+                        }
+                    }
+                }
+            }
+
+            "other" -> {
+                when (otherMode.get().lowercase()) {
+                    "delay" -> {
+                        if (blink && blinkValue.get() && delayTimer.hasTimePassed(delayValue.get().toLong())) {
+                            clearPackets()
+                            blink = false
+                        }
+                    }
+
+                    "intavereduce" -> {
+                        if (!hasReceivedVelocity) return
+                        intaveTick++
+
+                        if (mc.thePlayer.hurtTime == 2) {
+                            intaveDamageTick++
+                            if (player.onGround && intaveTick % 2 == 0 && intaveDamageTick <= 10) {
+                                player.jump()
+                                intaveTick = 0
+                            }
+                            hasReceivedVelocity = false
                         }
                     }
                 }
@@ -1179,6 +1227,7 @@ object Velocity : Module() {
         templateY = 0
         templateZ = 0
         motionXZ = 0.01
+        unReduceTimes = 0
     }
 
     @EventTarget
@@ -1398,6 +1447,7 @@ object Velocity : Module() {
             "vanilla" -> vanillaMode.get()
             "aac" -> aacMode.get()
             "reverse" -> reverseMode.get()
+            "grimac" -> grimMode.get()
             else -> {
                 "Null"
             }

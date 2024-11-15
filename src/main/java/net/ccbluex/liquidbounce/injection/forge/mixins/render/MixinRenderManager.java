@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.injection.forge.mixins.render;
 
 import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack;
+import net.ccbluex.liquidbounce.features.module.modules.combat.ForwardTrack;
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity;
 import net.ccbluex.liquidbounce.utils.PacketUtils;
 import net.ccbluex.liquidbounce.utils.PacketUtilsKt;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
@@ -97,6 +99,31 @@ public abstract class MixinRenderManager {
                 GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
                 this.doRenderEntity(entity, d0 - this.renderPosX, d1 - this.renderPosY, d2 - this.renderPosZ, f, tickDelta, bool);
             }
+        }
+
+        ForwardTrack forwardTrack = ForwardTrack.INSTANCE;
+
+        if (forwardTrack.handleEvents() && forwardTrack.getEspMode().equals("Model") && !shouldBacktrackRenderEntity) {
+            if (entity.ticksExisted == 0) {
+                entity.lastTickPosX = entity.posX;
+                entity.lastTickPosY = entity.posY;
+                entity.lastTickPosZ = entity.posZ;
+            }
+
+            Vec3 pos = forwardTrack.usePosition(entity);
+
+            float f = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * tickDelta;
+            int i = entity.getBrightnessForRender(tickDelta);
+            if (entity.isBurning()) {
+                i = 15728880;
+            }
+
+            int j = i % 65536;
+            int k = i / 65536;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
+            // Darker color to differentiate fake player & real player.
+            GlStateManager.color(0.5F, 0.5F, 0.5F, 1.0F);
+            this.doRenderEntity(entity, pos.xCoord - this.renderPosX, pos.yCoord - this.renderPosY, pos.zCoord - this.renderPosZ, f, tickDelta, bool);
         }
     }
 }
