@@ -859,6 +859,7 @@ object Velocity : Module() {
                     }
 
                     "intavereduce" -> {
+                        if (!hasReceivedVelocity) return
                         if ((hurtTimeMode.get() == "Single" && player.hurtTime == hurtTime.get()) || (hurtTimeMode.get() == "Range" && player.hurtTime in minHurtTime.get()..maxHurtTime.get())) {
                             if (System.currentTimeMillis() - lastAttackTime <= 8000) {
                                 player.motionX *= reduceFactor.get()
