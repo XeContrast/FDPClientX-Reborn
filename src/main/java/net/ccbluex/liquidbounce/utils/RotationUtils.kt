@@ -165,6 +165,19 @@ class RotationUtils : MinecraftInstance(), Listenable {
         }
 
         /**
+         * Allows you to check if your crosshair is over your target entity
+         *
+         * @param targetEntity       your target entity
+         * @param blockReachDistance your reach
+         * @return if crosshair is over target
+         */
+        fun isRotationFaced(targetEntity: Entity, blockReachDistance: Double, rotation: Rotation) = raycastEntity(
+            blockReachDistance,
+            rotation.yaw,
+            rotation.pitch
+        ) { entity: Entity -> targetEntity == entity } != null
+
+        /**
          *
          * @param entity
          * @return

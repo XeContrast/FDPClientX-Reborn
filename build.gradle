@@ -132,7 +132,7 @@ processResources {
 
     rename "(.+_at.cfg)", "META-INF/\$1"
 }
-
+1L
 task moveResources {
     doLast {
         ant.move file: "${buildDir}/resources/main",

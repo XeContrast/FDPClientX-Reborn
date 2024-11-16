@@ -16,7 +16,6 @@ import net.ccbluex.liquidbounce.features.module.ModuleInfo
 import net.ccbluex.liquidbounce.features.module.modules.movement.Flight
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix
 import net.ccbluex.liquidbounce.features.module.modules.movement.TargetStrafe
-import net.ccbluex.liquidbounce.features.module.modules.player.Blink
 import net.ccbluex.liquidbounce.features.module.modules.visual.FreeCam
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2
@@ -29,13 +28,13 @@ import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.ClientUtils.runTimeTicks
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.rotation
+import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.isVisible
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
-import net.ccbluex.liquidbounce.utils.extensions.rayTraceWithServerSideRotation
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
@@ -396,6 +395,11 @@ object KillAura : Module() {
     private val raycastValue = BoolValue("RayCast", true).displayable { bypassDisplay.get() }
     private val raycastTargetValue =
         BoolValue("RaycastOnlyTarget", false).displayable { raycastValue.get() && raycastValue.displayable }
+    private val raycastIgnored = BoolValue(
+        "RayCastIgnored",
+        false
+    ).displayable { raycastValue.get() && rotationModeValue.get() != "None" }
+    private val livingRaycast = BoolValue("LivingRayCast", true).displayable { raycastValue.get() && rotationModeValue.get() != "None" }
 
     private val throughWallsValue = BoolValue("ThroughWalls", false)
 
@@ -1319,28 +1323,39 @@ object KillAura : Module() {
     }
 
     /**
-     * Check if enemy is hitable with current rotations
+     * Check if enemy is hittable with current rotations
      */
     private fun updateHitable() {
-        if (currentTarget == null) {
-            canSwing = false
-            hitable = false
-            return
-        }
-        var chosenEntity: Entity? = null
         val eyes = mc.thePlayer.eyes
+
         val currentRotation = targetRotation ?: mc.thePlayer.rotation
-        val entityDist = mc.thePlayer.getDistanceToEntityBox(currentTarget as Entity)
-        canSwing = entityDist < rangeValue.get() && (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get()
-        if (hitAbleValue.get()) {
-            hitable = entityDist <= maxRange.toDouble()
+        val target = this.currentTarget ?: return
+
+        if (rotationModeValue.get() == "None") {
+            hitable = mc.thePlayer.getDistanceToEntityBox(target) <= rangeValue.get()
             return
         }
-        // Disable hitable check if turn speed is zero
-        if (maxTurnSpeedValue.get() <= 0F) {
-            hitable = true
-            return
+
+        var chosenEntity: Entity? = null
+
+        if (raycastValue.get()) {
+            chosenEntity = raycastEntity(
+                rangeValue.get().toDouble(),
+                currentRotation.yaw,
+                currentRotation.pitch
+            ) { entity -> !livingRaycast.get() || entity is EntityLivingBase && entity !is EntityArmorStand }
+
+            if (chosenEntity != null && chosenEntity is EntityLivingBase) {
+                if (raycastIgnored.get() && target != chosenEntity) {
+                    this.currentTarget = chosenEntity
+                }
+            }
+
+            hitable = this.currentTarget == chosenEntity
+        } else {
+            hitable = RotationUtils.isRotationFaced(target, rangeValue.get().toDouble(), currentRotation)
         }
+
         var shouldExcept = false
 
         chosenEntity ?: this.currentTarget?.run {
@@ -1393,8 +1408,15 @@ object KillAura : Module() {
             return
         }
 
-        val wallTrace = mc.thePlayer.rayTraceWithServerSideRotation(entityDist)
-        hitable = RotationUtils.isFaced(currentTarget!!, maxRange.toDouble()) && (entityDist < discoverRangeValue.get() || wallTrace?.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) && (currentTarget as EntityLivingBase).hurtTime <= hurtTimeValue.get()
+        // Recreate raycast logic
+        val intercept = targetToCheck.hitBox.calculateIntercept(
+            eyes,
+            eyes + getVectorForRotation(currentRotation) * rangeValue.get().toDouble()
+        )
+
+        // Is the entity box raycast vector visible? If not, check through-wall range
+        hitable =
+            isVisible(intercept.hitVec) || throughWallsValue.get()
     }
 
     private fun checkIfAimingAtBox(

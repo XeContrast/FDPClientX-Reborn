@@ -80,7 +80,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Matrix" }
     private val aacMode = ListValue(
         "AACMode",
-        arrayOf("AAC4Reduce", "AAC5Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
+        arrayOf("AAC4Reduce", "AAC5Reduce","AAC5.2Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
         "AAC4Reduce"
     ).displayable { mainMode.get() == "AAC" }
     private val reverseMode = ListValue(
@@ -90,7 +90,7 @@ object Velocity : Module() {
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase","KKCraft"),
+        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase"),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -343,7 +343,7 @@ object Velocity : Module() {
     private var lastAttackTime = 0L
     private var intaveDamageTick = 0
 
-    //KKCraft
+    //AAC5.2Reduce
     private var lastGround = false
 
     //GrimSimple
@@ -452,6 +452,11 @@ object Velocity : Module() {
                         }
 
                         "aac5reduce", "aaczero" -> hasReceivedVelocity = true
+                        "aac5.2reduce" -> {
+                            hasReceivedVelocity = true
+                            if (mc.thePlayer.onGround) lastGround = true
+                            if (packet is S12PacketEntityVelocity) motionXZ = getMotionNoXZ(packet)
+                        }
                     }
                 }
 
@@ -569,12 +574,6 @@ object Velocity : Module() {
                         }
 
                         "intavereduce", "attackreduce" -> hasReceivedVelocity = true
-
-                        "kkcraft" -> {
-                            hasReceivedVelocity = true
-                            if (mc.thePlayer.onGround) lastGround = true
-                            if (packet is S12PacketEntityVelocity) motionXZ = getMotionNoXZ(packet)
-                        }
                         "phase" -> {
                             if (packet is S12PacketEntityVelocity) {
                                 if (!mc.thePlayer.onGround && phaseOnlyGroundValue.get()) {
@@ -845,6 +844,29 @@ object Velocity : Module() {
     fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
         when (mainMode.get().lowercase()) {
+            "aac" -> when (aacMode.get().lowercase()) {
+                "aac5.2reduce" -> {
+                    if (player.hurtTime in 2..8) {
+                        if (lastGround) {
+                            player.motionX *= 0.59999999999
+                            player.motionZ *= 0.59999999999
+                        }
+                    }
+                    if (player.hurtTime == 0 && lastGround && player.onGround) {
+                        lastGround = false
+                    }
+                    if (hasReceivedVelocity) {
+                        if (player.hurtTime == 7 && player.onGround) {
+                            if (!mc.gameSettings.keyBindJump.isKeyDown) {
+                                player.jump()
+                            }
+                            player.motionX *= motionXZ
+                            player.motionZ *= motionXZ
+                        }
+                        hasReceivedVelocity = false
+                    }
+                }
+            }
             "other" -> {
                 when (otherMode.get().lowercase()) {
                     "attackreduce" -> {
@@ -855,28 +877,6 @@ object Velocity : Module() {
                             } else {
                                 hasReceivedVelocity = false
                             }
-                        }
-                    }
-
-                    "kkcraft" -> {
-                        if (player.hurtTime in 2..8) {
-                            if (lastGround) {
-                                player.motionX *= 0.59999999999
-                                player.motionZ *= 0.59999999999
-                            }
-                        }
-                        if (player.hurtTime == 0 && lastGround && player.onGround) {
-                            lastGround = false
-                        }
-                        if (hasReceivedVelocity) {
-                            if (player.hurtTime == 7 && player.onGround) {
-                                if (!mc.gameSettings.keyBindJump.isKeyDown) {
-                                    player.jump()
-                                }
-                                player.motionX *= motionXZ
-                                player.motionZ *= motionXZ
-                            }
-                            hasReceivedVelocity = false
                         }
                     }
 
