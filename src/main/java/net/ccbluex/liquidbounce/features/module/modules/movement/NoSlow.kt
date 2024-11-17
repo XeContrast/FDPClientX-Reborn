@@ -146,6 +146,10 @@ object NoSlow : Module() {
     private var start = false
     private var stop = false
     private var mstimer2 = MSTimer()
+
+    private var shouldNoSlow = false
+
+    private var hasDropped = false
     //hypixel
     private var postPlace = false
     //UNCP
@@ -252,23 +256,6 @@ object NoSlow : Module() {
                             )
                     }
                 }
-            }
-
-            "bug" -> {
-                if (mc.thePlayer.heldItem.item is ItemPotion || mc.thePlayer.heldItem.item is ItemBucketMilk || mc.thePlayer.heldItem.stackSize <= 1) {
-                    return
-                }
-                mc.thePlayer.sendQueue.addToSendQueue(
-                    C07PacketPlayerDigging(
-                        C07PacketPlayerDigging.Action.DROP_ITEM,
-                        BlockPos(0, 0, 0),
-                        EnumFacing.DOWN
-                    )
-                )
-
-                mc.gameSettings.keyBindUseItem.pressed = false
-                mc.thePlayer.stopUsingItem()
-                mstimer2.reset()
             }
 
             "spamitemchange" -> {
@@ -554,8 +541,10 @@ object NoSlow : Module() {
             return
         val heldItem = mc.thePlayer.heldItem?.item
 
-        event.forward = getMultiplier(heldItem, true)
-        event.strafe = getMultiplier(heldItem, false)
+        if (!consumePacketValue.equals("Bug") || shouldNoSlow) {
+            event.forward = getMultiplier(heldItem, true)
+            event.strafe = getMultiplier(heldItem, false)
+        }
     }
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
@@ -655,8 +644,37 @@ object NoSlow : Module() {
     fun onPacket(event: PacketEvent) {
         if (mc.thePlayer == null || mc.theWorld == null || (onlyGround.get() && !mc.thePlayer.onGround))
             return
+
         val packet = event.packet
-        val heldItem = mc.thePlayer.heldItem?.item
+        val heldItem = mc.thePlayer.heldItem.item ?: return
+
+        if (consumePacketValue.equals("Bug")) {
+            if (mc.thePlayer.heldItem?.item !is ItemFood) return
+
+            val isUsingItem = packet is C08PacketPlayerBlockPlacement && packet.placedBlockDirection == 255
+
+            if (!mc.thePlayer.isUsingItem) {
+                shouldNoSlow = false
+                hasDropped = false
+            }
+
+            if (isUsingItem && !hasDropped) {
+                PacketUtils.sendPacket(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+                shouldNoSlow = false
+                hasDropped = true
+            } else if (packet is S2FPacketSetSlot && mc.thePlayer.isUsingItem) {
+                if (packet.func_149175_c() != 0) return
+
+                event.cancelEvent()
+                shouldNoSlow = true
+
+                mc.thePlayer.itemInUse = packet.func_149174_e()
+                if (!mc.thePlayer.isUsingItem) mc.thePlayer.itemInUseCount = 0
+            }
+            mc.thePlayer.stopUsingItem()
+            mc.gameSettings.keyBindUseItem.pressed = false
+
+        }
 
         stop = packet is C07PacketPlayerDigging && packet.status == (C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
         if (consumeModifyValue.get() && mc.thePlayer.isUsingItem && (heldItem is ItemFood || heldItem is ItemPotion || heldItem is ItemBucketMilk)) {
@@ -709,6 +727,7 @@ object NoSlow : Module() {
                 sendPacket = true
             }
         }
+
 
         if ((modeValue.equals("Matrix") || modeValue.equals("GrimAC")) && nextTemp) {
             if ((packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) && isBlocking) {

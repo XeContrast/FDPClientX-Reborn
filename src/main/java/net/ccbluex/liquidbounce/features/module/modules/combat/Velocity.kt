@@ -45,7 +45,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.sqrt
-//
+
 @ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
 object Velocity : Module() {
     private val mainMode =
@@ -924,7 +924,8 @@ object Velocity : Module() {
             "grimac" -> {
                 when (grimMode.get().lowercase()) {
                     "grimreduce" -> {
-                        if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && mc.objectMouseOver.entityHit is EntityPlayer) {
+                        val objectMouseOver = mc.objectMouseOver ?: return
+                        if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && objectMouseOver.entityHit is EntityPlayer) {
                             if (!mc.thePlayer.serverSprintState) {
                                 PacketUtils.sendPacket(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                                 mc.thePlayer.serverSprintState = true
@@ -932,10 +933,8 @@ object Velocity : Module() {
                             }
 
                             for (i in 0 until reduceCount.get()) {
-                                PacketUtils.sendPackets(
-                                    C0APacketAnimation(),
-                                    C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK)
-                                )
+                                mc.thePlayer.swingItem()
+                                PacketUtils.sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
 
                                 mc.thePlayer.motionX *= 0.6
                                 mc.thePlayer.motionZ *= 0.6

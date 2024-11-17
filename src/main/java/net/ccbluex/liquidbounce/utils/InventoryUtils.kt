@@ -174,39 +174,4 @@ object InventoryUtils : MinecraftInstance(), Listenable {
             stack.item is ItemBlock && stack.stackSize > 0 && block.isFullCube && block !in BLOCK_BLACKLIST && block !is BlockBush
         }.maxByOrNull { inventory.getSlot(it).stack.stackSize } ?: -1
     }
-
-    val amount: IntArray
-        get() {
-            var missileAmount = 0
-            var blockAmount = 0
-            var arrowAmount = 0
-            var foodAmount = 0
-            var rod = 0
-            mc.thePlayer.inventory.mainInventory.forEachIndexed { i, _ ->
-                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-                if (itemStack != null) {
-                    when (itemStack.item) {
-                        is ItemSnowball, is ItemEgg -> {
-                            missileAmount += itemStack.stackSize
-                        }
-
-                        is ItemBlock -> {
-                            if (canPlaceBlock((itemStack.item as ItemBlock).block)) {
-                                blockAmount += itemStack.stackSize
-                            }
-                        }
-
-                        is ItemFood -> {
-                            foodAmount += itemStack.stackSize
-                        }
-
-                        is ItemFishingRod -> rod += itemStack.stackSize
-                    }
-                    if (itemStack.unlocalizedName == "item.arrow") {
-                        arrowAmount += itemStack.stackSize
-                    }
-                }
-            }
-            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,rod)
-        }
 }

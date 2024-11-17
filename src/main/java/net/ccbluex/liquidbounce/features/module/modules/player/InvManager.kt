@@ -15,7 +15,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.access.IItemStack
 import net.ccbluex.liquidbounce.utils.ClientUtils
 import net.ccbluex.liquidbounce.utils.InventoryUtils
-import net.ccbluex.liquidbounce.utils.InventoryUtils.amount
+import net.ccbluex.liquidbounce.utils.InventoryUtils.canPlaceBlock
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.MovementUtils.isMoving
 import net.ccbluex.liquidbounce.utils.PacketUtils
@@ -636,6 +636,41 @@ object InvManager : Module() {
 
         return items
     }
+
+    val amount: IntArray
+        get() {
+            var missileAmount = 0
+            var blockAmount = 0
+            var arrowAmount = 0
+            var foodAmount = 0
+            var rod = 0
+            mc.thePlayer.inventory.mainInventory.forEachIndexed { i, _ ->
+                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+                if (itemStack != null) {
+                    when (itemStack.item) {
+                        is ItemSnowball, is ItemEgg -> {
+                            missileAmount += itemStack.stackSize
+                        }
+
+                        is ItemBlock -> {
+                            if (canPlaceBlock((itemStack.item as ItemBlock).block)) {
+                                blockAmount += itemStack.stackSize
+                            }
+                        }
+
+                        is ItemFood -> {
+                            foodAmount += itemStack.stackSize
+                        }
+
+                        is ItemFishingRod -> rod += itemStack.stackSize
+                    }
+                    if (itemStack.unlocalizedName == "item.arrow") {
+                        arrowAmount += itemStack.stackSize
+                    }
+                }
+            }
+            return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,rod)
+        }
 
     /**
      * Get type of [targetSlot]
