@@ -936,7 +936,9 @@ object Velocity : Module() {
                                 mc.thePlayer.swingItem()
                                 PacketUtils.sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
 
+                                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
                                 mc.thePlayer.attackTargetEntityWithCurrentItem(mc.objectMouseOver.entityHit)
+                                }
                             }
                             unReduceTimes--
                         } else {
