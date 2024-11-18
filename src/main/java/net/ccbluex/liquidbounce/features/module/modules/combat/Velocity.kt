@@ -936,8 +936,7 @@ object Velocity : Module() {
                                 mc.thePlayer.swingItem()
                                 PacketUtils.sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
 
-                                mc.thePlayer.motionX *= 0.6
-                                mc.thePlayer.motionZ *= 0.6
+                                mc.thePlayer.attackTargetEntityWithCurrentItem(mc.objectMouseOver.entityHit)
                             }
                             unReduceTimes--
                         } else {
