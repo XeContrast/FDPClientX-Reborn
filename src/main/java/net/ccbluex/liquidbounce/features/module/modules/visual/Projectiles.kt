@@ -15,6 +15,9 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.utils.EntityUtils.rotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getState
+import net.ccbluex.liquidbounce.utils.extensions.lastTickPos
+import net.ccbluex.liquidbounce.utils.extensions.prevPos
+import net.ccbluex.liquidbounce.utils.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.enableGlCap
@@ -43,12 +46,12 @@ import kotlin.math.sqrt
 
 @ModuleInfo("Projectiles", category = ModuleCategory.VISUAL)
 object Projectiles : Module() {
-    private val maxTrailSize = IntegerValue("MaxTrailSize", 20, 1,100)
+    private val maxTrailSize = IntegerValue("MaxTrailSize", 20, 1, 100)
 
     private val colorMode = ListValue("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
-    private val colorRed = IntegerValue("R", 0, 0,255).displayable { colorMode.get() == "Custom" }
-    private val colorGreen = IntegerValue("G", 160, 0,255).displayable { colorMode.get() == "Custom" }
-    private val colorBlue = IntegerValue("B", 255, 0,255).displayable { colorMode.get() == "Custom" }
+    private val colorRed = IntegerValue("R", 0, 0, 255).displayable { colorMode.get() == "Custom" }
+    private val colorGreen = IntegerValue("G", 160, 0, 255).displayable { colorMode.get() == "Custom" }
+    private val colorBlue = IntegerValue("B", 255, 0, 255).displayable { colorMode.get() == "Custom" }
 
     private val trailPositions = mutableMapOf<Entity, MutableList<Triple<Long, Vec3, Float>>>()
 
@@ -89,21 +92,25 @@ object Projectiles : Module() {
                         motionFactor = 3F
                     }
                 }
+
                 is ItemFishingRod -> {
                     gravity = 0.04F
                     size = 0.25F
                     motionSlowdown = 0.92F
                 }
+
                 is ItemPotion -> {
                     if (!heldStack.isSplashPotion()) continue
                     gravity = 0.05F
                     size = 0.25F
                     motionFactor = 0.5F
                 }
+
                 is ItemSnowball, is ItemEnderPearl, is ItemEgg -> {
                     gravity = 0.03F
                     size = 0.25F
                 }
+
                 else -> continue
             }
 
@@ -114,9 +121,11 @@ object Projectiles : Module() {
             val pitchRadians = pitch.toRadiansD()
 
             // Positions
-            var posX = theEntity.posX - cos(yawRadians) * 0.16F
-            var posY = theEntity.posY + theEntity.eyeHeight - 0.10000000149011612
-            var posZ = theEntity.posZ - sin(yawRadians) * 0.16F
+            val pos = theEntity.interpolatedPosition(theEntity.lastTickPos)
+
+            var posX = pos.xCoord - cos(yawRadians) * 0.16F
+            var posY = pos.yCoord + theEntity.eyeHeight - 0.10000000149011612
+            var posZ = pos.zCoord - sin(yawRadians) * 0.16F
 
             // Motions
             var motionX = -sin(yawRadians) * cos(pitchRadians) * if (isBow) 1.0 else 0.4
@@ -175,7 +184,11 @@ object Projectiles : Module() {
                 if (landingPosition != null) {
                     hasLanded = true
                     posAfter =
-                        Vec3(landingPosition.hitVec.xCoord, landingPosition.hitVec.yCoord, landingPosition.hitVec.zCoord)
+                        Vec3(
+                            landingPosition.hitVec.xCoord,
+                            landingPosition.hitVec.yCoord,
+                            landingPosition.hitVec.zCoord
+                        )
                 }
 
                 // Set arrow box
@@ -365,5 +378,6 @@ object Projectiles : Module() {
         // Remove entities that are no longer in the world
         trailPositions.keys.removeIf { it !in world.loadedEntityList && trailPositions[it]?.all { (_, _, alpha) -> alpha <= 0 } == true }
     }
+
     private fun ItemStack.isSplashPotion() = item is ItemPotion && ItemPotion.isSplash(metadata)
 }

@@ -70,6 +70,7 @@ object Velocity : Module() {
     private val matrixMode = ListValue(
         "Mode", arrayOf(
             "Ground",
+            "Attack",
             "Reduce",
             "LowReduce",
             "Reverse",
@@ -508,6 +509,8 @@ object Velocity : Module() {
                                 )
                             }
 
+                            "attack" -> hasReceivedVelocity = true
+
                             "simple" -> {
                                 packet.motionX = (packet.getMotionX() * 0.36).toInt()
                                 packet.motionZ = (packet.getMotionZ() * 0.36).toInt()
@@ -844,6 +847,27 @@ object Velocity : Module() {
     fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
         when (mainMode.get().lowercase()) {
+            "matrix" -> when (matrixMode.get().lowercase()) {
+                "attack" -> {
+                    if (hasReceivedVelocity) {
+                        if (player.isSprinting) {
+                            val motionX = player.motionX
+                            val motionZ = player.motionZ
+
+                            if (abs(motionX) < 0.625 && abs(motionZ) < 0.625) {
+                                motionX * 0.4
+                                motionZ * 0.4
+                            } else if (abs(motionX) < 1.25 && abs(motionZ) < 1.25) {
+                                motionZ * 0.67
+                                motionX * 0.67
+                            }
+                            player.isSprinting = false
+                            player.serverSprintState = false
+                        }
+                        hasReceivedVelocity = false
+                    }
+                }
+            }
             "aac" -> when (aacMode.get().lowercase()) {
                 "aac5.2reduce" -> {
                     if (player.hurtTime in 2..8) {

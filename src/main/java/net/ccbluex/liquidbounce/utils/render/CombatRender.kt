@@ -10,7 +10,9 @@ import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.col
 import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.colorRedTwoValue
 import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.colorRedValue
 import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.start
+import net.ccbluex.liquidbounce.features.module.modules.visual.CombatVisuals.startTime
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.render.DrRenderUtils.resetColor
+import net.ccbluex.liquidbounce.utils.MathUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.color
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.disableGlCap
@@ -32,16 +34,15 @@ import net.minecraft.client.renderer.RenderGlobal
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.AxisAlignedBB
+import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11.*
 import org.lwjgl.util.glu.Cylinder
 import java.awt.Color
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.roundToInt
-import kotlin.math.sin
+import kotlin.math.*
 
 object CombatRender: MinecraftInstance() {
+    private val glowCircle = ResourceLocation("fdpclient/glow_circle.png")
 
     fun drawEntityBoxESP(entity: Entity, color: Color) {
         val renderManager = mc.renderManager
@@ -425,5 +426,64 @@ object CombatRender: MinecraftInstance() {
         glEnable(GL_TEXTURE_2D)
         glPopMatrix()
         glColor4f(1f, 1f, 1f, 1f)
+    }
+
+    fun points(target: Entity) {
+        val markerX: Double = MathUtils.interporate(mc.timer.renderPartialTicks.toDouble(), target.lastTickPosX, target.posX)
+        val markerY: Double = MathUtils.interporate(
+            mc.timer.renderPartialTicks.toDouble(),
+            target.lastTickPosY,
+            target.posY
+        ) + target.height / 1.6f
+        val markerZ: Double = MathUtils.interporate(mc.timer.renderPartialTicks.toDouble(), target.lastTickPosZ, target.posZ)
+        var time: Float =
+            ((((System.currentTimeMillis() - startTime) / 1500f)) + (sin((((System.currentTimeMillis() - startTime) / 1500f)).toDouble()) / 10f)).toFloat()
+        val alpha = 0.5f * 1
+        var pl = 0f
+        var fa = false
+        for (iteration in 0..2) {
+            var i = time * 360
+            while (i < time * 360 + 90) {
+                val max = time * 360 + 90
+                val dc: Float = MathUtils.normalize(i, time * 360 - 45, max)
+                val rf = 0.6f
+                val radians = Math.toRadians(i.toDouble())
+                val plY = pl + sin(radians * 1.2f) * 0.1f
+                val firstColor = ColorUtils.rainbow(0).rgb
+                val secondColor = ColorUtils.rainbow(90).rgb
+                pushMatrix()
+                RenderUtils.setupOrientationMatrix(markerX, markerY, markerZ)
+
+                val idk = floatArrayOf(mc.renderManager.playerViewY, mc.renderManager.playerViewX)
+
+                glRotated(-idk[0].toDouble(), 0.0, 1.0, 0.0)
+                glRotated(idk[1].toDouble(), 1.0, 0.0, 0.0)
+
+                GlStateManager.depthMask(false)
+                val q =
+                    ((if (!fa) 0.25f else 0.15f) * (max(
+                        (if (fa) 0.25f else 0.15f).toDouble(),
+                        (if (fa) dc else (1f + (0.4f - dc)) / 2f).toDouble()
+                    ) + 0.45f)).toFloat()
+                val size = q * (2f + ((0.5f - alpha) * 2))
+                RenderUtils.drawImage(
+                    glowCircle,
+                    (cos(radians) * rf - size / 2f),
+                    (plY - 0.7),
+                    (sin(radians) * rf - size / 2f), size.toDouble(), size.toDouble(),
+                    firstColor,
+                    secondColor,
+                    secondColor,
+                    firstColor
+                )
+                glEnable(GL_DEPTH_TEST)
+                GlStateManager.depthMask(true)
+                popMatrix()
+                i += 2f
+            }
+            time *= -1.025f
+            fa = !fa
+            pl += 0.45f
+        }
     }
 }

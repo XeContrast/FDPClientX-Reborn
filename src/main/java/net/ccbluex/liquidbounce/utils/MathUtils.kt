@@ -34,6 +34,11 @@ object MathUtils {
         return degrees * Math.PI / 180
     }
 
+    @JvmStatic
+    fun randomizeDouble(min: Double, max: Double): Double {
+        return Math.random() * (max - min) + min
+    }
+
     fun getDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
         return sqrt((x1 - x2).pow((2).toDouble()) + (y1 - y2).pow((2).toDouble()))
     }
@@ -41,6 +46,23 @@ object MathUtils {
     // 2 + 2 is 4 - 1  thats 3 quick maffs
 
     fun lerp(a: Array<Double>, b: Array<Double>, t: Double) = arrayOf(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+
+    fun lerp(pct: Double, start: Double, end: Double): Double {
+        return start + pct * (end - start)
+    }
+
+    fun normalize(value: Float, min: Float, max: Float): Float {
+        return (value - min) / (max - min)
+    }
+
+    fun interporate(p_219803_0_: Double, p_219803_2_: Double, p_219803_4_: Double): Double {
+        return p_219803_2_ + p_219803_0_ * (p_219803_4_ - p_219803_2_)
+    }
+
+    @JvmStatic
+    fun lerp(min: Float, max: Float, delta: Float): Float {
+        return min + (max - min) * delta
+    }
 
     fun distanceSq(a: Array<Double>, b: Array<Double>): Double = (a[0] - b[0]).pow(2) + (a[1] - b[1]).pow(2)
 

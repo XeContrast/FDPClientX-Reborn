@@ -47,6 +47,8 @@ val Entity.currPos: Vec3
 
 val Entity.prevPos: Vec3
     get() = Vec3(prevPosX, prevPosY, prevPosZ)
+val Entity.lastTickPos: Vec3
+    get() = Vec3(lastTickPosX, lastTickPosY, lastTickPosZ)
 
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)

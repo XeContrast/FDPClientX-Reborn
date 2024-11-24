@@ -704,6 +704,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     @JvmOverloads
+    @JvmStatic
     fun color(color: Int, alpha: Float = (color shr 24 and 0xFF) / 255.0f) {
         val r = (color shr 16 and 0xFF) / 255.0f
         val g = (color shr 8 and 0xFF) / 255.0f
@@ -4089,5 +4090,54 @@ object RenderUtils : MinecraftInstance() {
         worldrenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
         worldrenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
         tessellator.draw()
+    }
+
+    @JvmStatic
+    fun setupOrientationMatrix(x: Double, y: Double, z: Double) {
+        GlStateManager.translate(
+            x - mc.renderManager.viewerPosX,
+            y - mc.renderManager.viewerPosY,
+            z - mc.renderManager.viewerPosZ
+        )
+    }
+
+    fun drawImage(image: ResourceLocation?, x: Double, y: Double, z: Double, width: Double, height: Double, color1: Int, color2: Int, color3: Int, color4: Int) {
+        mc.textureManager.bindTexture(image)
+        drawImage(x, y, z, width, height, color1, color2, color3, color4)
+    }
+
+    fun drawImage(
+        x: Double,
+        y: Double,
+        z: Double,
+        width: Double,
+        height: Double,
+        color1: Int,
+        color2: Int,
+        color3: Int,
+        color4: Int
+    ) {
+        val tessellator = Tessellator.getInstance()
+        val worldRenderer = tessellator.worldRenderer
+        val blend = glIsEnabled(GL_BLEND)
+        GlStateManager.enableBlend()
+        GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE)
+        glShadeModel(GL_SMOOTH)
+        glAlphaFunc(GL_GREATER, 0f)
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        worldRenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR)
+        worldRenderer.pos(x.toFloat().toDouble(), (y + height).toFloat().toDouble(), (z).toFloat().toDouble())
+            .tex(0.0, (1 - 0.01f).toDouble()).color(ColorUtils.getRedFromColor(color1),ColorUtils.getGreenFromColor(color1),ColorUtils.getBlueFromColor(color1),ColorUtils.getAlphaFromColor(color1)).endVertex()
+        worldRenderer.pos((x + width).toFloat().toDouble(), (y + height).toFloat().toDouble(), (z).toFloat().toDouble())
+            .tex(1.0, (1 - 0.01f).toDouble()).color(ColorUtils.getRedFromColor(color2),ColorUtils.getGreenFromColor(color2),ColorUtils.getBlueFromColor(color2),ColorUtils.getAlphaFromColor(color2)).endVertex()
+        worldRenderer.pos((x + width).toFloat().toDouble(), y.toFloat().toDouble(), z.toFloat().toDouble())
+            .tex(1.0, 0.0).color(ColorUtils.getRedFromColor(color3),ColorUtils.getGreenFromColor(color3),ColorUtils.getBlueFromColor(color3),ColorUtils.getAlphaFromColor(color3)).endVertex()
+        worldRenderer.pos(x.toFloat().toDouble(), y.toFloat().toDouble(), z.toFloat().toDouble()).tex(0.0, 0.0)
+            .color(ColorUtils.getRedFromColor(color4),ColorUtils.getGreenFromColor(color4),ColorUtils.getBlueFromColor(color4),ColorUtils.getAlphaFromColor(color4)).endVertex()
+        tessellator.draw()
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
+        glShadeModel(GL_FLAT)
+        GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ZERO)
+        if (!blend) GlStateManager.disableBlend()
     }
 }

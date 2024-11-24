@@ -34,6 +34,11 @@ val Entity.rotation: Rotation
     get() = Rotation(rotationYaw, rotationPitch)
 val IMixinEntity.interpolatedPosition
     get() = Vec3(lerpX, lerpY, lerpZ)
+fun Entity.interpolatedPosition(start: Vec3) = Vec3(
+    start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
+    start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks,
+    start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
+)
 
 object PlayerUtils {
     fun randomUnicode(str: String): String {

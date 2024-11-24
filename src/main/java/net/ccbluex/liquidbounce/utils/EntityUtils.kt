@@ -180,4 +180,16 @@ object EntityUtils : MinecraftInstance() {
         val f2 = (zposme - zposent).toFloat()
         return if (entityIn != null) MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble()) else 0.0f
     }
+
+    @JvmStatic
+    fun EntityPlayer.getSmoothDistanceToCoord(x: Float, y: Float, z: Float): Float {
+        val pTicks = Minecraft.getMinecraft().timer.renderPartialTicks
+        val xposme: Double = this.lastTickPosX + (this.posX - this.lastTickPosX) * pTicks.toDouble()
+        val yposme: Double = this.lastTickPosY + (this.posY - this.lastTickPosY) * pTicks.toDouble()
+        val zposme: Double = this.lastTickPosZ + (this.posZ - this.lastTickPosZ) * pTicks.toDouble()
+        val f = (xposme - x.toDouble()).toFloat()
+        val f1 = (yposme - y.toDouble()).toFloat()
+        val f2 = (zposme - z.toDouble()).toFloat()
+        return MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble())
+    }
 }

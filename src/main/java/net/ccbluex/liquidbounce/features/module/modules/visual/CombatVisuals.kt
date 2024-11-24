@@ -18,7 +18,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.Slight.RenderUtil
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.ccbluex.liquidbounce.utils.EntityUtils.getSmoothDistanceToEntity
-import net.ccbluex.liquidbounce.utils.animations.Direction
+import net.ccbluex.liquidbounce.utils.animations.ContinualAnimation
 import net.ccbluex.liquidbounce.utils.animations.impl.DecelerateAnimation
 import net.ccbluex.liquidbounce.utils.animations.impl.SmoothStepAnimation
 import net.ccbluex.liquidbounce.utils.render.BlendUtils
@@ -30,29 +30,35 @@ import net.ccbluex.liquidbounce.utils.render.CombatRender.drawCrystal
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawEntityBoxESP
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawPlatformESP
 import net.ccbluex.liquidbounce.utils.render.CombatRender.drawZavz
+import net.ccbluex.liquidbounce.utils.render.CombatRender.points
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawEntityBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawPlatform
 import net.minecraft.block.Block
 import net.minecraft.client.audio.PositionedSoundRecord
+import net.minecraft.client.audio.SoundCategory
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.effect.EntityLightningBolt
+import net.minecraft.entity.passive.EntitySquid
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.potion.Potion
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
-import org.lwjgl.opengl.GL11
 import java.awt.Color
-import java.io.File
+import java.io.BufferedInputStream
 import java.io.IOException
 import java.util.*
-import javax.sound.sampled.AudioInputStream
 import javax.sound.sampled.AudioSystem
+import javax.sound.sampled.FloatControl
+import javax.sound.sampled.LineUnavailableException
+import javax.sound.sampled.UnsupportedAudioFileException
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 @ModuleInfo("CombatVisuals", category = ModuleCategory.VISUAL)
@@ -60,7 +66,7 @@ object CombatVisuals : Module() {
 
     // Mark
     private val colorModeValue = ListValue("Color", arrayOf("Custom", "Rainbow", "Sky", "LiquidSlowly", "Fade", "Mixer", "Health"), "Custom")
-    val markValue = ListValue("MarkMode", arrayOf("None", "Box", "RoundBox", "Head", "Mark", "Sims","Jello", "Zavz","Rectangle","Round"), "Zavz")
+    val markValue = ListValue("MarkMode", arrayOf("None", "Box", "RoundBox", "Head", "Mark", "Sims","Jello", "Zavz","Rectangle","Round", "Points"), "Zavz")
     private val saturationValue = FloatValue("Saturation", 1f, 0f, 1f)
     private val brightnessValue = FloatValue("Brightness", 1f, 0f, 1f)
     private val mixerSecondsValue = IntegerValue("Seconds", 2, 1, 10)
@@ -81,9 +87,6 @@ object CombatVisuals : Module() {
     // fake sharp
     private val fakeSharp = BoolValue("FakeSharp", true)
 
-    // Sound
-
-    private val miniWorld = BoolValue("MiniWorldSound",false)
     private val particle = ListValue("Particle",
         arrayOf("None", "Blood", "Lighting", "Fire", "Heart", "Water", "Smoke", "Magic", "Crits"), "Blood")
 
@@ -95,8 +98,7 @@ object CombatVisuals : Module() {
     private val volume = FloatValue("Volume", 1f, 0.1f, 5f).displayable { sound.get() != "None" }
     private val pitch = FloatValue("Pitch", 1f, 0.1f,5f).displayable { sound.get() != "None" }
 
-    //Dev
-    private val debug = BoolValue("Debug",false)
+    private val squidValue = BoolValue("Squid", false)
 
     // variables
     private val targetList = HashMap<EntityLivingBase, Long>()
@@ -106,6 +108,10 @@ object CombatVisuals : Module() {
     var start = 0.0
     private var killedAmount = 0
     private val auraESPAnim = SmoothStepAnimation(650, 1.0)
+    private var squid: EntitySquid? = null
+    private var percent = 0.0
+    private val anim: ContinualAnimation = ContinualAnimation()
+    val startTime = System.currentTimeMillis()
 
     @EventTarget
     fun onWorld(event: WorldEvent?) {
@@ -132,6 +138,126 @@ object CombatVisuals : Module() {
 //            }
 //        }
 //    }
+
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        if (squidValue.get() && this.squid != null) {
+            if (mc.theWorld.loadedEntityList.contains(this.squid)) {
+                if (this.percent < 1.0) {
+                    this.percent += Math.random() * 0.048
+                }
+                if (this.percent >= 1.0) {
+                    this.percent = 0.0
+                    for (i in 0..8) {
+                        mc.effectRenderer.emitParticleAtEntity(
+                            this.squid,
+                            EnumParticleTypes.FLAME
+                        )
+                    }
+                    mc.theWorld.removeEntity(this.squid)
+                    this.squid = null
+                    return
+                }
+            } else {
+                this.percent = 0.0
+            }
+            val easeInOutCirc: Double = this.easeInOutCirc(1.0 - this.percent)
+            this.anim.animate(easeInOutCirc.toFloat(), 450)
+            squid!!.setPositionAndUpdate(
+                squid!!.posX,
+                squid!!.posY + this.anim.getOutput() * 0.9, squid!!.posZ
+            )
+        }
+        if (this.squid != null && squidValue.get()) {
+            squid!!.squidPitch = 0.0f
+            squid!!.prevSquidPitch = 0.0f
+            squid!!.squidYaw = 0.0f
+            squid!!.squidRotation = 90.0f
+        }
+        val target = FDPClient.combatManager.target ?: return
+        if (target.health <= 0.0f && !mc.theWorld.loadedEntityList.contains(
+                target
+            )
+        ) {
+            if (squidValue.get()) {
+                this.playSound(
+                    SoundType.KILL,
+                    (mc.gameSettings.getSoundLevel(SoundCategory.MASTER) * mc.gameSettings.getSoundLevel(
+                        SoundCategory.ANIMALS
+                    ))
+                )
+                this.squid = EntitySquid(mc.theWorld)
+                mc.theWorld.addEntityToWorld(-847815, this.squid)
+                squid!!.setPosition(target.posX, target.posY, target.posZ)
+            }
+        }
+    }
+
+    fun playSound(st: SoundType, volume: Float) {
+        Thread {
+            try {
+                val `as` = AudioSystem.getAudioInputStream(
+                    BufferedInputStream(
+                        Objects.requireNonNull(
+                            javaClass.getResourceAsStream(
+                                "/resources/sounds/" + st.getName()
+                            )
+                        )
+                    )
+                )
+                val clip = AudioSystem.getClip()
+                clip.open(`as`)
+                clip.start()
+                val gainControl = clip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
+                gainControl.value = volume
+                clip.start()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: LineUnavailableException) {
+                e.printStackTrace()
+            } catch (e: UnsupportedAudioFileException) {
+                e.printStackTrace()
+            }
+        }.start()
+    }
+
+    enum class SoundType(val music: String) {
+        KILL("kill.wav");
+
+        fun getName(): String {
+            return this.music
+        }
+    }
+
+    fun easeInOutCirc(x: Double): Double {
+        return if (x < 0.5) (1.0 - sqrt(1.0 - (2.0 * x).pow(2.0))) / 2.0 else (sqrt(1.0 - (-2.0 * x + 2.0).pow(2.0)) + 1.0) / 2.0
+    }
+
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        val entityLivingBase = combat.target ?: return
+        val player = mc.thePlayer ?: return
+        when (markValue.get().lowercase()) {
+            "rectangle","round" -> {
+                if (!(entityLivingBase.isDead || player.getDistanceToEntity(
+                        entityLivingBase
+                    ) > 10)
+                ) {
+                    val dst = mc.thePlayer.getSmoothDistanceToEntity(entityLivingBase)
+                    val vector2f = RenderUtil.targetESPSPos(entityLivingBase, event.partialTicks)
+                    RenderUtil.drawTargetESP2D(
+                        vector2f.x,
+                        vector2f.y,
+                        getColor(entityLivingBase),
+                        getColor(entityLivingBase),
+                        1.0f - MathHelper.clamp_float(abs((dst - 6.0f)) / 60.0f, 0.0f, 0.75f),
+                        1,
+                        auraESPAnim.output.toFloat()
+                    )
+                }
+            }
+        }
+    }
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
@@ -171,24 +297,26 @@ object CombatVisuals : Module() {
                 event
             )
 
-            "rectangle","round" -> {
-                if (!(combat.target!!.isDead || mc.thePlayer.getDistanceToEntity(
-                        combat.target
-                    ) > 10)
-                ) {
-                    val dst = mc.thePlayer.getSmoothDistanceToEntity(combat.target)
-                    val vector2f = RenderUtil.targetESPSPos(combat.target, event.partialTicks)
-                    RenderUtil.drawTargetESP2D(
-                        vector2f.x,
-                        vector2f.y,
-                        getColor(combat.target),
-                        getColor(combat.target),
-                        1.0f - MathHelper.clamp_float(abs((dst - 6.0f)) / 60.0f, 0.0f, 0.75f),
-                        1,
-                        auraESPAnim.output.toFloat()
-                    )
-                }
-            }
+            "points" -> points(combat.target ?: return)
+
+//            "rectangle","round" -> {
+//                if (!(combat.target!!.isDead || mc.thePlayer.getDistanceToEntity(
+//                        combat.target
+//                    ) > 10)
+//                ) {
+//                    val dst = mc.thePlayer.getSmoothDistanceToEntity(combat.target)
+//                    val vector2f = RenderUtil.targetESPSPos(combat.target, event.partialTicks)
+//                    RenderUtil.drawTargetESP2D(
+//                        vector2f.x,
+//                        vector2f.y,
+//                        getColor(combat.target),
+//                        getColor(combat.target),
+//                        1.0f - MathHelper.clamp_float(abs((dst - 6.0f)) / 60.0f, 0.0f, 0.75f),
+//                        1,
+//                        auraESPAnim.output.toFloat()
+//                    )
+//                }
+//            }
 
             "jello" -> {
                 val auraESPAnim = DecelerateAnimation(300, 1.0)

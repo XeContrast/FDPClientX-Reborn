@@ -77,6 +77,9 @@ public class ShaderUtil extends MinecraftInstance {
                 case "roundedRectGradient":
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectGradient.getBytes()), GL_FRAGMENT_SHADER);
                     break;
+                case "esp":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(esp.getBytes()),GL_VERTEX_SHADER);
+                    break;
                 default:
                     fragmentShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream(), GL_FRAGMENT_SHADER);
                     break;
@@ -184,5 +187,40 @@ public class ShaderUtil extends MinecraftInstance {
 
         return shader;
     }
+
+    private final String esp = "#version 120\n" +
+            "uniform sampler2D texture;\n" +
+            "uniform sampler2D texture2;\n" +
+            "uniform vec2 texelSize;\n" +
+            "uniform vec2 direction;\n" +
+            "uniform float alpha;\n" +
+            "uniform vec3 color;\n" +
+            "uniform int radius;\n" +
+            "\n" +
+            "float gaussian(float x, float sigma) {\n" +
+            "    float power_2 = x / sigma;\n" +
+            "    return (1.0 / (sigma * 2.50662827463)) * exp(-0.5 * (power_2 * power_2));\n" +
+            "}\n" +
+            "\n" +
+            "void main() {\n" +
+            "    vec2 texCoord = gl_TexCoord[0].st;\n" +
+            "\n" +
+            "    if (direction.y == 1)\n" +
+            "        if (texture2D(texture2, texCoord).a != 0.0) return;\n" +
+            "\n" +
+            "    vec4 blurred_color = vec4(0.0);\n" +
+            "\n" +
+            "    for (float r = -radius; r <= radius; r++) {\n" +
+            "        blurred_color += texture2D(texture, texCoord + r * texelSize * direction) * gaussian(r, radius / 2);\n" +
+            "    }\n" +
+            "\n" +
+            "    if (blurred_color.a > 0) {\n" +
+            "        if (direction.x == 0) {\n" +
+            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a * alpha);\n" +
+            "        } else {\n" +
+            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a);\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
 
 }

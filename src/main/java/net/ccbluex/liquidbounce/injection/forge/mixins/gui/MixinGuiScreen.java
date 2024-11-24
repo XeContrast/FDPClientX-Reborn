@@ -9,7 +9,6 @@ import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.features.module.modules.client.HUDModule;
 import net.ccbluex.liquidbounce.font.FontLoaders;
 import net.ccbluex.liquidbounce.ui.client.GuiBackground;
-import net.ccbluex.liquidbounce.ui.client.hud.HUD;
 import net.ccbluex.liquidbounce.utils.particles.ParticleUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -33,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 

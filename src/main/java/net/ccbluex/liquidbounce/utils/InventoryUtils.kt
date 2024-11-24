@@ -26,12 +26,12 @@ object InventoryUtils : MinecraftInstance(), Listenable {
     val BLOCK_BLACKLIST = listOf(Blocks.enchanting_table, Blocks.chest, Blocks.ender_chest, Blocks.trapped_chest,
         Blocks.anvil, Blocks.sand, Blocks.web, Blocks.torch, Blocks.crafting_table, Blocks.furnace, Blocks.waterlily,
         Blocks.dispenser, Blocks.stone_pressure_plate, Blocks.wooden_pressure_plate, Blocks.red_flower, Blocks.flower_pot, Blocks.yellow_flower,
-        Blocks.noteblock, Blocks.dropper, Blocks.standing_banner, Blocks.wall_banner, Blocks.tnt)
+        Blocks.noteblock, Blocks.dropper, Blocks.standing_banner, Blocks.wall_banner, Blocks.tnt, Blocks.soul_sand)
 
     fun findItem(startSlot: Int, endSlot: Int, item: Item): Int {
         for (i in startSlot until endSlot) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-            if (stack != null && stack.item === item) {
+            if (stack != null && stack.item == item) {
                 return i
             }
         }
