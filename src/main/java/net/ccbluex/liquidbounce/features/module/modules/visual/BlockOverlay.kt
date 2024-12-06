@@ -40,7 +40,7 @@ object BlockOverlay : Module() {
         get() {
             val blockPos = mc.objectMouseOver?.blockPos ?: return null
 
-            if (canBeClicked(blockPos) && mc.theWorld.worldBorder.contains(blockPos)) {
+            if (blockPos.canBeClicked() && mc.theWorld.worldBorder.contains(blockPos)) {
                 return blockPos
             }
 

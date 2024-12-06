@@ -178,6 +178,11 @@ object FakeLag : Module() {
         if (!resetTimer.hasTimePassed(recoilTime.get().toLong()))
             return
 
+        if (mc.isSingleplayer || mc.currentServerData == null) {
+            blink()
+            return
+        }
+
         if (event.eventType == EventState.SEND) {
             event.cancelEvent()
             if (packet is C03PacketPlayer && packet.isMoving) {

@@ -52,7 +52,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
             }
 
             is S14PacketEntity -> {
-                val entity = packet.getEntity(world)
+                val entity = packet.getEntity(world) ?: return
                 val mixinEntity = entity as? IMixinEntity
 
                 mixinEntity?.apply {

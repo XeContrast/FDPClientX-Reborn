@@ -23,10 +23,7 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.Border
 import net.ccbluex.liquidbounce.ui.client.hud.element.Element
 import net.ccbluex.liquidbounce.ui.client.hud.element.ElementInfo
-import net.ccbluex.liquidbounce.utils.EntityUtils
-import net.ccbluex.liquidbounce.utils.MiniMapRegister
-import net.ccbluex.liquidbounce.utils.RainbowShader
-import net.ccbluex.liquidbounce.utils.SafeVertexBuffer
+import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
@@ -75,16 +72,12 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
     private var lastFov = 0f
 
     override fun drawElement(partialTicks: Float): Border {
-        MiniMapRegister.updateChunks()
-
-        val fovAngle = fovAngleValue.get()
-
-        if (lastFov != fovAngle || fovMarkerVertexBuffer == null) {
+        if (lastFov != fovAngleValue.get() || fovMarkerVertexBuffer == null) {
             // Free Memory
             fovMarkerVertexBuffer?.deleteGlBuffers()
 
-            fovMarkerVertexBuffer = createFovIndicator(fovAngle)
-            lastFov = fovAngle
+            fovMarkerVertexBuffer = createFovIndicator(fovAngleValue.get())
+            lastFov = fovAngleValue.get()
         }
 
         val renderViewEntity = mc.renderViewEntity!!
@@ -313,8 +306,8 @@ class Radar(x: Double = 5.0, y: Double = 130.0) : Element(x, y) {
 
         worldRenderer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION)
 
-        val start = (90.0f - (angle * 0.5f)) / 180.0f * Math.PI.toFloat()
-        val end = (90.0f + (angle * 0.5f)) / 180.0f * Math.PI.toFloat()
+        val start = (90f - (angle * 0.5f)).toRadians()
+        val end = (90f + (angle * 0.5f)).toRadians()
 
         var curr = end
         val radius = 1.0

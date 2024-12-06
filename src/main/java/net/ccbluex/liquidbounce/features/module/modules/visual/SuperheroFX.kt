@@ -55,7 +55,7 @@ class SuperheroFX : Module() {
     fun onRender3D(event: Render3DEvent) {
         val removeList = mutableListOf<FXParticle>()
         for (particle in textParticles) {
-            if (particle.canRemove) {
+            if (particle.canRemove && !removeList.contains(particle)) {
                 removeList.add(particle)
                 continue
             }

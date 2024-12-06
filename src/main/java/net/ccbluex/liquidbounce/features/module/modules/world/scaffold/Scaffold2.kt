@@ -1559,7 +1559,7 @@ class Scaffold2 : Module() {
         } else {
             for (facingType in EnumFacing.entries) {
                 val neighbor = blockPosition.offset(facingType)
-                if (!canBeClicked(neighbor)) continue
+                if (!neighbor.canBeClicked()) continue
                 val dirVec = Vec3(facingType.directionVec)
                 val auto = (if (towerState) towerSearchMode else searchMode).get().equals("Auto", true)
                 val center = (if (towerState) towerSearchMode else searchMode).get().equals("AutoCenter", true)

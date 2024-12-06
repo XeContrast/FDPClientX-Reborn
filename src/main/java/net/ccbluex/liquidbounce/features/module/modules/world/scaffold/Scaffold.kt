@@ -21,6 +21,7 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
+import net.ccbluex.liquidbounce.utils.block.BlockUtils.canBeClicked
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.isReplaceable
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo.Companion.get
@@ -1236,7 +1237,7 @@ class Scaffold : Module() {
         }
         for (side in StaticStorage.facings()) {
             val neighbor = hypixelBlockPos.offset(side)
-            if (!BlockUtils.canBeClicked(neighbor)) continue
+            if (!neighbor.canBeClicked()) continue
             val dirVec = Vec3(side.directionVec)
             var xSearch = 0.1
             while (xSearch < 0.9) {

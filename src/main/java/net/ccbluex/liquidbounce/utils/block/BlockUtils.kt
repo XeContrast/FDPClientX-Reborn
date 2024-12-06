@@ -7,13 +7,29 @@ package net.ccbluex.liquidbounce.utils.block
 
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 import net.minecraft.block.Block
+import net.minecraft.block.BlockContainer
+import net.minecraft.block.BlockWorkbench
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
+import net.minecraft.client.Minecraft
+import net.minecraft.entity.item.EntityFallingBlock
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import kotlin.math.floor
+
+val BlockPos.state: IBlockState?
+    get() = Minecraft.getMinecraft().theWorld?.getBlockState(this)
+
+val BlockPos.block: Block?
+    get() = this.state?.block
+val BlockPos.material: Material?
+    get() = this.block?.material
+val BlockPos.isReplaceable: Boolean
+    get() = this.material?.isReplaceable ?: false
+val BlockPos.center: Vec3
+    get() = Vec3(x + 0.5, y + 0.5, z + 0.5)
 
 object BlockUtils : MinecraftInstance() {
 
@@ -43,13 +59,6 @@ object BlockUtils : MinecraftInstance() {
      */
     @JvmStatic
     fun getState(blockPos: BlockPos?): IBlockState = mc.theWorld.getBlockState(blockPos)
-
-    /**
-     * Check if [blockPos] is clickable
-     */
-    @JvmStatic
-    fun canBeClicked(blockPos: BlockPos?) = getBlock(blockPos)?.canCollideCheck(getState(blockPos), false) ?: false &&
-            mc.theWorld.worldBorder.contains(blockPos)
 
     /**
      * Get block name by [id]
@@ -154,7 +163,7 @@ object BlockUtils : MinecraftInstance() {
      * Check if block bounding box is full or partial (non-full)
      */
     fun isBlockBBValid(blockPos: BlockPos, blockState: IBlockState? = null, supportSlabs: Boolean = false, supportPartialBlocks: Boolean = false): Boolean {
-        val state = blockState ?: getState(blockPos) ?: return false
+        val state = blockState ?: getState(blockPos)
 
         val box = state.block.getCollisionBoundingBox(mc.theWorld, blockPos, state) ?: return false
 
@@ -171,4 +180,20 @@ object BlockUtils : MinecraftInstance() {
 
     @JvmStatic
     fun floorVec3(vec3: Vec3) = Vec3(floor(vec3.xCoord), floor(vec3.yCoord), floor(vec3.zCoord))
+
+    fun BlockPos.canBeClicked(): Boolean {
+        val state = this.state ?: return false
+        val block = state.block ?: return false
+
+        return when {
+            this !in mc.theWorld.worldBorder -> false
+            !block.canCollideCheck(state, false) -> false
+            block.material.isReplaceable -> false
+            block.hasTileEntity(state) -> false
+            !isBlockBBValid(this, state, supportSlabs = true, supportPartialBlocks = true) -> false
+            mc.theWorld.loadedEntityList.any { it is EntityFallingBlock && it.position == this } -> false
+            block is BlockContainer || block is BlockWorkbench -> false
+            else -> true
+        }
+    }
 }

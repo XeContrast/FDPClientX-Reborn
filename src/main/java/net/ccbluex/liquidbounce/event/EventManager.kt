@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
 class EventManager : MinecraftInstance() {
 
-    private val registry = HashMap<Class<out Event>, MutableList<EventHook>>()
+    private val registry = hashMapOf<Class<out Event>, MutableList<EventHook>>()
 
 //    private val counter = HashMap<Class<out Event>, Int>()
 //    private var lastSyncTime = System.currentTimeMillis()
@@ -38,13 +38,10 @@ class EventManager : MinecraftInstance() {
      *
      * @param listenable for unregister
      */
-    fun unregisterListener(listenable: Listenable) {
-        for ((key, targets) in registry) {
+    fun unregisterListener(listenable: Listenable) =
+        registry.forEach { (_, targets) ->
             targets.removeIf { it.eventClass == listenable }
-
-            registry[key] = targets
         }
-    }
 
 //    private fun printProfiler() {
 //        println("--- Event Profiler(${Date()}) ---")
@@ -65,29 +62,17 @@ class EventManager : MinecraftInstance() {
      * @param event to call
      */
     fun callEvent(event: Event) {
-//        if(System.currentTimeMillis() - lastSyncTime > 1000) {
-//            printProfiler()
-//            lastSyncTime = System.currentTimeMillis()
-//        }
-//        counter[event.javaClass] = counter.getOrDefault(event.javaClass, 0) + 1
-
         val targets = registry[event.javaClass] ?: return
-        try {
-            for (invokableEventTarget in targets) {
-                try {
-                    if (!invokableEventTarget.eventClass.handleEvents() && !invokableEventTarget.isIgnoreCondition) {
-                        continue
-                    }
 
-                    invokableEventTarget.method.invoke(invokableEventTarget.eventClass, event)
-                } catch (nullPointerException: NullPointerException) {
-                    nullPointerException.printStackTrace()
-                } catch (throwable: Throwable) {
-                    throwable.printStackTrace()
-                }
+        for (invokableEventTarget in targets) {
+            try {
+                if (!invokableEventTarget.eventClass.handleEvents() && !invokableEventTarget.isIgnoreCondition)
+                    continue
+
+                invokableEventTarget.method.invoke(invokableEventTarget.eventClass, event)
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
             }
-        }catch (e :Exception){
-            e.printStackTrace()
         }
     }
 }
