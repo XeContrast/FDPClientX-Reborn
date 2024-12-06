@@ -15,11 +15,13 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
+import net.ccbluex.liquidbounce.utils.PacketUtils.sendPacket
+import net.ccbluex.liquidbounce.utils.RaycastUtils.runWithModifiedRaycastResult
 import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 import net.ccbluex.liquidbounce.utils.particles.Vec3
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
@@ -46,29 +48,29 @@ import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.sqrt
 
-@ModuleInfo(name = "Velocity", category = ModuleCategory.COMBAT)
-object Velocity : Module() {
+@ModuleInfo(name = "AntiKB", category = ModuleCategory.COMBAT)
+object AntiKB : Module() {
     private val mainMode =
-        ListValue("MainMode", arrayOf("Vanilla", "Cancel", "AAC", "Matrix","GrimAC", "Reverse", "Other"), "Vanilla")
+        ListValue("MainMode", arrayOf("Vanilla", "Cancel", "AAC", "Matrix","GrimAC", "Reverse", "Other").sortedArray(), "Vanilla")
     private val vanillaMode =
         ListValue(
             "VanillaMode",
-            arrayOf("Jump", "Simple", "Glitch"),
+            arrayOf("Jump", "Simple", "Glitch").sortedArray(),
             "Jump"
         ).displayable { mainMode.get() == "Vanilla" }
     private val grimMode =
         ListValue(
             "GrimACMode",
-            arrayOf("GrimReduce","GrimVertical"),
+            arrayOf("GrimReduce","GrimVertical","GrimClick").sortedArray(),
             "GrimReduce"
         ).displayable { mainMode.get() == "GrimAC" }
     private val cancelMode = ListValue(
         "CancelMode",
-        arrayOf("S12Cancel", "S32Cancel", "SendC0F", "HighVersion", "GrimS32Cancel", "GrimC07", "Spoof"),
+        arrayOf("S12Cancel", "S32Cancel", "SendC0F", "HighVersion", "GrimS32Cancel", "GrimC07", "Spoof").sortedArray(),
         "S12Cancel"
-    ).displayable { mainMode.get() in arrayOf("Cancel") }
-    private val matrixMode = ListValue(
-        "Mode", arrayOf(
+    ).displayable { mainMode.get() == "Cancel" }
+    private val matMode = ListValue(
+        "MatrixMode", arrayOf(
             "Ground",
             "Attack",
             "Reduce",
@@ -77,21 +79,21 @@ object Velocity : Module() {
             "Simple",
             "Spoof",
             "Clip"
-        ), "Ground"
+        ).sortedArray(), "Ground"
     ).displayable { mainMode.get() == "Matrix" }
     private val aacMode = ListValue(
         "AACMode",
-        arrayOf("AAC4Reduce", "AAC5Reduce","AAC5.2Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero"),
+        arrayOf("AAC4Reduce", "AAC5Reduce","AAC5.2Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero").sortedArray(),
         "AAC4Reduce"
     ).displayable { mainMode.get() == "AAC" }
     private val reverseMode = ListValue(
         "ReverseMode",
-        arrayOf("Reverse", "SmoothReverse"),
+        arrayOf("Reverse", "SmoothReverse").sortedArray(),
         "Reverse"
     ).displayable { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
-        arrayOf("AttackReduce", "IntaveReduce", "Karhu", "Delay", "Phase"),
+        arrayOf("AttackReduce","BlocksMC", "IntaveReduce", "Karhu", "Delay", "Phase").sortedArray(),
         "AttackReduce"
     ).displayable { mainMode.get() == "Other" }
 
@@ -292,6 +294,14 @@ object Velocity : Module() {
 
     private val reduceCount = IntegerValue("ReduceCount",4,1,10).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
     private val reduceTimes = IntegerValue("ReduceTimes",1,1,5).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
+
+    private val minClick = IntegerValue("MinClicks",3,1,20).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val maxClick = IntegerValue("MaxClicks",3,1,20).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val hurtTimeToClick = IntegerValue("HurtTimeToClick", 10, 0,10).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val whenFacingEnemyOnly = BoolValue("WhenFacingEnemyOnly", true).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val ignoreBlocking = BoolValue("IgnoreBlocking", false).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val clickRange = FloatValue("ClickRange", 3f, 1f,6f).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val swingMode = ListValue("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal").displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
 
     //
     private var hasReceivedVelocity = false
@@ -496,7 +506,7 @@ object Velocity : Module() {
 
                 "matrix" -> {
                     if (packet is S12PacketEntityVelocity) {
-                        when (matrixMode.get().lowercase()) {
+                        when (matMode.get().lowercase()) {
                             "spoof" -> {
                                 event.cancelEvent()
                                 mc.netHandler.addToSendQueue(
@@ -573,6 +583,18 @@ object Velocity : Module() {
                                 veloTick = mc.thePlayer.ticksExisted
                                 packets.add(packet as Packet<INetHandlerPlayClient>)
                                 queuePacket(delayValue.get().toLong())
+                            }
+                        }
+
+                        "blocksmc" -> {
+                            if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
+                                event.cancelEvent()
+                                hasReceivedVelocity = true
+
+                                PacketUtils.sendPackets(
+                                    C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SNEAKING),
+                                    C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SNEAKING)
+                                )
                             }
                         }
 
@@ -782,6 +804,13 @@ object Velocity : Module() {
                             }
                         }
                     }
+
+                    "blocksmc" -> if (hasReceivedVelocity) {
+                        if (packet is C0BPacketEntityAction) {
+                            hasReceivedVelocity = false
+                            event.cancelEvent()
+                        }
+                    }
                 }
             }
         }
@@ -833,6 +862,10 @@ object Velocity : Module() {
 
     @EventTarget
     fun onTick(event: GameTickEvent) {
+        val thePlayer = mc.thePlayer ?: return
+
+        mc.theWorld ?: return
+
         if (mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07") {
             if (hasReceivedVelocity || alwaysValue.get()) { // packet processed event pls
                 val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
@@ -841,13 +874,50 @@ object Velocity : Module() {
                 }
             }
         }
+
+        if (mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick") {
+            if (thePlayer.hurtTime != hurtTimeToClick.get() || ignoreBlocking.get() && (thePlayer.isBlocking || KillAura.blockingStatus))
+                return
+
+            var entity = mc.objectMouseOver?.entityHit
+
+            if (entity == null) {
+                if (whenFacingEnemyOnly.get()) {
+                    var result: Entity? = null
+
+                    runWithModifiedRaycastResult(
+                        RotationUtils.targetRotation ?: thePlayer.rotation,
+                        clickRange.get().toDouble(),
+                        0.0
+                    ) { it ->
+                        result = it.entityHit?.takeIf { isSelected(it, true) }
+                    }
+
+                    entity = result!!
+                } else getNearestEntityInRange(clickRange.get())?.takeIf { isSelected(it, true) }
+            }
+
+            entity ?: return
+
+            val swingHand = {
+                when (swingMode.get().lowercase()) {
+                    "normal" -> thePlayer.swingItem()
+                    "packet" -> sendPacket(C0APacketAnimation())
+                }
+            }
+            val clicks = nextInt(minClick.get(), maxClick.get())
+
+            repeat(clicks) {
+                thePlayer.attackEntityWithModifiedSprint(entity, true) { swingHand() }
+            }
+        }
     }
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
         val player = mc.thePlayer ?: return
         when (mainMode.get().lowercase()) {
-            "matrix" -> when (matrixMode.get().lowercase()) {
+            "matrix" -> when (matMode.get().lowercase()) {
                 "attack" -> {
                     if (hasReceivedVelocity) {
                         if (player.isSprinting) {
@@ -949,16 +1019,16 @@ object Velocity : Module() {
                 when (grimMode.get().lowercase()) {
                     "grimreduce" -> {
                         val objectMouseOver = mc.objectMouseOver ?: return
-                        if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && objectMouseOver.entityHit is EntityPlayer) {
+                        if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && (objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && objectMouseOver.entityHit is EntityPlayer) || (KillAura.handleEvents() && KillAura.currentTarget != null)) {
                             if (!mc.thePlayer.serverSprintState) {
-                                PacketUtils.sendPacket(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                                sendPacket(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                                 mc.thePlayer.serverSprintState = true
                                 mc.thePlayer.isSprinting = true
                             }
 
                             for (i in 0 until reduceCount.get()) {
                                 mc.thePlayer.swingItem()
-                                PacketUtils.sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
+                                sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
 
                                 mc.thePlayer.motionX *= 0.6
                                 mc.thePlayer.motionZ *= 0.6
@@ -1188,7 +1258,7 @@ object Velocity : Module() {
             }
 
             "matrix" -> {
-                when (matrixMode.get().lowercase()) {
+                when (matMode.get().lowercase()) {
                     "ground" -> isMatrixOnGround = player.onGround && !mc.gameSettings.keyBindJump.isKeyDown
                     "clip" -> {
                         if (player.hurtTime in 1..4 && player.fallDistance > 0) {
@@ -1462,10 +1532,18 @@ object Velocity : Module() {
         return motionNoXZ
     }
 
+    private fun getNearestEntityInRange(range: Float = this.range.get()): Entity? {
+        val player = mc.thePlayer ?: return null
+
+        return mc.theWorld.loadedEntityList.asSequence().filter {
+            isSelected(it, true) && player.getDistanceToEntityBox(it) <= range
+        }.minByOrNull { player.getDistanceToEntityBox(it) }
+    }
+
     override val tag: String
         get() = when (mainMode.get().lowercase()) {
             "cancel" -> cancelMode.get()
-            "matrix" -> matrixMode.get()
+            "matrix" -> matMode.get()
             "other" -> otherMode.get()
             "vanilla" -> vanillaMode.get()
             "aac" -> aacMode.get()

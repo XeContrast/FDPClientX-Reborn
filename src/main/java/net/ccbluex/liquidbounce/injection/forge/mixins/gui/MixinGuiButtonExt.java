@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(GuiButtonExt.class)
-public abstract class MixinGuiButtonExt extends MixinGuiButton {
+public abstract class  MixinGuiButtonExt extends MixinGuiButton {
 
     /**
      * @author CCBlueX

@@ -28,6 +28,8 @@ object MovementUtils : MinecraftInstance() {
         if(y) mc.thePlayer.motionY = 0.0
     }
 
+    var affectSprintOnAttack: Boolean? = null
+
     fun getSpeed(): Float {
         return sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ).toFloat()
     }

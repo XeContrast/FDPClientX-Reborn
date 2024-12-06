@@ -62,7 +62,7 @@ object NoSlow : Module() {
     //Basic settings
     private val modeValue = ListValue(
         "PacketMode",
-        mode,
+        mode.sortedArray(),
         "Vanilla"
     )
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
@@ -541,10 +541,8 @@ object NoSlow : Module() {
             return
         val heldItem = mc.thePlayer.heldItem?.item
 
-        if (!consumePacketValue.equals("Bug") || shouldNoSlow) {
-            event.forward = getMultiplier(heldItem, true)
-            event.strafe = getMultiplier(heldItem, false)
-        }
+        event.forward = getMultiplier(heldItem, true)
+        event.strafe = getMultiplier(heldItem, false)
     }
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {

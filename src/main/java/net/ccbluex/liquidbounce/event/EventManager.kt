@@ -26,9 +26,10 @@ class EventManager : MinecraftInstance() {
                 val eventClass = method.parameterTypes[0] as Class<out Event>
                 val eventTarget = method.getAnnotation(EventTarget::class.java)
 
-                val invokableEventTargets = registry.getOrDefault(eventClass, ArrayList())
-                invokableEventTargets += EventHook(listener, method, eventTarget)
-                registry[eventClass] = invokableEventTargets.sortedByDescending { it.priority }.toMutableList()
+                with(registry.getOrPut(eventClass, ::ArrayList)) {
+                    this += EventHook(listener, method, eventTarget)
+                    this.sortByDescending { it.priority }
+                }
             }
         }
 

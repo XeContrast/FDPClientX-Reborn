@@ -31,6 +31,7 @@ import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.ui.sound.TipSoundManager
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.misc.HttpUtils
+import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
@@ -136,10 +137,12 @@ object FDPClient {
         eventManager.registerListener(InventoryUtils)
         eventManager.registerListener(BungeeCordSpoof())
         eventManager.registerListener(ServerSpoof)
+        eventManager.registerListener(WaitTickUtils)
         eventManager.registerListener(SessionUtils())
         eventManager.registerListener(StatisticsUtils())
         eventManager.registerListener(LocationCache())
         eventManager.registerListener(PacketUtils)
+        eventManager.registerListener(MiniMapRegister)
         eventManager.registerListener(macroManager)
         eventManager.registerListener(combatManager)
 

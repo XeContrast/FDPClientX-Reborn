@@ -1,113 +1,91 @@
 /*
- * This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * LiquidBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/CCBlueX/LiquidBounce/
  */
 package net.ccbluex.liquidbounce.utils
 
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.Listenable
+import net.ccbluex.liquidbounce.event.Render2DEvent
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.util.BlockPos
 import net.minecraft.world.chunk.Chunk
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
-object MiniMapRegister : MinecraftInstance() {
-    private val chunkTextureMap = HashMap<ChunkLocation, MiniMapTexture>()
+object MiniMapRegister : MinecraftInstance(), Listenable {
+
+    private val chunkTextureMap = HashMap<ChunkLocation, MiniMapTexture>(256)
     private val queuedChunkUpdates = HashSet<Chunk>(256)
     private val queuedChunkDeletions = HashSet<ChunkLocation>(256)
-    private val deleteAllChunks = AtomicBoolean(false)
-    // 不知道杰哥有没有想过：如果玩家不用Radar,那么储存在queuedChunkUpdates的区块可能会导致OutOfMemory
-    var radarEnabled = false
+    private var deleteAllChunks = false
+
+    private val lock = ReentrantReadWriteLock()
 
     fun updateChunk(chunk: Chunk) {
-        if (!radarEnabled) return
-        synchronized(queuedChunkUpdates) {
-            queuedChunkUpdates.add(chunk)
+        lock.write {
+            queuedChunkUpdates += chunk
         }
     }
 
-    fun getChunkTextureAt(x: Int, z: Int): MiniMapTexture? {
-        return chunkTextureMap[ChunkLocation(x, z)]
+    fun getChunkTextureAt(x: Int, z: Int) = lock.read { chunkTextureMap[ChunkLocation(x, z)] }
+
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        updateChunks()
     }
 
     fun updateChunks() {
-        synchronized(queuedChunkUpdates) {
-            if (deleteAllChunks.get()) {
-                synchronized(queuedChunkDeletions) {
-                    queuedChunkDeletions.clear()
-                }
+        lock.write {
+            if (deleteAllChunks) {
+                queuedChunkDeletions.clear()
                 queuedChunkUpdates.clear()
 
-                chunkTextureMap.forEach { it.value.delete() }
-
+                chunkTextureMap.values.forEach { it.delete() }
                 chunkTextureMap.clear()
 
-                deleteAllChunks.set(false)
+                deleteAllChunks = false
             } else {
-                synchronized(queuedChunkDeletions) {
-                    queuedChunkDeletions.forEach {
-                        chunkTextureMap.remove(it)?.delete()
-                    }
-                    queuedChunkDeletions.clear()
+                queuedChunkDeletions.forEach {
+                    chunkTextureMap.remove(it)?.delete()
                 }
+                queuedChunkDeletions.clear()
             }
 
             queuedChunkUpdates.forEach {
-                chunkTextureMap.computeIfAbsent(ChunkLocation(it.xPosition, it.zPosition)) {
-                    MiniMapTexture()
-                }.updateChunkData(it)
+                chunkTextureMap.getOrPut(it.location, MiniMapRegister::MiniMapTexture).updateChunkData(it)
             }
 
             queuedChunkUpdates.clear()
         }
     }
 
-    fun getLoadedChunkCount(): Int {
-        return chunkTextureMap.size
-    }
+    fun getLoadedChunkCount() = lock.read { chunkTextureMap.size }
 
     fun unloadChunk(x: Int, z: Int) {
-        synchronized(queuedChunkDeletions) {
-            queuedChunkDeletions.add(ChunkLocation(x, z))
+        lock.write {
+            queuedChunkDeletions += ChunkLocation(x, z)
         }
     }
 
-    fun unloadAllChunks() {
-        deleteAllChunks.set(true)
-        if (!radarEnabled) {
-            synchronized(queuedChunkDeletions) {
-                queuedChunkDeletions.clear()
-            }
-            synchronized(queuedChunkUpdates) {
-                queuedChunkUpdates.clear()
-            }
-            chunkTextureMap.forEach { it.value.delete() }
-            chunkTextureMap.clear()
-        }
-        radarEnabled = false
-    }
+    fun unloadAllChunks() = lock.write { deleteAllChunks = true }
 
     class MiniMapTexture {
         val texture = DynamicTexture(16, 16)
-        var deleted = false
+        private var deleted = false
 
         fun updateChunkData(chunk: Chunk) {
             val rgbValues = texture.textureData
 
+            val pos = BlockPos.MutableBlockPos()
             for (x in 0..15) {
                 for (z in 0..15) {
-                    val bp = BlockPos(x, chunk.getHeightValue(x, z) - 1, z)
+                    val bp = pos.set(x, chunk.getHeightValue(x, z) - 1, z)
                     val blockState = chunk.getBlockState(bp)
 
-                    rgbValues[rgbValues.size - (z * 16 + x + 1)] = blockState.block.getMapColor(blockState).colorValue or (0xFF shl 24)
+                    rgbValues[rgbValues.size - 1 - (z shl 4 or x)] = blockState.block.getMapColor(blockState).colorValue or (0xFF shl 24)
                 }
             }
 
@@ -128,5 +106,9 @@ object MiniMapRegister : MinecraftInstance() {
         }
     }
 
+    private val Chunk.location: ChunkLocation
+        get() = ChunkLocation(xPosition, zPosition)
+
     data class ChunkLocation(val x: Int, val z: Int)
+
 }

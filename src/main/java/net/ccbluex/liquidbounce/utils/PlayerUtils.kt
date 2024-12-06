@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.utils.block.BlockUtils.toVec
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.minecraft.block.BlockSlime
 import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.*
 import net.minecraft.entity.boss.EntityDragonPart
@@ -304,4 +305,23 @@ object PlayerUtils {
         }
     }
 
+}
+
+fun EntityPlayerSP.attackEntityWithModifiedSprint(
+    entity: Entity, affectMovementBySprint: Boolean? = null, swing: () -> Unit
+) {
+    swing()
+
+    MovementUtils.affectSprintOnAttack = affectMovementBySprint
+
+    try {
+        mc.playerController?.attackEntity(this, entity)
+    } catch (any: Exception) {
+        // Unlikely to happen, but if it does, we just want to make sure affectSprintOnAttack is null.
+        any.printStackTrace()
+    }
+
+    MovementUtils.affectSprintOnAttack = null
+
+    CPSCounter.registerClick(CPSCounter.MouseButton.LEFT)
 }

@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.visual
 
+import net.ccbluex.liquidbounce.event.EventTarget
+import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -15,4 +17,13 @@ object TrueSight : Module() {
 
     val barriersValue = BoolValue("Barriers", true)
     val entitiesValue = BoolValue("Entities", true)
+
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        if (barriersValue.get()) {
+            if (mc.gameSettings.particleSetting == 2) {
+                mc.gameSettings.particleSetting = 1
+            }
+        }
+    }
 }

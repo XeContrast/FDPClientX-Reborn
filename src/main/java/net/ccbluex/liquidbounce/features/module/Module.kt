@@ -26,6 +26,14 @@ import java.util.ArrayList
 
 open class Module : MinecraftInstance(), Listenable {
     // Module information
+
+    // List to register additional options from classes
+    private val configurables = mutableListOf<Class<*>>()
+
+    fun addConfigurable(provider: Any) {
+        configurables += provider::class.java
+    }
+
     var slideStep = 0F
     val translate = Translate(0F,0F)
     val tab = Translate(0f , 0f)

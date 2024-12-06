@@ -7,7 +7,7 @@ package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.features.module.modules.combat.FakeLag
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKB
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -79,7 +79,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 handlePacket(it)
                 val packetEvent = PacketEvent(it, EventState.RECEIVE)
                 FakeLag.onPacket(packetEvent)
-                Velocity.onPacket(packetEvent)
             }
 
             queuedPackets.clear()
@@ -225,3 +224,23 @@ var C03PacketPlayer.rotation
         yaw = value.yaw
         pitch = value.pitch
     }
+
+var C03PacketPlayer.pos
+    get() = Vec3(x, y, z)
+    set(value) {
+        x = value.xCoord
+        y = value.yCoord
+        z = value.zCoord
+    }
+
+fun schedulePacketProcess(packet: Packet<*>) {
+    synchronized(PacketUtils.queuedPackets) {
+        PacketUtils.queuedPackets.add(packet)
+    }
+}
+
+fun schedulePacketProcess(packets: Collection<Packet<*>>) {
+    synchronized(PacketUtils.queuedPackets) {
+        PacketUtils.queuedPackets.addAll(packets)
+    }
+}

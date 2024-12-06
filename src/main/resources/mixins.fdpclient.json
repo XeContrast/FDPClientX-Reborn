@@ -114,6 +114,7 @@
     "render.MixinTileEntitySkullRenderer",
     "render.MixinVisGraph",
     "resources.MixinDefaultResourcePack",
-    "resources.MixinSkinManager"
+    "resources.MixinSkinManager",
+    "world.MixinChunk"
   ]
 }

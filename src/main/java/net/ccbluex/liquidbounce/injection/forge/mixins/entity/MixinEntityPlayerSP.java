@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.*;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
-import net.ccbluex.liquidbounce.features.module.modules.combat.Velocity;
+import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKB;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiDesync;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Flight;
 import net.ccbluex.liquidbounce.features.module.modules.movement.InvMove;
@@ -38,7 +38,6 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -279,7 +278,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
         final Scaffold2 scaffold2 = FDPClient.moduleManager.getModule(Scaffold2.class);
         final Scaffold scaffold = FDPClient.moduleManager.getModule(Scaffold.class);
-        final Velocity veloctiy = FDPClient.moduleManager.getModule(Velocity.class);
+        final AntiKB veloctiy = FDPClient.moduleManager.getModule(AntiKB.class);
         
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;

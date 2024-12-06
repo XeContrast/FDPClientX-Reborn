@@ -108,11 +108,13 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             scaledHeight + 60
         )
         val j = this.height / 4
-        Fonts.fontBold180.drawCenteredString(CLIENT_NAME,
-            150f,
-            (j + 44 * -1).toFloat(),
-            Color(255, 255, 255).rgb,
-            true)
+        Fonts.fontBold180.drawCenteredString(
+            CLIENT_NAME,
+            width / 2F,
+            height / 8F,
+            Color.WHITE.rgb,
+            true
+        )
         RenderUtils.drawQuads(
             floatArrayOf(scaledWidth * 0.57f - scaledWidth * 0.11f, 0f),
             floatArrayOf(scaledWidth * 0.43f - scaledWidth * 0.11f, scaledHeight.toFloat()),

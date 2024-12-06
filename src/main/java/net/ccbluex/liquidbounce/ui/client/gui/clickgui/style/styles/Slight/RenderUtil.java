@@ -487,4 +487,19 @@ public enum RenderUtil {
         return new Color(finalRed, finalGreen, finalBlue, finalAlpha).getRGB();
     }
 
+    public static int swapAlpha(int color, float alpha) {
+        int f = color >> 16 & 0xFF;
+        int f1 = color >> 8 & 0xFF;
+        int f2 = color & 0xFF;
+        return getColor(f, f1, f2, (int) alpha);
+    }
+
+    public static int getColor(int red, int green, int blue, int alpha) {
+        int color = 0;
+        color |= alpha << 24;
+        color |= red << 16;
+        color |= green << 8;
+        return color |= blue;
+    }
+
 }

@@ -69,6 +69,12 @@ abstract class Element(
     var prevMouseX = 0F
     var prevMouseY = 0F
 
+    private val configurables = mutableListOf<Class<*>>()
+
+    fun addConfigurable(provider: Any) {
+        configurables += provider::class.java
+    }
+
     protected open val blurValue = FloatValue("Blur", 0f, 0f, 100f).displayable { info.blur }
 
     /**
@@ -145,6 +151,10 @@ abstract class Element(
      * Called when key pressed
      */
     open fun handleKey(c: Char, keyCode: Int) {}
+
+    companion object {
+        const val MAX_GRADIENT_COLORS = 9
+    }
 
     /**
      * Called when damage sound received

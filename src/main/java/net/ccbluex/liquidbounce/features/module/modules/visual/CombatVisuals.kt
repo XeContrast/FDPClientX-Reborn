@@ -244,7 +244,7 @@ object CombatVisuals : Module() {
                     ) > 10)
                 ) {
                     val dst = mc.thePlayer.getSmoothDistanceToEntity(entityLivingBase)
-                    val vector2f = RenderUtil.targetESPSPos(entityLivingBase, event.partialTicks)
+                    val vector2f = RenderUtil.targetESPSPos(entityLivingBase, event.partialTicks) ?: return
                     RenderUtil.drawTargetESP2D(
                         vector2f.x,
                         vector2f.y,

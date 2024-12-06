@@ -407,6 +407,7 @@ object RenderUtils : MinecraftInstance() {
         }
     }
 
+    @JvmStatic
     fun getRainbowOpaque(seconds: Int, saturation: Float, brightness: Float, index: Int): Int {
         val hue = ((System.currentTimeMillis() + index) % (seconds * 1000)) / (seconds * 1000).toFloat()
         return Color.HSBtoRGB(hue, saturation, brightness)
@@ -3833,6 +3834,7 @@ object RenderUtils : MinecraftInstance() {
         return Color(r, g, b, alpha).rgb
     }
 
+    @JvmStatic
     fun SkyRainbow(var2: Int, st: Float, bright: Float): Int {
         var v1 = ceil((System.currentTimeMillis() + (var2 * 109L)).toDouble()) / 5
         return Color.getHSBColor(

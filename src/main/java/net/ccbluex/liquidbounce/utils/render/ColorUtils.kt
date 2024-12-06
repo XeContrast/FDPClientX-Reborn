@@ -218,6 +218,7 @@ object ColorUtils {
         return range
     }
 
+    @JvmStatic
     fun getColor(hueoffset: Float, saturation: Float, brightness: Float): Int {
         val speed = 4500f
         val hue = System.currentTimeMillis() % speed.toInt() / speed

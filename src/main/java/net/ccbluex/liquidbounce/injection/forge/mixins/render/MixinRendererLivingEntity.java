@@ -110,7 +110,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
 
             if(semiVisible) {
                 GlStateManager.pushMatrix();
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 0.15F);
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 0.3F);
                 GlStateManager.depthMask(false);
                 GlStateManager.enableBlend();
                 GlStateManager.blendFunc(770, 771);

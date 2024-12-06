@@ -6,6 +6,7 @@
 package net.ccbluex.liquidbounce.utils
 
 import net.minecraft.block.Block
+import net.minecraft.client.renderer.entity.RenderManager
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import java.math.BigDecimal
@@ -25,6 +26,15 @@ fun Double.toDegrees() = this * 57.295779513
 fun Double.toDegreesF() = toDegrees().toFloat()
 
 fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
+val RenderManager.renderPos
+    get() = Vec3(renderPosX, renderPosY, renderPosZ)
+operator fun Vec3.plus(vec: Vec3): Vec3 = add(vec)
+operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
+operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
+operator fun Vec3.div(number: Double) = times(1 / number)
+
+fun ClosedFloatingPointRange<Float>.lerpWith(t: Float) = start + (endInclusive - start) * t
+
 object MathUtils {
 
     const val DEGREES_TO_RADIANS = 0.017453292519943295

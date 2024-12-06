@@ -26,7 +26,6 @@ public class MixinNetworkManager {
 
         if (event.isCancelled()) {
             callback.cancel();
-            return;
         }
     }
 
@@ -37,7 +36,6 @@ public class MixinNetworkManager {
 
         if (event.isCancelled()) {
             callback.cancel();
-            return;
         }
     }
 }
