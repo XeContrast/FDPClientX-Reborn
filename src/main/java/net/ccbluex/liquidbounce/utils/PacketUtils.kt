@@ -39,35 +39,45 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
     @EventTarget(priority = 2)
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet
         val world = mc.theWorld ?: return
 
-        when (packet) {
-            is S0CPacketSpawnPlayer -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
-            }
-
-            is S0FPacketSpawnMob -> (world.getEntityByID(packet.entityID) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
-            }
-
-            is S14PacketEntity -> {
-                val entity = packet.getEntity(world) ?: return
-                val mixinEntity = entity as? IMixinEntity
-
-                mixinEntity?.apply {
-                    if (!truePos) {
-                        updateSpawnPosition(entity.currPos)
+        mc.addScheduledTask {
+            when (val packet = event.packet) {
+                is S0CPacketSpawnPlayer -> {
+                    val entity = world.getEntityByID(packet.entityID)
+                    (entity as? IMixinEntity)?.apply {
+                        updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
                     }
-
-                    trueX += packet.realMotionX
-                    trueY += packet.realMotionY
-                    trueZ += packet.realMotionZ
                 }
-            }
 
-            is S18PacketEntityTeleport -> (world.getEntityByID(packet.entityId) as? IMixinEntity)?.apply {
-                updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
+                is S0FPacketSpawnMob -> {
+                    val entity = world.getEntityByID(packet.entityID)
+                    (entity as? IMixinEntity)?.apply {
+                        updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ))
+                    }
+                }
+
+                is S14PacketEntity -> {
+                    val entity = packet.getEntity(world)
+                    val mixinEntity = entity as? IMixinEntity
+
+                    mixinEntity?.apply {
+                        if (!truePos) {
+                            updateSpawnPosition(entity.currPos)
+                        }
+
+                        trueX += packet.realMotionX
+                        trueY += packet.realMotionY
+                        trueZ += packet.realMotionZ
+                    }
+                }
+
+                is S18PacketEntityTeleport -> {
+                    val entity = world.getEntityByID(packet.entityId)
+                    (entity as? IMixinEntity)?.apply {
+                        updateSpawnPosition(Vec3(packet.realX, packet.realY, packet.realZ), true)
+                    }
+                }
             }
         }
     }

@@ -5,6 +5,8 @@
  */
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations;
 
+import lombok.Getter;
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.animations.impl.SmoothStepAnimation;
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.utils.normal.TimerUtil;
 
 public abstract class Animation {
@@ -66,3 +68,4 @@ public abstract class Animation {
     protected abstract double getEquation(double x);
 
 }
+

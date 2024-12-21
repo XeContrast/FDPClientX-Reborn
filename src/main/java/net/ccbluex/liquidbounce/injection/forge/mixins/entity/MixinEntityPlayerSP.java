@@ -16,6 +16,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.InvMove;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Sprint;
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
+import net.ccbluex.liquidbounce.features.module.modules.player.AutoGap;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
@@ -386,7 +387,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && !this.isRiding();
         isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (Objects.requireNonNull(killAura).getBlockingStatus() || this.isUsingItem());
 
-        if (isCurrentUsingItem) {
+        if (isCurrentUsingItem || (FDPClient.moduleManager.getModule(AutoGap.class).eating && FDPClient.moduleManager.getModule(AutoGap.class).getState())) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
             FDPClient.eventManager.callEvent(slowDownEvent);
             this.movementInput.moveStrafe *= slowDownEvent.getStrafe();

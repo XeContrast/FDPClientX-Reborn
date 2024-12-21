@@ -3,26 +3,24 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
  * https://github.com/SkidderMC/FDPClient/
  */
-package net.ccbluex.liquidbounce.injection.forge;
+package net.ccbluex.liquidbounce.injection.forge
 
-import net.ccbluex.liquidbounce.injection.transformers.ForgeNetworkTransformer;
-import net.ccbluex.liquidbounce.injection.transformers.OptimizeTransformer;
-import net.ccbluex.liquidbounce.injection.transformers.ViaForgeSupportTransformer;
-import net.ccbluex.liquidbounce.script.remapper.injection.transformers.AbstractJavaLinkerTransformer;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.Mixins;
+import net.ccbluex.liquidbounce.injection.transformers.ForgeNetworkTransformer
+import net.ccbluex.liquidbounce.injection.transformers.OptimizeTransformer
+import net.ccbluex.liquidbounce.injection.transformers.ViaForgeSupportTransformer
+import net.ccbluex.liquidbounce.script.remapper.injection.transformers.AbstractJavaLinkerTransformer
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion
+import org.spongepowered.asm.launch.MixinBootstrap
+import org.spongepowered.asm.mixin.MixinEnvironment
+import org.spongepowered.asm.mixin.Mixins
 
-import java.util.Map;
-
-@IFMLLoadingPlugin.MCVersion("1.8.9")
-public class TransformerLoader implements IFMLLoadingPlugin {
-
-    public TransformerLoader() {
-        MixinBootstrap.init();
-        Mixins.addConfiguration("mixins.fdpclient.json");
-        MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT);
+@MCVersion("1.8.9")
+class TransformerLoader : IFMLLoadingPlugin {
+    init {
+        MixinBootstrap.init()
+        Mixins.addConfiguration("mixins.fdpclient.json")
+        MixinEnvironment.getDefaultEnvironment().setSide(MixinEnvironment.Side.CLIENT)
     }
 
     /**
@@ -30,9 +28,13 @@ public class TransformerLoader implements IFMLLoadingPlugin {
      *
      * @return a list of classes that implements the IClassTransformer interface
      */
-    @Override
-    public String[] getASMTransformerClass() {
-        return new String[] {ForgeNetworkTransformer.class.getName(), AbstractJavaLinkerTransformer.class.getName(), ViaForgeSupportTransformer.class.getName(), OptimizeTransformer.class.getName()};
+    override fun getASMTransformerClass(): Array<String> {
+        return arrayOf(
+            ForgeNetworkTransformer::class.java.name,
+            AbstractJavaLinkerTransformer::class.java.name,
+            ViaForgeSupportTransformer::class.java.name,
+            OptimizeTransformer::class.java.name
+        )
     }
 
     /**
@@ -45,21 +47,19 @@ public class TransformerLoader implements IFMLLoadingPlugin {
      * All other mod behaviours are available however- this container can receive and handle
      * normal loading events
      */
-    @Override
-    public String getModContainerClass() {
-        return null;
+    override fun getModContainerClass(): String? {
+        return null
     }
 
     /**
      * Return the class name of an implementor of "IFMLCallHook", that will be run, in the
      * main thread, to perform any additional setup this coremod may require. It will be
-     * run <strong>prior</strong> to Minecraft starting, so it CANNOT operate on minecraft
+     * run **prior** to Minecraft starting, so it CANNOT operate on minecraft
      * itself. The game will deliberately crash if this code is detected to trigger a
      * minecraft class loading
      */
-    @Override
-    public String getSetupClass() {
-        return null;
+    override fun getSetupClass(): String? {
+        return null
     }
 
     /**
@@ -71,9 +71,7 @@ public class TransformerLoader implements IFMLLoadingPlugin {
      *
      * @param data NoTime
      */
-    @Override
-    public void injectData(Map<String, Object> data) {
-
+    override fun injectData(data: Map<String, Any>) {
     }
 
     /**
@@ -82,8 +80,7 @@ public class TransformerLoader implements IFMLLoadingPlugin {
      *
      * @return the name of an access transformer class or null if none is provided
      */
-    @Override
-    public String getAccessTransformerClass() {
-        return null;
+    override fun getAccessTransformerClass(): String? {
+        return null
     }
 }

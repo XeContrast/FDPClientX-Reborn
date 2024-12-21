@@ -165,7 +165,7 @@ object AutoRod : Module() {
         return -1
     }
 
-    private fun getAllNearbyEnemies(): List<Entity>? {
+    fun getAllNearbyEnemies(): List<Entity>? {
         val player = mc.thePlayer ?: return null
 
         return mc.theWorld.loadedEntityList.toList()

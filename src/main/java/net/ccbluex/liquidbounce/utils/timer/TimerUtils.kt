@@ -44,6 +44,10 @@ class TimerUtils {
         return System.currentTimeMillis() - lastMS > time
     }
 
+    fun hasTimeElapsed(time: Float): Boolean {
+        return System.currentTimeMillis() - lastMS > time
+    }
+
     fun check(milliseconds: Float): Boolean {
         return System.currentTimeMillis() - previousTime >= milliseconds
     }

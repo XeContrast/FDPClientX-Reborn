@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.EventState;
 import net.ccbluex.liquidbounce.event.JumpEvent;
+import net.ccbluex.liquidbounce.event.MoveMathEvent;
 import net.ccbluex.liquidbounce.features.module.modules.client.Animations;
 import net.ccbluex.liquidbounce.features.module.modules.client.Rotations;
 import net.ccbluex.liquidbounce.features.module.modules.movement.LiquidSpeed;
@@ -140,9 +141,18 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         final LiquidSpeed jesus = FDPClient.moduleManager.getModule(LiquidSpeed.class);
 
         if (Objects.requireNonNull(jesus).getState() && !isJumping && !isSneaking() && isInWater() &&
-                jesus.getModeValue().get() == "Legit") {
+                jesus.getModeValue().get().equals("Legit")) {
             this.updateAITick();
         }
+    }
+
+    @Inject(method = "moveEntityWithHeading",at = @At("HEAD"), cancellable = true)
+    private void callEvent(float p_moveEntityWithHeading_1_, float p_moveEntityWithHeading_2_, CallbackInfo ci) {
+        MoveMathEvent event = new MoveMathEvent(p_moveEntityWithHeading_1_,p_moveEntityWithHeading_2_);
+        FDPClient.eventManager.callEvent(event);
+
+        if (event.isCancelled())
+            ci.cancel();
     }
 
     @ModifyConstant(method = "onLivingUpdate", constant = @Constant(doubleValue = 0.005D))

@@ -92,6 +92,7 @@ object PointerESP : Module() {
     }
 
     private fun draw() {
+        val world = mc.theWorld ?: return
         val halfAngle = angleValue.get() / 2
         val radius = -radiusValue.get()
         val size = sizeValue.get()
@@ -119,7 +120,7 @@ object PointerESP : Module() {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
         GL11.glEnable(GL11.GL_LINE_SMOOTH)
 
-        for (entity in mc.theWorld.loadedEntityList) {
+        for (entity in world.loadedEntityList.filterNotNull()) {
             if (EntityUtils.isSelected(entity, true) && entity is EntityLivingBase) {
                 val entX = entity.posX + (entity.posX - entity.lastTickPosX) * mc.timer.renderPartialTicks
                 val entZ = entity.posZ + (entity.posZ - entity.lastTickPosZ) * mc.timer.renderPartialTicks

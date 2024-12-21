@@ -120,8 +120,8 @@ object RaycastUtils : MinecraftInstance() {
                     entityLook.yCoord * blockReachDistance,
                     entityLook.zCoord * blockReachDistance
                 ).expand(1.0, 1.0, 1.0),
-                Predicates.and(EntitySelectors.NOT_SPECTATING,
-                    Predicate { obj: Entity? -> obj!!.canBeCollidedWith() })
+                Predicates.and(EntitySelectors.NOT_SPECTATING
+                ) { obj: Entity? -> obj!!.canBeCollidedWith() }
             )
 
             var pointedEntity: Entity? = null

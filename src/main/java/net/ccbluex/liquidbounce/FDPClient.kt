@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce
 
-import com.google.gson.JsonParser
 import net.ccbluex.liquidbounce.event.ClientShutdownEvent
 import net.ccbluex.liquidbounce.event.EventManager
 import net.ccbluex.liquidbounce.features.command.CommandManager
@@ -30,13 +29,11 @@ import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.ui.i18n.LanguageManager
 import net.ccbluex.liquidbounce.ui.sound.TipSoundManager
 import net.ccbluex.liquidbounce.utils.*
-import net.ccbluex.liquidbounce.utils.misc.HttpUtils
-import net.ccbluex.liquidbounce.utils.timing.WaitTickUtils
+import net.ccbluex.liquidbounce.utils.WaitTickUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.util.ResourceLocation
 import java.util.*
-import kotlin.concurrent.thread
 
 object FDPClient {
 
@@ -132,19 +129,22 @@ object FDPClient {
         LanguageManager.switchLanguage(Minecraft.getMinecraft().gameSettings.language)
 
         // Register listeners
-        eventManager.registerListener(RotationUtils())
-        eventManager.registerListener(ClientFixes)
-        eventManager.registerListener(InventoryUtils)
-        eventManager.registerListener(BungeeCordSpoof())
-        eventManager.registerListener(ServerSpoof)
-        eventManager.registerListener(WaitTickUtils)
-        eventManager.registerListener(SessionUtils())
-        eventManager.registerListener(StatisticsUtils())
-        eventManager.registerListener(LocationCache())
-        eventManager.registerListener(PacketUtils)
-        eventManager.registerListener(MiniMapRegister)
-        eventManager.registerListener(macroManager)
-        eventManager.registerListener(combatManager)
+        eventManager.registerListenerAll(
+            RotationUtils(),
+            ClientFixes,
+            InventoryUtils,
+            BungeeCordSpoof(),
+            ServerSpoof,
+            WaitTickUtils,
+            SessionUtils(),
+            StatisticsUtils(),
+            LocationCache(),
+            PacketUtils,
+            MiniMapRegister,
+            macroManager,
+            combatManager,
+            BlinkComponent
+        )
 
         // Load client fonts
         Fonts.loadFonts()

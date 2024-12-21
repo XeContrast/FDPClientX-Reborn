@@ -78,7 +78,7 @@ object NoSlow : Module() {
     private val consumeModifyValue = BoolValue("Consume", true)
     private val consumePacketValue = ListValue(
         "ConsumePacket",
-        arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","Intave","InvalidC08", "Packet"),
+        arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","Intave","InvalidC08", "Packet").sortedArray(),
         "None"
     ).displayable { consumeModifyValue.get() }
     private val consumeTimingValue =

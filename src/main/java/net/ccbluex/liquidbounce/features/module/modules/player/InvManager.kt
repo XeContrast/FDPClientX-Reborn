@@ -102,6 +102,7 @@ object InvManager : Module() {
     private val maxblock = IntegerValue("MaxBlock", 128, 0, 2304)
     private val maxarrow = IntegerValue("MaxArrow", 128, 0, 2304)
     private val maxfood = IntegerValue("MaxFood", 128, 0, 2304)
+    private val maxRod = IntegerValue("MaxRod", 1,0,36)
     private val sortSlot1Value = ListValue("SortSlot-1", items, "Sword").displayable { sortValue.get() }
     private val sortSlot2Value = ListValue("SortSlot-2", items, "Gapple").displayable { sortValue.get() }
     private val sortSlot3Value = ListValue("SortSlot-3", items, "Potion").displayable { sortValue.get() }
@@ -396,7 +397,7 @@ object InvManager : Module() {
                 is ItemBlock -> return !InventoryUtils.isBlockListBlock(item) && amount[1] <= maxblock.get()
                 is ItemPotion -> return isUsefulPotion(itemStack)
                 is ItemBoat,is ItemMinecart -> return ignoreVehiclesValue.get()
-                is ItemFishingRod -> return amount[4] < 1
+                is ItemFishingRod -> return mc.thePlayer?.openContainer?.inventory?.count { it?.item is ItemFishingRod }!! < maxRod.get()
                 is ItemBed, is ItemEnderPearl,is ItemBucket -> return true
             }
 
@@ -671,6 +672,10 @@ object InvManager : Module() {
             }
             return intArrayOf(missileAmount, blockAmount, arrowAmount,foodAmount,rod)
         }
+
+    private fun fishingRod() : Int {
+        return mc.thePlayer.inventory.mainInventory.count { it.item is ItemFishingRod }
+    }
 
     /**
      * Get type of [targetSlot]

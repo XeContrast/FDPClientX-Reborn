@@ -28,6 +28,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         Blocks.dispenser, Blocks.stone_pressure_plate, Blocks.wooden_pressure_plate, Blocks.red_flower, Blocks.flower_pot, Blocks.yellow_flower,
         Blocks.noteblock, Blocks.dropper, Blocks.standing_banner, Blocks.wall_banner, Blocks.tnt, Blocks.soul_sand)
 
+    @JvmStatic
     fun findItem(startSlot: Int, endSlot: Int, item: Item): Int {
         for (i in startSlot until endSlot) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack

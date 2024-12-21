@@ -59,7 +59,7 @@ object ClientFixes : MinecraftInstance(), Listenable {
                 } else if (packet.channelName.equals("MC|Brand", ignoreCase = true)) {
                     packet.data = PacketBuffer(Unpooled.buffer()).writeString(when (clientBrand) {
                         "Vanilla" -> "vanilla"
-                        "LunarClient" -> "lunarclient:" + RandomUtils.randomString(7)
+                        "LunarClient" -> "lunarclient:v2.18.2-2449"
                         "CheatBreaker" -> "CB"
                         else -> {
                             // do nothing

@@ -15,6 +15,7 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.ccbluex.liquidbounce.utils.*
 import net.ccbluex.liquidbounce.utils.EntityUtils.isLookingOnEntities
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
@@ -302,6 +303,8 @@ object AntiKB : Module() {
     private val ignoreBlocking = BoolValue("IgnoreBlocking", false).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
     private val clickRange = FloatValue("ClickRange", 3f, 1f,6f).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
     private val swingMode = ListValue("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal").displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    
+    private val debug = BoolValue("Debug",false)
 
     //
     private var hasReceivedVelocity = false
@@ -373,6 +376,11 @@ object AntiKB : Module() {
                     && ((thePlayer.motionX + packet.field_149152_f) != 0.0 || (thePlayer.motionZ + packet.field_149159_h) != 0.0))
         ) {
             velocityTimer.reset()
+            
+            if (debug.get()) {
+                if (packet is S12PacketEntityVelocity)
+                    Chat.print("§7[§b§lAntiKB§7] X: ${packet.realMotionX},Y: ${packet.realMotionY},Z: ${packet.realMotionZ}")
+            }
             when (mainMode.get().lowercase()) {
                 "grimac" -> {
                     when (grimMode.get().lowercase()) {
@@ -1021,14 +1029,24 @@ object AntiKB : Module() {
                         val objectMouseOver = mc.objectMouseOver ?: return
                         if (unReduceTimes > 0 && mc.thePlayer.hurtTime > 0 && (objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && objectMouseOver.entityHit is EntityPlayer) || (KillAura.handleEvents() && KillAura.currentTarget != null)) {
                             if (!mc.thePlayer.serverSprintState) {
-                                sendPacket(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                                sendPacket(
+                                    C0BPacketEntityAction(
+                                        mc.thePlayer,
+                                        C0BPacketEntityAction.Action.START_SPRINTING
+                                    )
+                                )
                                 mc.thePlayer.serverSprintState = true
                                 mc.thePlayer.isSprinting = true
                             }
 
                             for (i in 0 until reduceCount.get()) {
                                 mc.thePlayer.swingItem()
-                                sendPacket(C02PacketUseEntity(mc.objectMouseOver.entityHit,C02PacketUseEntity.Action.ATTACK))
+                                sendPacket(
+                                    C02PacketUseEntity(
+                                        mc.objectMouseOver.entityHit,
+                                        C02PacketUseEntity.Action.ATTACK
+                                    )
+                                )
 
                                 mc.thePlayer.motionX *= 0.6
                                 mc.thePlayer.motionZ *= 0.6

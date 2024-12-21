@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.script.api.global.Chat
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -143,7 +144,7 @@ object Criticals : Module() {
 
         if (packet is S0BPacketAnimation && debugValue.get()) {
             if (packet.animationType == 4 && packet.entityID == target) {
-                alert("CRIT")
+                Chat.print("§7[§b§lCriticals§7] CRIT")
             }
         }
     }

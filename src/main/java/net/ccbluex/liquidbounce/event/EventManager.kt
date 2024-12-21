@@ -33,6 +33,10 @@ class EventManager : MinecraftInstance() {
             }
         }
 
+    fun registerListenerAll(vararg listener: Listenable) {
+        listener.forEach { registerListener(it) }
+    }
+
     /**
      * Unregister listener
      *

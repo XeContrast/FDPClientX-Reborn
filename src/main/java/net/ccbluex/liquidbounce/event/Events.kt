@@ -209,3 +209,5 @@ object ClickUpdateEvent : CancellableEvent() {
         isCancelled = false
     }
 }
+
+class MoveMathEvent(var strafe : Float,var forward : Float) : CancellableEvent()

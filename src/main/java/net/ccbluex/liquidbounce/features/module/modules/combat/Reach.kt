@@ -18,7 +18,6 @@ object Reach : Module() {
     val buildReachValue = FloatValue("BuildReach", 5f, 4.5f, 7f)
 
     val maxRange: Float
-
         get() = max(combatReachValue.get(), buildReachValue.get())
 
     val hitReach: Float
