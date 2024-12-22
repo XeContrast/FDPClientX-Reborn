@@ -17,6 +17,7 @@ import net.ccbluex.liquidbounce.features.value.ColorSettingsInteger
 import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
+import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.lerpWith
@@ -48,7 +49,7 @@ object ForwardTrack : Module() {
      * Any good anti-cheat will easily detect this module.
      */
     fun includeEntityTruePos(entity: Entity, action: () -> Unit) {
-        if (!handleEvents() || entity !is EntityLivingBase || entity is EntityPlayerSP)
+        if (!handleEvents() || !isSelected(entity, true))
             return
 
         // Would be more fun if we simulated instead.
@@ -77,9 +78,9 @@ object ForwardTrack : Module() {
 
         val renderManager = mc.renderManager
 
-        for (target in world.loadedEntityList) {
-            if (target is EntityPlayerSP)
-                continue
+        world.loadedEntityList.asSequence()
+            .filter { isSelected(it, true) }
+            .forEach { target ->
 
             target?.run {
                 val vec = usePosition(this)
@@ -95,6 +96,7 @@ object ForwardTrack : Module() {
 
                     "model" -> {
                         glPushMatrix()
+                        glPushAttrib(GL_ALL_ATTRIB_BITS)
 
                         color(0.6f, 0.6f, 0.6f, 1f)
                         renderManager.doRenderEntity(
@@ -105,6 +107,7 @@ object ForwardTrack : Module() {
                             true
                         )
 
+                        glPopAttrib()
                         glPopMatrix()
                     }
 

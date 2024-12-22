@@ -95,7 +95,6 @@ object KillAura : Module() {
 
     private val attackTimingValue =
         ListValue("AttackTiming", arrayOf("All", "Pre", "Post"), "All").displayable { attackDisplay.get() }
-    val sprintmode = ListValue("SprintMode", arrayOf("KeepSprint","Ground","StopSprint","StopMotion"),"KeepSprint").displayable { attackDisplay.get() }
 
     private val hitselectValue = BoolValue("HitSelect", false).displayable { attackDisplay.get() }
     private val hitselectRangeValue = FloatValue(
@@ -420,7 +419,6 @@ object KillAura : Module() {
     private val noEat = BoolValue("NoEat", false).displayable { toolsDisplay.get() }
     private val noBlocking = BoolValue("NoBlocking", false).displayable { toolsDisplay.get() }
     private val noBadPacketsValue = BoolValue("NoBadPackets", false).displayable { toolsDisplay.get() }
-    private val jumpFixValue = BoolValue("JumpFix", false).displayable { toolsDisplay.get() }
     private val noInventoryAttackValue =
         ListValue("NoInvAttack", arrayOf("Spoof", "CancelRun", "Off"), "Off").displayable { toolsDisplay.get() }
     private val noInventoryDelayValue = IntegerValue(
@@ -809,9 +807,19 @@ object KillAura : Module() {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (currentTarget != null && RotationUtils.targetRotation != null) {
-            if (rotationStrafeValue.equals("Vanilla")) {
-                val (yaw) = RotationUtils.targetRotation ?: return
+        if (rotationStrafeValue.equals("Vanilla")) {
+            targetRotation?.let {
+                val (yaw) = it
+                event.yaw = yaw
+            }
+        }
+    }
+
+    @EventTarget
+    fun onJump(event: JumpEvent) {
+        if (rotationStrafeValue.equals("Vanilla")) {
+            targetRotation?.let {
+                val (yaw) = it
                 event.yaw = yaw
             }
         }
@@ -964,7 +972,7 @@ object KillAura : Module() {
             // Attack
             if (!targetModeValue.equals("Multi")) {
                 attackEntity(if (raycastValue.get()) {
-                    (RaycastUtils.raycastEntity(maxRange.toDouble()) {
+                    (raycastEntity(maxRange.toDouble()) {
                         it is EntityLivingBase && it !is EntityArmorStand && (!raycastTargetValue.get() || EntityUtils.canRayCast(
                             it
                         )) && !EntityUtils.isFriend(it)
@@ -1129,10 +1137,7 @@ object KillAura : Module() {
         // Attack target
         runSwing()
         packetSent = true
-        mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
-
-
-        swingKeepSprint(entity)
+        mc.playerController.attackEntity(mc.thePlayer,entity)
 
         postAttack(entity)
 
@@ -1170,38 +1175,6 @@ object KillAura : Module() {
                     )
 
                     "delayed", "keyblock" -> delayBlockTimer.reset()
-                }
-            }
-        }
-    }
-
-    private fun swingKeepSprint(entity: EntityLivingBase) {
-        when (sprintmode.get().lowercase()) {
-            "keepsprint" -> {
-                if (!FDPClient.moduleManager[KeepSprint::class.java]!!.state) {
-                    val thePlayer = mc.thePlayer
-                    if (thePlayer.fallDistance > 0F && !thePlayer.onGround && !thePlayer.isOnLadder && !thePlayer.isInWater && !thePlayer.isPotionActive(
-                            Potion.blindness
-                        ) && !thePlayer.isRiding
-                    ) {
-                        thePlayer.onCriticalHit(entity)
-                    }
-
-                    // Enchant Effect
-                    if (EnchantmentHelper.getModifierForCreature(thePlayer.heldItem, entity.creatureAttribute) > 0F) {
-                        thePlayer.onEnchantmentCritical(entity)
-                    }
-                }
-            }
-            "stopmotion" -> {
-                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                    PlayerUtils.attackTargetEntityWithCurrentItem(entity)
-                }
-            }
-            "stopsprint" -> mc.thePlayer.serverSprintState = false
-            "attackslow" -> {
-                if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
-                    mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
                 }
             }
         }
@@ -1270,7 +1243,7 @@ object KillAura : Module() {
             "Quad" -> (diffAngle / 360.0).pow(2.0) * maxTurnSpeedValue.get() + (1 - (diffAngle / 360.0).pow(2.0)) * minTurnSpeedValue.get()
             "Sine" -> (-cos(diffAngle / 180 * Math.PI) * 0.5 + 0.5) * maxTurnSpeedValue.get() + (cos(diffAngle / 360 * Math.PI) * 0.5 + 0.5) * minTurnSpeedValue.get()
             "QuadSine" -> (-cos(diffAngle / 180 * Math.PI) * 0.5 + 0.5).pow(2.0) * maxTurnSpeedValue.get() + (1 - (-cos(
-                diffAngle / 180 * Math.PI
+                diffAngle.toDegrees()
             ) * 0.5 + 0.5).pow(2.0)) * minTurnSpeedValue.get()
 
             else -> 360.0
@@ -1290,7 +1263,7 @@ object KillAura : Module() {
             "LockView" -> RotationUtils.limitAngleChange(
                 RotationUtils.serverRotation!!,
                 directRotation,
-                (180.0).toFloat()
+                180.0F
             )
 
             "SmoothCenter", "SmoothLiquid", "SmoothCustom" -> RotationUtils.limitAngleChange(
@@ -1464,20 +1437,19 @@ object KillAura : Module() {
             return
         }
 
+        val player = mc.thePlayer ?: return
+
         if (interact) {
             val positionEye = mc.renderViewEntity?.getPositionEyes(1F)
 
             interactEntity.collisionBorderSize.toDouble()
             val boundingBox = interactEntity.hitBox
 
-            val (yaw, pitch) = RotationUtils.targetRotation ?: Rotation(
-                mc.thePlayer!!.rotationYaw,
-                mc.thePlayer!!.rotationPitch
-            )
-            val yawCos = cos(-yaw * 0.017453292F - Math.PI.toFloat())
-            val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
-            val pitchCos = -cos(-pitch * 0.017453292F)
-            val pitchSin = sin(-pitch * 0.017453292F)
+            val (yaw, pitch) = targetRotation ?: player.rotation
+            val yawCos = cos(-yaw.toRadians() - Math.PI.toFloat())
+            val yawSin = sin(-yaw.toRadians() - Math.PI.toFloat())
+            val pitchCos = -cos(-pitch.toRadians())
+            val pitchSin = sin(-pitch.toRadians())
             val range = min(maxRange.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
             val lookAt =
                 positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
@@ -1556,50 +1528,41 @@ object KillAura : Module() {
             discoveredTargets.clear()
             inRangeDiscoveredTargets.clear()
         }
-        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) && currentTarget!!.hurtTime <= hurtTimeValue.get()) {
-            clicks++
-            attackTimer.reset()
-            attackDelay = getAttackDelay(minCpsValue.get(), maxCpsValue.get())
-        }
 
-        if (currentTarget != null && attackTimer.hasTimePassed((attackDelay.toDouble() * 0.9).toLong()) && (autoBlockValue.equals(
-                "Range"
-            ) && canBlock) && autoBlockPacketValue.equals("KeyBlock")
-        ) {
-            mc.gameSettings.keyBindUseItem.pressed = false
-        }
-
-        if (currentTarget != null && delayBlockTimer.hasTimePassed(30) && (autoBlockValue.equals("Range") && canBlock)) {
-            if (autoBlockPacketValue.equals("KeyBlock")) {
-                mc.gameSettings.keyBindUseItem.pressed = true
+        currentTarget?.let {
+            if (attackTimer.hasTimePassed(attackDelay) && currentTarget!!.hurtTime <= hurtTimeValue.get()) {
+                clicks++
+                attackTimer.reset()
+                attackDelay = getAttackDelay(minCpsValue.get(), maxCpsValue.get())
             }
-            if (autoBlockPacketValue.equals("Delayed")) {
-                val target = this.currentTarget ?: discoveredTargets.getOrNull(0) ?: return
+            if (attackTimer.hasTimePassed((attackDelay.toDouble() * 0.9).toLong()) && (autoBlockValue.equals(
+                    "Range"
+                ) && canBlock) && autoBlockPacketValue.equals("KeyBlock")
+            ) {
+                mc.gameSettings.keyBindUseItem.pressed = false
+            }
+            if (delayBlockTimer.hasTimePassed(30) && (autoBlockValue.equals("Range") && canBlock)) {
+                if (autoBlockPacketValue.equals("KeyBlock"))
+                    mc.gameSettings.keyBindUseItem.pressed = true
+            }
+        }
+        if (autoBlockPacketValue.equals("Delayed")) {
+            val target = this.currentTarget ?: discoveredTargets.getOrNull(0) ?: return
+            startBlocking(
+                target,
+                interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(target) < maxRange)
+            )
+        }
+
+        if (autoBlockValue.equals("Range") && autoBlockPacketValue.equals("Test2") && !blockingStatus && test2_block) {
+            if (discoveredTargets.isNotEmpty()) {
+                val target = this.currentTarget ?: discoveredTargets.first()
                 startBlocking(
                     target,
                     interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(target) < maxRange)
                 )
-            }
-
-            if (autoBlockValue.equals("Range") && autoBlockPacketValue.equals("Test2") && !blockingStatus && test2_block) {
-                if (discoveredTargets.isNotEmpty()) {
-                    val target = this.currentTarget ?: discoveredTargets.first()
-                    startBlocking(
-                        target,
-                        interactAutoBlockValue.get() && (mc.thePlayer.getDistanceToEntityBox(target) < maxRange)
-                    )
-                    blockingStatus = true
-                    test2_block = false
-                }
-            }
-        }
-    }
-
-    @EventTarget
-    fun onJump(event: JumpEvent) {
-        if (jumpFixValue.get()) {
-            if (discoveredTargets.isNotEmpty()) {
-                event.yaw = RotationUtils.serverRotation!!.yaw
+                blockingStatus = true
+                test2_block = false
             }
         }
     }

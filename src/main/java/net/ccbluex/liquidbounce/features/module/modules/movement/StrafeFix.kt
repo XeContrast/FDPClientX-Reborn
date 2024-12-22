@@ -60,13 +60,14 @@ object StrafeFix : Module() {
         if (event.isCancelled) {
             return
         }
+        val player = mc.thePlayer ?: return
         val (yaw) = RotationUtils.targetRotation ?: return
         var strafe = event.strafe
         var forward = event.forward
         var friction = event.friction
         var factor = strafe * strafe + forward * forward
-        
-        val angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0) / (45.0).toDouble()).toInt()
+
+        val angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0) / 45.0).toInt()
         //alert("Diff: " + angleDiff + " friction: " + friction + " factor: " + factor);
         val calcYaw = if(isSilent) { yaw + 45.0f * angleDiff.toFloat() } else yaw
         
@@ -96,8 +97,8 @@ object StrafeFix : Module() {
             strafe *= factor
             forward *= factor
 
-            val yawSin = MathHelper.sin((calcYaw * Math.PI / 180F).toFloat())
-            val yawCos = MathHelper.cos((calcYaw * Math.PI / 180F).toFloat())
+            val yawSin = MathHelper.sin((calcYaw.toRadians()))
+            val yawCos = MathHelper.cos((calcYaw.toRadians()))
 
             mc.thePlayer.motionX += strafe * yawCos - forward * yawSin
             mc.thePlayer.motionZ += forward * yawCos + strafe * yawSin

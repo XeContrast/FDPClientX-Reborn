@@ -18,6 +18,7 @@ import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.settings.GameSettings
+import net.minecraft.client.settings.KeyBinding
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.client.C0DPacketCloseWindow
@@ -26,6 +27,7 @@ import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S2EPacketCloseWindow
 import org.lwjgl.input.Keyboard
+import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "InvMove", category = ModuleCategory.MOVEMENT)
 object InvMove : Module() {
@@ -46,14 +48,27 @@ object InvMove : Module() {
     
     private var isInv = false
 
+    private val affectedBindings = arrayOf(
+        mc.gameSettings.keyBindForward,
+        mc.gameSettings.keyBindBack,
+        mc.gameSettings.keyBindRight,
+        mc.gameSettings.keyBindLeft,
+        mc.gameSettings.keyBindJump,
+        mc.gameSettings.keyBindSprint
+    )
+
+    private fun isButtonPressed(keyBinding: KeyBinding): Boolean {
+        return if (keyBinding.keyCode < 0) {
+            Mouse.isButtonDown(keyBinding.keyCode + 100)
+        } else {
+            GameSettings.isKeyDown(keyBinding)
+        }
+    }
+
     private fun updateKeyState() {
         if (mc.currentScreen != null && mc.currentScreen !is GuiChat && (!noDetectableValue.get() || mc.currentScreen !is GuiContainer)) {
-            mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
-            mc.gameSettings.keyBindBack.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
-            mc.gameSettings.keyBindRight.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindRight)
-            mc.gameSettings.keyBindLeft.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)
-            mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-            mc.gameSettings.keyBindSprint.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSprint)
+            for (affectedBinding in affectedBindings)
+                affectedBinding.pressed = isButtonPressed(affectedBinding)
 
             if (rotateValue.get()) {
                 if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
@@ -144,9 +159,10 @@ object InvMove : Module() {
                         event.cancelEvent()
 
                         PacketUtils.sendPacket(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT),false)
-                        packetListYes.forEach {
-                            PacketUtils.sendPacket(it,false)
-                        }
+                        PacketUtils.sendPacket(packetListYes.iterator().next())
+//                        packetListYes.forEach {
+//                            PacketUtils.sendPacket(it,false)
+//                        }
                         packetListYes.clear()
                         PacketUtils.sendPacket(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId),false)
                     }
@@ -198,27 +214,8 @@ object InvMove : Module() {
     }
 
     private fun reset() {
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindForward) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindForward.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindBack) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindBack.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindRight.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindLeft.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindJump) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindJump.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSprint) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindSprint.pressed = false
-        }
-        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak) || mc.currentScreen != null) {
-            mc.gameSettings.keyBindSneak.pressed = false
-        }
+        for (affectedBinding in affectedBindings)
+            affectedBinding.pressed = !isButtonPressed(affectedBinding)
     }
 
     override fun onDisable() {

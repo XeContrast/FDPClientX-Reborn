@@ -175,8 +175,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         }
 
         if (this.isCurrentViewEntity()) {
-            float yaw = rotationYaw;
-            float pitch = rotationPitch;
+            float yaw = this.rotationYaw;
+            float pitch = this.rotationPitch;
             float lastReportedYaw = Objects.requireNonNull(RotationUtils.serverRotation).getYaw();
             float lastReportedPitch = RotationUtils.serverRotation.getPitch();
 
@@ -223,8 +223,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
 
             if (rotated) {
-                this.lastReportedYaw = this.rotationYaw;
-                this.lastReportedPitch = this.rotationPitch;
+                this.lastReportedYaw = yaw;
+                this.lastReportedPitch = pitch;
             }
         }
 
@@ -418,11 +418,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         }
         if (Objects.requireNonNull(scaffold).getState()) {
             this.setSprinting(scaffold.getCanSprint());
-        }
-        if (killAura != null && killAura.getCurrentTarget() != null && KillAura.INSTANCE.getSprintmode().get().equals("StopSprint") && killAura.getState()) {
-            if (MovementUtils.INSTANCE.isMoving()) {
-                this.setSprinting(false);
-            }
         }
 
         //aac may check it :(

@@ -120,8 +120,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             if(Objects.requireNonNull(sprint).getState() && sprint.getJumpDirectionsValue().get()) {
                 fixedYaw += MovementUtils.INSTANCE.getMovingYaw() - this.rotationYaw;
             }
-            this.motionX -= MathHelper.sin(fixedYaw / 180F * 3.1415927F) * 0.2F;
-            this.motionZ += MathHelper.cos(fixedYaw / 180F * 3.1415927F) * 0.2F;
+            final float f = fixedYaw * 0.017453292F;
+            this.motionX -= MathHelper.sin(f) * 0.2F;
+            this.motionZ += MathHelper.cos(f) * 0.2F;
         }
 
         this.isAirBorne = true;
