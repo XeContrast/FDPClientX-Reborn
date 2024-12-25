@@ -94,7 +94,7 @@ object AutoRod : Module() {
 
                 if (isSelected(facingEntity ?: return, true)) {
                     // Checks how many enemy is nearby, if <= then should rod.
-                    if (nearbyEnemies?.size!! <= enemiesNearby.get()) {
+                    if (nearbyEnemies.size <= enemiesNearby.get()) {
 
                         // Check if the enemy's health is below the threshold.
                         if (ignoreOnEnemyLowHealth.get()) {
@@ -165,8 +165,8 @@ object AutoRod : Module() {
         return -1
     }
 
-    fun getAllNearbyEnemies(): List<Entity>? {
-        val player = mc.thePlayer ?: return null
+    fun getAllNearbyEnemies(): List<Entity> {
+        val player = mc.thePlayer ?: return emptyList()
 
         return mc.theWorld.loadedEntityList.toList()
             .filter { isSelected(it, true) }
