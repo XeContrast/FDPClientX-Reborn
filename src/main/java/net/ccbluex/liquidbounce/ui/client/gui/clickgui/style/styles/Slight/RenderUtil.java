@@ -337,7 +337,7 @@ public enum RenderUtil {
         return old + (current - old) * scale;
     }
 
-    private static Vector3d project2D(int scaleFactor, double x, double y, double z) {
+    public static Vector3d project2D(int scaleFactor, double x, double y, double z) {
         IntBuffer viewport = GLAllocation.createDirectIntBuffer(16);
         FloatBuffer modelView = GLAllocation.createDirectFloatBuffer(16);
         FloatBuffer projection = GLAllocation.createDirectFloatBuffer(16);

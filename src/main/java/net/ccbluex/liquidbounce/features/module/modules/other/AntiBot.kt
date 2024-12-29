@@ -6,6 +6,7 @@ package net.ccbluex.liquidbounce.features.module.modules.other
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.isMoving
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -14,12 +15,9 @@ import net.ccbluex.liquidbounce.features.value.FloatValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.script.api.global.Chat
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.fonts.impl.Fonts
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
-import net.ccbluex.liquidbounce.utils.PlayerUtils.getPing
 import net.ccbluex.liquidbounce.utils.RotationUtils
-import net.ccbluex.liquidbounce.utils.isMoving
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.stripColor
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
@@ -530,11 +528,13 @@ object  AntiBot : Module() {
             }
 
             is S38PacketPlayerListItem -> {
+                val player = mc.thePlayer ?: return
+                val world = mc.theWorld ?: return
                 val data = packet.entries[0]
                 if (duplicateCompareModeValue.equals("WhenSpawn") && packet.action == S38PacketPlayerListItem.Action.ADD_PLAYER) {
                     packet.entries.forEach { entry ->
                         val name = entry.profile.name
-                        if (duplicateInWorldValue.get() && mc.theWorld.playerEntities.any { it.name == name } ||
+                        if (duplicateInWorldValue.get() && world.playerEntities.any { it.name == name } ||
                             duplicateInTabValue.get() && mc.netHandler.playerInfoMap.any { it.gameProfile.name == name }) {
                             duplicate.add(entry.profile.id)
                         }
@@ -544,7 +544,7 @@ object  AntiBot : Module() {
                 if (czechHekValue.get()) {
                     if (data.profile != null && data.profile.name != null) {
                         if (!wasAdded) wasAdded =
-                            data.profile.name == mc.thePlayer.name else if (!mc.thePlayer.isSpectator && !mc.thePlayer.capabilities.allowFlying && (!czechHekPingCheckValue.get() || data.ping != 0) && (!czechHekGMCheckValue.get() || data.gameMode != WorldSettings.GameType.NOT_SET)) {
+                            data.profile.name == player.name else if (!player.isSpectator && !player.capabilities.allowFlying && (!czechHekPingCheckValue.get() || data.ping != 0) && (!czechHekGMCheckValue.get() || data.gameMode != WorldSettings.GameType.NOT_SET)) {
                             event.cancelEvent()
                             if (debugValue.get()) Chat.print("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r" + data.profile.name + " §ffrom spawning.")
                         }

@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.visual
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.getSmoothDistanceToEntity
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -17,7 +18,6 @@ import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.Slight.RenderUtil
 import net.ccbluex.liquidbounce.ui.font.GameFontRenderer.Companion.getColorIndex
-import net.ccbluex.liquidbounce.utils.EntityUtils.getSmoothDistanceToEntity
 import net.ccbluex.liquidbounce.utils.animations.ContinualAnimation
 import net.ccbluex.liquidbounce.utils.animations.impl.DecelerateAnimation
 import net.ccbluex.liquidbounce.utils.animations.impl.SmoothStepAnimation

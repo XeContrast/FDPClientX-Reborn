@@ -6,13 +6,12 @@
 package net.ccbluex.liquidbounce.utils
 
 import kevin.utils.*
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Listenable
-import net.ccbluex.liquidbounce.event.PacketEvent
-import net.ccbluex.liquidbounce.event.GameTickEvent
+import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.rotation
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
+import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.projectile.EntityEgg
@@ -28,17 +27,18 @@ class RotationUtils : MinecraftInstance(), Listenable {
      * @param event Tick event
      */
     @EventTarget
-    fun onTick(event: GameTickEvent?) {
-        if (targetRotation != null) {
-            //ClientUtils.INSTANCE.displayAlert(keepLength + " " + revTick);
-            keepLength--
+    fun onUpdate(event: UpdateEvent?) {
+        val rotation = targetRotation ?: return
 
-            if (keepLength <= 0) {
-                if (revTick > 0) {
-                    revTick--
-                }
-                reset()
+        if (keepLength > 0) {
+            keepLength--
+        } else {
+            if (revTick > 0) {
+                revTick--
             }
+            reset()
+            val speed = RandomUtils.nextFloat(speedForReset.first, speedForReset.second)
+            targetRotation = limitAngleChange(rotation, mc.thePlayer.rotation, speed).fixedSensitivity()
         }
 
         if (random.nextGaussian() > 0.8) x = Math.random()
@@ -56,12 +56,20 @@ class RotationUtils : MinecraftInstance(), Listenable {
         val packet = event.packet
 
         if (packet is C03PacketPlayer) {
+            targetRotation?.let { rotation ->
+                val (yaw,pitch) = serverRotation!!
+                if (rotation.yaw == yaw && rotation.pitch == pitch)
+                    return
 
-            if (targetRotation != null && !keepCurrentRotation && (targetRotation!!.yaw != serverRotation!!.yaw || targetRotation!!.pitch != serverRotation!!.pitch)) {
-                packet.yaw = targetRotation!!.yaw
-                packet.pitch = targetRotation!!.pitch
+                packet.yaw = rotation.yaw
+                packet.pitch = rotation.pitch
                 packet.rotating = true
             }
+//            if (targetRotation != null && (targetRotation!!.yaw != serverRotation!!.yaw || targetRotation!!.pitch != serverRotation!!.pitch)) {
+//                packet.yaw = targetRotation!!.yaw
+//                packet.pitch = targetRotation!!.pitch
+//                packet.rotating = true
+//            }
 
             if (packet.rotating) serverRotation = Rotation(packet.yaw, packet.pitch)
         }
@@ -163,6 +171,9 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
             return vecRotation
         }
+
+        fun getFixedSensitivityAngle(targetAngle: Float, startAngle: Float = 0f, gcd: Float = getFixedAngleDelta()) =
+            startAngle + ((targetAngle - startAngle) / gcd).roundToInt() * gcd
 
         /**
          * Allows you to check if your crosshair is over your target entity
@@ -554,6 +565,9 @@ class RotationUtils : MinecraftInstance(), Listenable {
             return vecRotation
         }
 
+        fun getFixedAngleDelta(sensitivity: Float = mc.gameSettings.mouseSensitivity) =
+            (sensitivity * 0.6f + 0.2f).pow(3) * 1.2f
+
         fun calculateCenter(
             calMode: String?,
             randMode: Boolean?,
@@ -916,13 +930,19 @@ class RotationUtils : MinecraftInstance(), Listenable {
             this.angleThresholdForReset = angleThresholdForReset
         }
 
-        fun setTargetRotationReverse(rotation: Rotation, kl: Int, rt: Int) {
-            if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
+        fun setTargetRotationReverse(
+            rotation: Rotation,
+            kl: Int,
+            rt: Int,
+            resetSpeed: Pair<Float, Float> = 180f to 180f
+        ) {
+            if (rotation.yaw.isNaN() || rotation.pitch.isNaN() || rotation.pitch > 90 || rotation.pitch < -90) return
 
             rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
-            targetRotation = rotation
-            keepLength = kl
-            revTick = rt + 1
+            this.targetRotation = rotation
+            this.keepLength = kl
+            this.speedForReset = resetSpeed
+            this.revTick = rt + 1
         }
 
         fun bestServerRotation(): Rotation? {

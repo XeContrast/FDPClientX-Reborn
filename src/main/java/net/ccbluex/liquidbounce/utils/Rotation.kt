@@ -7,6 +7,9 @@ package net.ccbluex.liquidbounce.utils
 
 import net.ccbluex.liquidbounce.event.StrafeEvent
 import net.ccbluex.liquidbounce.utils.MinecraftInstance.Companion.mc
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getFixedAngleDelta
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getFixedSensitivityAngle
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.serverRotation
 import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
@@ -36,22 +39,16 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
     fun fixedSensitivity(sensitivity: Float = mc.gameSettings.mouseSensitivity): Rotation {
-        val f = sensitivity * 0.6F + 0.2F
-        val gcd = f * f * f * 1.2F
+        // Previous implementation essentially floored the subtraction.
+        // This way it returns rotations closer to the original.
 
-        // get previous rotation
-        val rotation = RotationUtils.serverRotation
+        // Only calculate GCD once
+        val gcd = getFixedAngleDelta(sensitivity)
 
-        // fix yaw
-        var deltaYaw = yaw - rotation!!.yaw
-        deltaYaw -= deltaYaw % gcd
-        yaw = rotation.yaw + deltaYaw
+        yaw = getFixedSensitivityAngle(yaw, serverRotation!!.yaw, gcd)
+        pitch = getFixedSensitivityAngle(pitch, serverRotation!!.pitch, gcd)
 
-        // fix pitch
-        var deltaPitch = pitch - rotation.pitch
-        deltaPitch -= deltaPitch % gcd
-        pitch = rotation.pitch + deltaPitch
-        return this
+        return this.withLimitedPitch()
     }
 
     fun toDirection(): Vec3 {
@@ -119,6 +116,11 @@ data class Rotation(var yaw: Float, var pitch: Float) {
             player.motionX += calcStrafe * yawCos - calcForward * yawSin
             player.motionZ += calcForward * yawCos + calcStrafe * yawSin
         }
+    }
+    fun withLimitedPitch(value: Float = 90f): Rotation {
+        pitch = pitch.coerceIn(-value, value)
+
+        return this
     }
     fun cloneSelf(): Rotation {
         return Rotation(yaw, pitch)

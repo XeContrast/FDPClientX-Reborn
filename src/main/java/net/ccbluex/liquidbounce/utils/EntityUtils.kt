@@ -151,45 +151,4 @@ object EntityUtils : MinecraftInstance() {
 
         return if (health > 0) health else 20f
     }
-    fun Entity.getLookDistanceToEntityBox(entity: Entity =this, rotation: Rotation? = null, range: Double=10.0): Double {
-        val eyes = this.eyes
-        val end = (rotation?: RotationUtils.bestServerRotation())!!.toDirection().multiply(range).add(eyes)
-        return entity.entityBoundingBox.calculateIntercept(eyes, end)?.hitVec?.distanceTo(eyes) ?: Double.MAX_VALUE
-    }
-
-    fun Entity.speed() : Double {
-        return hypot(this.posX - this.prevPosX, this.posZ - this.prevPosZ) * 20
-    }
-
-    @JvmStatic
-    fun Entity.getSmoothDistanceToEntity(entityIn: Entity?): Float {
-        val pTicks = Minecraft.getMinecraft().timer.renderPartialTicks
-        val xposme: Double = this.lastTickPosX + (this.posX - this.lastTickPosX) * pTicks.toDouble()
-        val yposme: Double = this.lastTickPosY + (this.posY - this.lastTickPosY) * pTicks.toDouble()
-        val zposme: Double = this.lastTickPosZ + (this.posZ - this.lastTickPosZ) * pTicks.toDouble()
-        var xposent = 0.0
-        var yposent = 0.0
-        var zposent = 0.0
-        if (entityIn != null) {
-            xposent = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * pTicks.toDouble()
-            yposent = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * pTicks.toDouble()
-            zposent = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * pTicks.toDouble()
-        }
-        val f = (xposme - xposent).toFloat()
-        val f1 = (yposme - yposent).toFloat()
-        val f2 = (zposme - zposent).toFloat()
-        return if (entityIn != null) MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble()) else 0.0f
-    }
-
-    @JvmStatic
-    fun EntityPlayer.getSmoothDistanceToCoord(x: Float, y: Float, z: Float): Float {
-        val pTicks = Minecraft.getMinecraft().timer.renderPartialTicks
-        val xposme: Double = this.lastTickPosX + (this.posX - this.lastTickPosX) * pTicks.toDouble()
-        val yposme: Double = this.lastTickPosY + (this.posY - this.lastTickPosY) * pTicks.toDouble()
-        val zposme: Double = this.lastTickPosZ + (this.posZ - this.lastTickPosZ) * pTicks.toDouble()
-        val f = (xposme - x.toDouble()).toFloat()
-        val f1 = (yposme - y.toDouble()).toFloat()
-        val f2 = (zposme - z.toDouble()).toFloat()
-        return MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble())
-    }
 }

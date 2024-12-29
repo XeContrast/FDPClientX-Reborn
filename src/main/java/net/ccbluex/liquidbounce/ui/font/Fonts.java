@@ -29,6 +29,9 @@ public class Fonts {
 
     public static TTFFontRenderer fontVerdana;
 
+    @FontDetails(fontName = "Roboto Medium", fontSize = 15)
+    public static GameFontRenderer font15;
+
     @FontDetails(fontName = "Roboto Medium", fontSize = 35)
     public static GameFontRenderer font35;
 
@@ -139,6 +142,7 @@ public class Fonts {
 
         ClientUtils.INSTANCE.logInfo("Loading Fonts.");
 
+        font15 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 15));
         font35 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 35));
         font40 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 40));
         font48 = new GameFontRenderer(getFont("Roboto-Medium.ttf", 48));

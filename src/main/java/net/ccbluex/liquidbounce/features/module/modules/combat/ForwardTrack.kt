@@ -10,6 +10,9 @@ import kevin.utils.component2
 import kevin.utils.component3
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Render3DEvent
+import net.ccbluex.liquidbounce.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.extensions.minus
+import net.ccbluex.liquidbounce.extensions.offset
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -19,13 +22,11 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 import net.ccbluex.liquidbounce.injection.implementations.IMixinEntity
 import net.ccbluex.liquidbounce.utils.EntityUtils.isSelected
 import net.ccbluex.liquidbounce.utils.extensions.*
-import net.ccbluex.liquidbounce.utils.interpolatedPosition
 import net.ccbluex.liquidbounce.utils.lerpWith
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.rainbow
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.drawBacktrackBox
 import net.ccbluex.liquidbounce.utils.render.RenderUtils.glColor
 import net.ccbluex.liquidbounce.utils.renderPos
-import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.renderer.GlStateManager.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -78,18 +79,17 @@ object ForwardTrack : Module() {
 
         val renderManager = mc.renderManager
 
-        world.loadedEntityList.asSequence()
-            .filter { isSelected(it, true) }
+        world.loadedEntityList
+            .filter { it != null && isSelected(it, true) }
             .forEach { target ->
 
-            target?.run {
-                val vec = usePosition(this)
+                val vec = usePosition(target)
 
                 val (x, y, z) = vec - renderManager.renderPos
 
                 when (espMode.get().lowercase()) {
                     "box" -> {
-                        val axisAlignedBB = entityBoundingBox.offset(-posX, -posY, -posZ).offset(x, y, z)
+                        val axisAlignedBB = target.entityBoundingBox.offset(Vec3(x, y, z) - target.currPos)
 
                         drawBacktrackBox(axisAlignedBB, color)
                     }
@@ -100,9 +100,9 @@ object ForwardTrack : Module() {
 
                         color(0.6f, 0.6f, 0.6f, 1f)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
@@ -130,31 +130,25 @@ object ForwardTrack : Module() {
 
                         glColor(color)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
                         glColor(color)
                         renderManager.doRenderEntity(
-                            this,
+                            target,
                             x, y, z,
-                            (prevRotationYaw..rotationYaw).lerpWith(event.partialTicks),
+                            (target.prevRotationYaw..target.rotationYaw).lerpWith(event.partialTicks),
                             event.partialTicks,
                             true
                         )
 
                         glPopAttrib()
                         glPopMatrix()
-                    }
                 }
             }
         }
     }
 }
-
-operator fun Vec3.plus(vec: Vec3): Vec3 = add(vec)
-operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
-operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
-operator fun Vec3.div(number: Double) = times(1 / number)

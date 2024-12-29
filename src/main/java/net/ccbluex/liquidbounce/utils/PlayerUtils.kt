@@ -28,19 +28,6 @@ import net.minecraftforge.common.ForgeHooks
 import net.minecraftforge.event.ForgeEventFactory
 import kotlin.math.roundToInt
 
-
-val EntityLivingBase.isMoving: Boolean
-    get() = this.run { moveForward != 0F || moveStrafing != 0F }
-val Entity.rotation: Rotation
-    get() = Rotation(rotationYaw, rotationPitch)
-val IMixinEntity.interpolatedPosition
-    get() = Vec3(lerpX, lerpY, lerpZ)
-fun Entity.interpolatedPosition(start: Vec3) = Vec3(
-    start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
-    start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks,
-    start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
-)
-
 object PlayerUtils {
     fun randomUnicode(str: String): String {
         val stringBuilder = StringBuilder()

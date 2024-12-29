@@ -128,7 +128,7 @@ val Entity.renderBoundingBox: AxisAlignedBB
     get() {
         return this.entityBoundingBox
             .offset(-this.posX, -this.posY, -this.posZ)
-            .offset(this.renderPos.x, this.renderPos.y, this.renderPos.z)
+            .offset(renderPos.x, this.renderPos.y, this.renderPos.z)
     }
 
 fun Entity.isAnimal() =
