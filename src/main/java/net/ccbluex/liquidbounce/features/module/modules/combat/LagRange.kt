@@ -45,25 +45,39 @@ class LagRange : Module() {
     }
 
     private fun shouldStart(): Boolean {
-        if (mc.thePlayer == null || mc.theWorld == null) return false
+        val player = mc.thePlayer ?: return false
+        val world = mc.theWorld ?: return false
         if (onGround.get() && !mc.thePlayer.onGround) return false
         if (!MovementUtils.isMoving) return false
         if (fov.get() == 0) return false
         if (System.currentTimeMillis() - lastLagTime < delay.get()) return false
 
-        for (entity in mc.theWorld.loadedEntityList) {
-            reach = RandomUtils.nextFloat(min.get(), max.get())
-            if (EntityUtils.isSelected(
-                    entity,
-                    true
-                ) && mc.thePlayer.getDistanceToEntityBox(entity) <= reach && entity != mc.thePlayer && EntityUtils.isLookingOnEntities(
-                    entity,
-                    fov.get().toDouble()
-                )
-            ) {
+        world.loadedEntityList
+            .filter { it != null && EntityUtils.isSelected(it,true)}
+            .filter { player.getDistanceToEntityBox(it) <= reach && it != player}
+            .filter { EntityUtils.isLookingOnEntities(
+                it,
+                fov.get().toDouble())
+            }
+            .forEach { _ ->
+                reach = RandomUtils.nextFloat(min.get(), max.get())
                 return true
             }
-        }
+
+
+//        for (entity in mc.theWorld.loadedEntityList) {
+//            reach = RandomUtils.nextFloat(min.get(), max.get())
+//            if (EntityUtils.isSelected(
+//                    entity,
+//                    true
+//                ) && mc.thePlayer.getDistanceToEntityBox(entity) <= reach && entity != mc.thePlayer && EntityUtils.isLookingOnEntities(
+//                    entity,
+//                    fov.get().toDouble()
+//                )
+//            ) {
+//                return true
+//            }
+//        }
         return false
     }
 

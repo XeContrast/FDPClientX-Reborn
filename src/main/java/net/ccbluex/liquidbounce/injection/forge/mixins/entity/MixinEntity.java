@@ -236,9 +236,9 @@ public abstract class MixinEntity implements IMixinEntity {
         final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
         //alert("Strafe: " + strafe + " Forward: " + forward + " Factor: " + friction + " DoFix: " + strafeFix.getDoFix());
         FDPClient.eventManager.callEvent(strafeEvent);
-        if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
-            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
-        }
+//        if (strafeFix.getDoFix()) { //Run StrafeFix process on Post Strafe 2023/02/15
+//            strafeFix.runStrafeFixLoop(strafeFix.getSilentFix(), strafeEvent);
+//        }
 
         if (strafeEvent.isCancelled())
             callbackInfo.cancel();

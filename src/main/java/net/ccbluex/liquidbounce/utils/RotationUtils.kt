@@ -5,9 +5,21 @@
  */
 package net.ccbluex.liquidbounce.utils
 
-import kevin.utils.*
+import kevin.utils.component1
+import kevin.utils.component2
+import kevin.utils.component3
 import net.ccbluex.liquidbounce.event.*
 import net.ccbluex.liquidbounce.extensions.rotation
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.dynamicPitchFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.dynamicYawFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.maxPitchFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.maxSpeed
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.maxYawFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.minPitchFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.minSpeed
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.minYawFactor
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.tolerance
+import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
@@ -46,6 +58,16 @@ class RotationUtils : MinecraftInstance(), Listenable {
         if (random.nextGaussian() > 0.8) z = Math.random()
     }
 
+    @EventTarget
+    fun onStrafe(event: StrafeEvent) {
+        if (StrafeFix.doFix) {
+            targetRotation?.let {
+                it.applyStrafeToPlayer(event,!StrafeFix.silentFix)
+                event.cancelEvent()
+            }
+        }
+    }
+
     /**
      * Handle packet
      *
@@ -65,11 +87,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
                 packet.pitch = rotation.pitch
                 packet.rotating = true
             }
-//            if (targetRotation != null && (targetRotation!!.yaw != serverRotation!!.yaw || targetRotation!!.pitch != serverRotation!!.pitch)) {
-//                packet.yaw = targetRotation!!.yaw
-//                packet.pitch = targetRotation!!.pitch
-//                packet.rotating = true
-//            }
 
             if (packet.rotating) serverRotation = Rotation(packet.yaw, packet.pitch)
         }
@@ -499,7 +516,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
                 xSearch += xDist
             }
 
-            if (vecRotation == null || randMode == "Off") return vecRotation
+            if (vecRotation == null || randMode == "Off" || randMode == "Noise") return vecRotation
 
             var rand1 = random.nextDouble()
             var rand2 = random.nextDouble()
@@ -539,30 +556,44 @@ class RotationUtils : MinecraftInstance(), Listenable {
                     curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
                     curVec3.zCoord
                 )
-            }
-            val randomRotation = toRotation(randomVec3, predict)
 
-
-            /*
-        for(double xSearch = 0.00D; xSearch < 1.00D; xSearch += 0.05D) {
-            for (double ySearch = 0.00D; ySearch < 1.00D; ySearch += 0.05D) {
-                for (double zSearch = 0.00D; zSearch < 1.00D; zSearch += 0.05D) {
-                    final Vec3 vec3 = new Vec3(curVec3.xCoord - ((randMode == "Horizonal") ? 0.0D : (xPrecent * (curVec3.xCoord - bb.minX) + minRange * randomRange * xSearch)),
-                                               curVec3.yCoord - ((randMode == "Vertical") ? 0.0D : (yPrecent * (curVec3.yCoord - bb.minY) + minRange * randomRange * ySearch)),
-                                               curVec3.zCoord - ((randMode == "Horizonal") ? 0.0D : (zPrecent * (curVec3.zCoord - bb.minZ) + minRange * randomRange * zSearch)));
-                    final Rotation rotation = toRotation(vec3, predict);
-                    if(throughWalls || isVisible(vec3)) {
-                        final VecRotation currentVec = new VecRotation(vec3, rotation);
-                        if (vecRotation == null || (getRotationDifference(currentVec.getRotation(), randomRotation) < getRotationDifference(vecRotation.getRotation(), randomRotation)))
-                            vecRotation = currentVec;
+                "noise" -> if (gaussianHasReachedTarget(curVec3, vecRotation.vec, tolerance.get())) {
+                    val yawFactor = if (dynamicYawFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicYawFactor.get()) else (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ))
+                    val pitchFactor = if (dynamicPitchFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        maxPitchFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicPitchFactor.get()) else (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        minPitchFactor.get()
+                    ))
+                    targetRotation?.let {
+                        it.yaw += random.nextGaussian().toFloat() * yawFactor
+                        it.pitch += random.nextGaussian().toFloat() * pitchFactor
+                    }
+                } else {
+                    targetRotation?.let {
+                        it.yaw += MathUtils.interpolate(curVec3.xCoord, vecRotation!!.vec.xCoord, MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())).toFloat()
+                        it.yaw += MathUtils.interpolate(curVec3.yCoord, vecRotation!!.vec.yCoord, MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())).toFloat()
                     }
                 }
             }
-        }
-        I Give Up :sadface: */
+            val randomRotation = toRotation(randomVec3, predict)
+
             vecRotation = VecRotation(randomVec3, randomRotation)
 
             return vecRotation
+        }
+
+        private fun gaussianHasReachedTarget(vec1: Vec3, vec2: Vec3, tolerance: Float): Boolean {
+            return MathHelper.abs((vec1.xCoord - vec2.xCoord).toFloat()) < tolerance && MathHelper.abs((vec1.yCoord - vec2.yCoord).toFloat()) < tolerance && MathHelper.abs(
+                (vec1.zCoord - vec2.zCoord).toFloat()
+            ) < tolerance
         }
 
         fun getFixedAngleDelta(sensitivity: Float = mc.gameSettings.mouseSensitivity) =

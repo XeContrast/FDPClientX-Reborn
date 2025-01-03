@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.ListValue
+import net.ccbluex.liquidbounce.utils.InventoryUtils
 import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.gui.inventory.GuiContainer
@@ -32,15 +33,17 @@ import org.lwjgl.input.Mouse
 @ModuleInfo(name = "InvMove", category = ModuleCategory.MOVEMENT)
 object InvMove : Module() {
 
-    private val chest = BoolValue("Chest",true)
+    private val chest = BoolValue("Contains",true)
     private val inv = BoolValue("Inv",true)
     private val noDetectableValue = BoolValue("NoDetectable", false)
-    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Intave", "None"), "None")
+    private val bypassValue = ListValue("Bypass", arrayOf("NoOpenPacket", "Blink", "PacketInv","Intave","SaveC0E", "None"), "None")
     private val rotateValue = BoolValue("Rotate", false)
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
     val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
+    private val noSprintPacket = BoolValue("GrimAC",true).displayable{ bypassValue.get() == "SaveC0E"}
 
     private val blinkPacketList = mutableListOf<C03PacketPlayer>()
+    private val clickPacketList = mutableListOf<C0EPacketClickWindow>()
     private val packetListYes = mutableListOf<C0EPacketClickWindow>()
     private var lastInvOpen = false
     var invOpen = false
@@ -93,12 +96,17 @@ object InvMove : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
-        if ((!chest.get() && mc.currentScreen is GuiChest) || (!inv.get() && mc.currentScreen is GuiInventory)) return
+        if (!shouldMove())
+            return
+
         updateKeyState()
     }
 
     @EventTarget
     fun onScreen(event: ScreenEvent) {
+        if (!shouldMove())
+            return
+        
         updateKeyState()
     }
 
@@ -118,10 +126,20 @@ object InvMove : Module() {
             invOpen = true
             if (noSprintValue.equals("PacketSpoof")) {
                 if (mc.thePlayer.isSprinting) {
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                    mc.netHandler.addToSendQueue(
+                        C0BPacketEntityAction(
+                            mc.thePlayer,
+                            C0BPacketEntityAction.Action.STOP_SPRINTING
+                        )
+                    )
                 }
                 if (mc.thePlayer.isSneaking) {
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SNEAKING))
+                    mc.netHandler.addToSendQueue(
+                        C0BPacketEntityAction(
+                            mc.thePlayer,
+                            C0BPacketEntityAction.Action.STOP_SNEAKING
+                        )
+                    )
                 }
             }
         }
@@ -130,10 +148,20 @@ object InvMove : Module() {
             if (bypassValue.get() == "Intave") mc.gameSettings.keyBindSneak.pressed = false
             if (noSprintValue.equals("PacketSpoof")) {
                 if (mc.thePlayer.isSprinting) {
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                    mc.netHandler.addToSendQueue(
+                        C0BPacketEntityAction(
+                            mc.thePlayer,
+                            C0BPacketEntityAction.Action.START_SPRINTING
+                        )
+                    )
                 }
                 if (mc.thePlayer.isSneaking) {
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SNEAKING))
+                    mc.netHandler.addToSendQueue(
+                        C0BPacketEntityAction(
+                            mc.thePlayer,
+                            C0BPacketEntityAction.Action.START_SNEAKING
+                        )
+                    )
                 }
             }
         }
@@ -147,10 +175,12 @@ object InvMove : Module() {
                             isInv = true
                         }
                     }
+
                     is C0DPacketCloseWindow -> {
                         event.cancelEvent()
                         isInv = false
                     }
+
                     is C0EPacketClickWindow -> {
                         if (isInv) return
                         packetListYes.clear()
@@ -158,21 +188,26 @@ object InvMove : Module() {
 
                         event.cancelEvent()
 
-                        PacketUtils.sendPacket(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT),false)
+                        PacketUtils.sendPacket(
+                            C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT),
+                            false
+                        )
                         PacketUtils.sendPacket(packetListYes.iterator().next())
 //                        packetListYes.forEach {
 //                            PacketUtils.sendPacket(it,false)
 //                        }
                         packetListYes.clear()
-                        PacketUtils.sendPacket(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId),false)
+                        PacketUtils.sendPacket(C0DPacketCloseWindow(mc.thePlayer.inventoryContainer.windowId), false)
                     }
                 }
             }
+
             "noopenpacket" -> {
                 if (packet is C16PacketClientStatus && packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) {
                     event.cancelEvent()
                 }
             }
+
             "blink" -> {
                 if (packet is C03PacketPlayer) {
                     if (lastInvOpen) {
@@ -182,10 +217,24 @@ object InvMove : Module() {
                         blinkPacketList.add(packet)
                         event.cancelEvent()
                         blinkPacketList.forEach {
-                            PacketUtils.sendPacket(it,false)
+                            PacketUtils.sendPacket(it, false)
                         }
                         blinkPacketList.clear()
                     }
+                }
+            }
+
+            "savec0e" -> {
+                if (InventoryUtils.serverOpenInventory || InventoryUtils.serverOpenContainer) {
+                    if (packet is C0EPacketClickWindow) {
+                        clickPacketList.add(packet)
+                        event.cancelEvent()
+                    }
+                } else if (clickPacketList.isNotEmpty()) {
+                    clickPacketList.forEach {
+                        PacketUtils.sendPacket(it, false)
+                    }
+                    clickPacketList.clear()
                 }
             }
         }
@@ -193,14 +242,14 @@ object InvMove : Module() {
 
     @EventTarget
     private fun onStrafe(event: StrafeEvent) {
-        if (lastInvOpen && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+        if (InventoryUtils.serverOpenInventory && bypassValue.get() == "Intave" && mc.currentScreen != null) {
             mc.gameSettings.keyBindSneak.pressed = true
         }
     }
 
     @EventTarget
     private fun onJump(event: JumpEvent) {
-        if (lastInvOpen && bypassValue.get() == "Intave" && mc.currentScreen != null) {
+        if (InventoryUtils.serverOpenInventory && bypassValue.get() == "Intave" && mc.currentScreen != null) {
             event.cancelEvent()
         }
     }
@@ -208,20 +257,36 @@ object InvMove : Module() {
     @EventTarget
     fun onWorld(event: WorldEvent) {
         reset()
+        clickPacketList.clear()
         blinkPacketList.clear()
         invOpen = false
         lastInvOpen = false
     }
 
+    fun shouldMove() : Boolean {
+        if (!chest.get()) {
+            if (mc.currentScreen is GuiContainer)
+                return false
+        }
+
+        if (!inv.get()) {
+            if (mc.currentScreen is GuiInventory)
+                return false
+        }
+
+        return true
+    }
+
     private fun reset() {
         for (affectedBinding in affectedBindings)
-            affectedBinding.pressed = !isButtonPressed(affectedBinding)
+            affectedBinding.pressed = false.takeIf { affectedBinding.pressed }!!
     }
 
     override fun onDisable() {
         reset()
 
         blinkPacketList.clear()
+        clickPacketList.clear()
         lastInvOpen = false
         invOpen = false
     }

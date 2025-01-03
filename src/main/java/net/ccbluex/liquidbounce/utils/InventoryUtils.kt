@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.Listenable
 import net.ccbluex.liquidbounce.event.PacketEvent
+import net.ccbluex.liquidbounce.event.WorldEvent
 import net.ccbluex.liquidbounce.utils.PlayerUtils.getPing
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.minecraft.block.Block
@@ -18,6 +19,9 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.client.C16PacketClientStatus
+import net.minecraft.network.play.client.C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT
+import net.minecraft.network.play.server.S2DPacketOpenWindow
+import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.potion.Potion
 
 object InventoryUtils : MinecraftInstance(), Listenable {
@@ -38,6 +42,26 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         }
         return -1
     }
+
+    // Is inventory open on server-side?
+    var serverOpenInventory
+        get() = _serverOpenInventory
+        set(value) {
+            if (value != _serverOpenInventory) {
+                PacketUtils.sendPacket(
+                    if (value) C16PacketClientStatus(OPEN_INVENTORY_ACHIEVEMENT)
+                    else C0DPacketCloseWindow(mc.thePlayer?.openContainer?.windowId ?: 0)
+                )
+
+                _serverOpenInventory = value
+            }
+        }
+
+    var serverOpenContainer = false
+        private set
+
+    // Backing fields
+    private var _serverOpenInventory = false
 
     fun hasSpaceHotbar(): Boolean {
         for (i in 36..44) {
@@ -110,6 +134,31 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         } else if (packet is C0EPacketClickWindow) {
             CLICK_TIMER.reset()
         }
+
+        when (packet) {
+            is C16PacketClientStatus ->
+                if (packet.status == OPEN_INVENTORY_ACHIEVEMENT) {
+                    if (_serverOpenInventory) event.cancelEvent()
+                    else {
+                        _serverOpenInventory = true
+                    }
+                }
+
+            is C0DPacketCloseWindow, is S2EPacketCloseWindow, is S2DPacketOpenWindow -> {
+                _serverOpenInventory = false
+                serverOpenContainer = false
+                if (packet is S2DPacketOpenWindow) {
+                    if (packet.guiId == "minecraft:chest" || packet.guiId == "minecraft:container")
+                        serverOpenContainer = true
+                }
+            }
+        }
+    }
+
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        _serverOpenInventory = false
+        serverOpenContainer = false
     }
 
     fun openPacket() {

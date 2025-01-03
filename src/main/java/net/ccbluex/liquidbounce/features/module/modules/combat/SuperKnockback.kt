@@ -33,7 +33,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction
 class SuperKnockback : Module() {
 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("Wtap", "Stap", "WtapStopMotion", "Legit", "LegitSneak", "Silent", "SprintReset", "SneakPacket"), "Legit")
+    private val modeValue = ListValue("Mode", arrayOf("Wtap", "Stap", "WtapStopMotion", "Legit","LegitFast", "LegitSneak", "Silent", "SprintReset", "SneakPacket"), "Legit")
     private val onlyMoveValue = BoolValue("OnlyMove", true)
     private val onlyMoveForwardValue = BoolValue("OnlyMoveForward", true). displayable { onlyMoveValue.get() }
     private val onlyGroundValue = BoolValue("OnlyGround", false)
@@ -98,6 +98,9 @@ class SuperKnockback : Module() {
                     mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
                     ticks = 0
                 }
+            }
+            "legitfast" -> {
+                mc.thePlayer.sprintingTicksLeft = 0
             }
             "stap" -> {
                 if (ticks == 2) {

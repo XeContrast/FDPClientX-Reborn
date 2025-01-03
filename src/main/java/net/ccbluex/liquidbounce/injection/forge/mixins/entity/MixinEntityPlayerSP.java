@@ -7,10 +7,13 @@ package net.ccbluex.liquidbounce.injection.forge.mixins.entity;
 
 import net.ccbluex.liquidbounce.FDPClient;
 import net.ccbluex.liquidbounce.event.*;
+import net.ccbluex.liquidbounce.extensions.MathExtensionsKt;
+import net.ccbluex.liquidbounce.features.module.Module;
 import net.ccbluex.liquidbounce.features.module.modules.combat.Criticals;
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura;
 import net.ccbluex.liquidbounce.features.module.modules.combat.AntiKB;
 import net.ccbluex.liquidbounce.features.module.modules.exploit.AntiDesync;
+import net.ccbluex.liquidbounce.features.module.modules.exploit.PortalMenu;
 import net.ccbluex.liquidbounce.features.module.modules.movement.Flight;
 import net.ccbluex.liquidbounce.features.module.modules.movement.InvMove;
 import net.ccbluex.liquidbounce.features.module.modules.movement.NoSlow;
@@ -19,6 +22,8 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix;
 import net.ccbluex.liquidbounce.features.module.modules.player.AutoGap;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold;
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2;
+import net.ccbluex.liquidbounce.utils.InventoryUtils;
+import net.ccbluex.liquidbounce.utils.Rotation;
 import net.ccbluex.liquidbounce.utils.RotationUtils;
 import net.ccbluex.liquidbounce.utils.MovementUtils;
 import net.minecraft.block.Block;
@@ -246,241 +251,209 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     }
 
     /**
-     * @author CCBlueX
-     * @author CoDynamic
-     * Modified by Co Dynamic
-     * Date: 2023/02/15
-     * @reason Fix Sprint / UpdateEvent
+     * @author CCBlueX && Xebook1
+     * @reason Fix Sprint
      */
     @Overwrite
     public void onLivingUpdate() {
-        
-        /**
-         * Update Sprint State - Pre
-         * - Run Sprint update before UpdateEvent
-         * - Update base sprint state (Vanilla)
-         * @param attemptToggle attempt to toggle sprint
-         * @param baseIsMoving is player moving with the "Sprint-able" direction
-         * @param baseSprintState whether you can sprint or not (Vanilla)
-         * @param canToggleSprint whether you can sprint by double-tapping MoveForward key
-         * @param isCurrentUsingItem is player using item
-         * @return
-         */
-         
-        boolean lastForwardToggleState = this.movementInput.moveForward > 0.05f;
-        boolean lastJumpToggleState = this.movementInput.jump;
-        
-        this.movementInput.updatePlayerMoveState();
-        
-        final Sprint sprint = FDPClient.moduleManager.getModule(Sprint.class);
-        final NoSlow noSlow = FDPClient.moduleManager.getModule(NoSlow.class);
-        final KillAura killAura = FDPClient.moduleManager.getModule(KillAura.class);
-        final InvMove inventoryMove = FDPClient.moduleManager.getModule(InvMove.class);
-        final StrafeFix strafeFix = FDPClient.moduleManager.getModule(StrafeFix.class);
-        final Scaffold2 scaffold2 = FDPClient.moduleManager.getModule(Scaffold2.class);
-        final Scaffold scaffold = FDPClient.moduleManager.getModule(Scaffold.class);
-        final AntiKB veloctiy = FDPClient.moduleManager.getModule(AntiKB.class);
-        
-        if (this.sprintingTicksLeft > 0) {
-            --this.sprintingTicksLeft;
-
-            if (this.sprintingTicksLeft == 0) {
-                this.setSprinting(false);
-            }
-        }
-
-        if (this.sprintToggleTimer > 0) {
-            --this.sprintToggleTimer;
-        }
-        
-        boolean isSprintDirection;
-        boolean movingStat = abs(this.movementInput.moveForward) > 0.05f || abs(this.movementInput.moveStrafe) > 0.05f;
-        
-        boolean runStrictStrafe = Objects.requireNonNull(strafeFix).getDoFix() && !strafeFix.getSilentFix();
-        boolean noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
-        
-        if (!movingStat || runStrictStrafe || noStrafe) {
-            isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
-            isSprintDirection = abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
-        }
-        
-        if (!movingStat) {
-            isSprintDirection = false;
-        }
-
-        // A separate movement input for currentRotation
-
-        boolean attemptToggle = Objects.requireNonNull(sprint).getState() || this.isSprinting() || this.mc.gameSettings.keyBindSprint.isKeyDown();
-        boolean baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (abs(this.movementInput.moveForward) > 0.05f || abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
-        boolean baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
-        boolean canToggleSprint = this.onGround && !this.movementInput.jump && !this.movementInput.sneak && !this.isPotionActive(Potion.blindness);
-        boolean isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && !this.isRiding();
-        boolean isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (Objects.requireNonNull(killAura).getBlockingStatus() || this.isUsingItem());
-        
-        baseSprintState = baseSprintState && !(Objects.requireNonNull(inventoryMove).getNoSprintValue().equals("Real") && inventoryMove.getInvOpen());
-        
-        if (!attemptToggle && !lastForwardToggleState && baseSprintState && !this.isSprinting() && canToggleSprint && !isCurrentUsingItem && !this.isPotionActive(Potion.blindness)) {
-            if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
-                this.sprintToggleTimer = 7;
-            } else {
-                attemptToggle = true;
-            }
-        }
-
-        this.setSprinting(sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle);
-        
-        //Run Sprint update before UpdateEvent
-        
         FDPClient.eventManager.callEvent(new UpdateEvent());
-        
-        //Update Portal Effects state (Vanilla)
 
-        this.prevTimeInPortal = this.timeInPortal;
+        if (sprintingTicksLeft > 0) {
+            --sprintingTicksLeft;
 
-        if (this.inPortal) {
+            if (sprintingTicksLeft == 0) {
+                setSprinting(false);
+            }
+        }
 
-            if (this.timeInPortal == 0.0F) {
-                this.mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("portal.trigger"), this.rand.nextFloat() * 0.4F + 0.8F));
+        if (sprintToggleTimer > 0) {
+            --sprintToggleTimer;
+        }
+
+        prevTimeInPortal = timeInPortal;
+
+        if (inPortal) {
+            if (mc.currentScreen != null && !mc.currentScreen.doesGuiPauseGame() && !PortalMenu.INSTANCE.handleEvents()) {
+                mc.displayGuiScreen(null);
             }
 
-            this.timeInPortal += 0.0125F;
-
-            if (this.timeInPortal >= 1.0F) {
-                this.timeInPortal = 1.0F;
+            if (timeInPortal == 0f) {
+                mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("portal.trigger"), rand.nextFloat() * 0.4F + 0.8F));
             }
 
-            this.inPortal = false;
-        } else if (this.isPotionActive(Potion.confusion) && this.getActivePotionEffect(Potion.confusion).getDuration() > 60) {
-            this.timeInPortal += 0.006666667F;
+            timeInPortal += 0.0125F;
 
-            if (this.timeInPortal > 1.0F) {
-                this.timeInPortal = 1.0F;
+            if (timeInPortal >= 1f) {
+                timeInPortal = 1f;
+            }
+
+            inPortal = false;
+        } else if (isPotionActive(Potion.confusion) && getActivePotionEffect(Potion.confusion).getDuration() > 60) {
+            timeInPortal += 0.006666667F;
+
+            if (timeInPortal > 1f) {
+                timeInPortal = 1f;
             }
         } else {
-            if (this.timeInPortal > 0.0F) {
-                this.timeInPortal -= 0.05F;
+            if (timeInPortal > 0f) {
+                timeInPortal -= 0.05F;
             }
 
-            if (this.timeInPortal < 0.0F) {
-                this.timeInPortal = 0.0F;
+            if (timeInPortal < 0f) {
+                timeInPortal = 0f;
             }
         }
 
-        if (this.timeUntilPortal > 0) {
-            --this.timeUntilPortal;
+        if (timeUntilPortal > 0) {
+            --timeUntilPortal;
         }
 
-        this.movementInput.updatePlayerMoveState();
-        
-        /**
-         * Update Sprint State - Post
-         * Apply Item Slowdown
-         * Update sprint state for modules
-         * TODO: This part can be skipped if there's no rotation change
-         */
+        boolean flag = movementInput.jump;
+        boolean flag1 = movementInput.sneak;
+        float f = 0.8F;
+        boolean flag2 = movementInput.moveForward >= f;
+        movementInput.updatePlayerMoveState();
 
-        movingStat = abs(this.movementInput.moveForward) > 0.05f || abs(this.movementInput.moveStrafe) > 0.05f;
-        runStrictStrafe = strafeFix.getDoFix() && !strafeFix.getSilentFix();
-        noStrafe = RotationUtils.targetRotation == null || !strafeFix.getDoFix();
-        
-        isCurrentUsingItem = getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && Objects.requireNonNull(killAura).getBlockingStatus())) && !this.isRiding();
-        isCurrentUsingSword = getHeldItem() != null && getHeldItem().getItem() instanceof ItemSword && (Objects.requireNonNull(killAura).getBlockingStatus() || this.isUsingItem());
+        final Rotation currentRotation = RotationUtils.targetRotation;
 
-        if (isCurrentUsingItem || (FDPClient.moduleManager.getModule(AutoGap.class).eating && FDPClient.moduleManager.getModule(AutoGap.class).getState())) {
+        // A separate movement input for currentRotation
+        MovementInput modifiedInput = new MovementInput();
+
+        // Recreate inputs
+        modifiedInput.moveForward = movementInput.moveForward;
+        modifiedInput.moveStrafe = movementInput.moveStrafe;
+
+        // Reverse the effects of sneak and apply them after the input variable calculates the input
+        if (movementInput.sneak) {
+            modifiedInput.moveStrafe /= 0.3f;
+            modifiedInput.moveForward /= 0.3f;
+        }
+
+        // Calculate and apply the movement input based on rotation
+        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveForward;
+        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveStrafe;
+
+        modifiedInput.moveForward = moveForward;
+        modifiedInput.moveStrafe = moveStrafe;
+
+        if (movementInput.sneak) {
+            final SneakSlowDownEvent sneakSlowDownEvent = new SneakSlowDownEvent(movementInput.moveStrafe, movementInput.moveForward);
+            FDPClient.eventManager.callEvent(sneakSlowDownEvent);
+            movementInput.moveStrafe = sneakSlowDownEvent.getStrafe();
+            movementInput.moveForward = sneakSlowDownEvent.getForward();
+            // Add the sneak effect back
+            modifiedInput.moveForward *= 0.3f;
+            modifiedInput.moveStrafe *= 0.3f;
+            // Call again the event but this time have the modifiedInput
+            final SneakSlowDownEvent secondSneakSlowDownEvent = new SneakSlowDownEvent(modifiedInput.moveStrafe, modifiedInput.moveForward);
+            FDPClient.eventManager.callEvent(secondSneakSlowDownEvent);
+            modifiedInput.moveStrafe = secondSneakSlowDownEvent.getStrafe();
+            modifiedInput.moveForward = secondSneakSlowDownEvent.getForward();
+        }
+
+        final NoSlow noSlow = NoSlow.INSTANCE;
+        final KillAura killAura = KillAura.INSTANCE;
+
+        boolean isUsingItem = getHeldItem() != null && (isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus()) || NoSlow.INSTANCE.isUNCPBlocking());
+
+        if (isUsingItem && !isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
             FDPClient.eventManager.callEvent(slowDownEvent);
-            this.movementInput.moveStrafe *= slowDownEvent.getStrafe();
-            this.movementInput.moveForward *= slowDownEvent.getForward();
+            movementInput.moveStrafe *= slowDownEvent.getStrafe();
+            movementInput.moveForward *= slowDownEvent.getForward();
+            sprintToggleTimer = 0;
+            modifiedInput.moveStrafe *= slowDownEvent.getStrafe();
+            modifiedInput.moveForward *= slowDownEvent.getForward();
         }
 
         pushOutOfBlocks(posX - width * 0.35, getEntityBoundingBox().minY + 0.5, posZ + width * 0.35);
         pushOutOfBlocks(posX - width * 0.35, getEntityBoundingBox().minY + 0.5, posZ - width * 0.35);
         pushOutOfBlocks(posX + width * 0.35, getEntityBoundingBox().minY + 0.5, posZ - width * 0.35);
         pushOutOfBlocks(posX + width * 0.35, getEntityBoundingBox().minY + 0.5, posZ + width * 0.35);
-        
-        if (!movingStat || runStrictStrafe || noStrafe) {
-            isSprintDirection = this.movementInput.moveForward > 0.05f;
-        }else {
-            isSprintDirection = abs(RotationUtils.getAngleDifference(MovementUtils.INSTANCE.getMovingYaw(), RotationUtils.targetRotation.getYaw())) < 67.0f;
-        }
-        
-        baseIsMoving = (sprint.getState() && sprint.getAllDirectionsValue().get() && (abs(this.movementInput.moveForward) > 0.05f || abs(this.movementInput.moveStrafe) > 0.05f)) || isSprintDirection;
-        baseSprintState = ((!sprint.getHungryValue().get() && sprint.getState()) || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying) && baseIsMoving && (!this.isCollidedHorizontally || sprint.getCollideValue().get()) && (!this.isSneaking() || sprint.getSneakValue().get()) && !this.isPotionActive(Potion.blindness);
-        
-        //Don't check current Sprint state cuz it's not updated in real time :bruh:
 
-        this.setSprinting(sprint.getForceSprint() || baseSprintState && (!isCurrentUsingItem || (sprint.getUseItemValue().get() && (!sprint.getUseItemSwordValue().get() || isCurrentUsingSword))) && attemptToggle);
-        
-        //Overwrite: Scaffold
-        if (Objects.requireNonNull(scaffold2).getState()) {
-            this.setSprinting(scaffold2.getCanSprint());
-        }
-        if (Objects.requireNonNull(scaffold).getState()) {
-            this.setSprinting(scaffold.getCanSprint());
+        final Sprint sprint = Sprint.INSTANCE;
+
+        boolean flag3 = (float) getFoodStats().getFoodLevel() > 6F || capabilities.allowFlying;
+        if (onGround && !flag1 && !flag2 && movementInput.moveForward >= f && !isSprinting() && flag3 && !isUsingItem() && !isPotionActive(Potion.blindness)) {
+            if (sprintToggleTimer <= 0 && !mc.gameSettings.keyBindSprint.isKeyDown()) {
+                sprintToggleTimer = 7;
+            } else {
+                setSprinting(true);
+            }
         }
 
-        //aac may check it :(
-        if (this.capabilities.allowFlying) {
-            if (this.mc.playerController.isSpectatorMode()) {
-                if (!this.capabilities.isFlying) {
-                    this.capabilities.isFlying = true;
-                    this.sendPlayerAbilities();
+        if (!isSprinting() && movementInput.moveForward >= f && flag3 && (noSlow.handleEvents() || !isUsingItem()) && !isPotionActive(Potion.blindness) && mc.gameSettings.keyBindSprint.isKeyDown()) {
+            setSprinting(true);
+        }
+
+        if (isSprinting() && (movementInput.moveForward < f || isCollidedHorizontally || !flag3)) {
+            setSprinting(false);
+        }
+
+        FDPClient.eventManager.callEvent(new SprintUpdateEvent(EventState.POST));
+
+        sprint.correctSprintState(modifiedInput, isUsingItem);
+
+        if (capabilities.allowFlying) {
+            if (mc.playerController.isSpectatorMode()) {
+                if (!capabilities.isFlying) {
+                    capabilities.isFlying = true;
+                    sendPlayerAbilities();
                 }
-            } else if (!lastJumpToggleState && this.movementInput.jump) {
-                if (this.flyToggleTimer == 0) {
-                    this.flyToggleTimer = 7;
+            } else if (!flag && movementInput.jump) {
+                if (flyToggleTimer == 0) {
+                    flyToggleTimer = 7;
                 } else {
-                    this.capabilities.isFlying = !this.capabilities.isFlying;
-                    this.sendPlayerAbilities();
-                    this.flyToggleTimer = 0;
+                    capabilities.isFlying = !capabilities.isFlying;
+                    sendPlayerAbilities();
+                    flyToggleTimer = 0;
                 }
             }
         }
 
-        if (this.capabilities.isFlying && this.isCurrentViewEntity()) {
-            if (this.movementInput.sneak) {
-                this.motionY -= this.capabilities.getFlySpeed() * 3.0F;
+        if (capabilities.isFlying && isCurrentViewEntity()) {
+            if (movementInput.sneak) {
+                motionY -= capabilities.getFlySpeed() * 3f;
             }
 
-            if (this.movementInput.jump) {
-                this.motionY += this.capabilities.getFlySpeed() * 3.0F;
+            if (movementInput.jump) {
+                motionY += capabilities.getFlySpeed() * 3f;
             }
         }
 
-        if (this.isRidingHorse()) {
-            if (this.horseJumpPowerCounter < 0) {
-                ++this.horseJumpPowerCounter;
+        if (isRidingHorse()) {
+            if (horseJumpPowerCounter < 0) {
+                ++horseJumpPowerCounter;
 
-                if (this.horseJumpPowerCounter == 0) {
-                    this.horseJumpPower = 0.0F;
+                if (horseJumpPowerCounter == 0) {
+                    horseJumpPower = 0f;
                 }
             }
 
-            if (lastJumpToggleState && !this.movementInput.jump) {
-                this.horseJumpPowerCounter = -10;
-                this.sendHorseJump();
-            } else if (!lastJumpToggleState && this.movementInput.jump) {
-                this.horseJumpPowerCounter = 0;
-                this.horseJumpPower = 0.0F;
-            } else if (lastJumpToggleState) {
-                ++this.horseJumpPowerCounter;
+            if (flag && !movementInput.jump) {
+                horseJumpPowerCounter = -10;
+                sendHorseJump();
+            } else if (!flag && movementInput.jump) {
+                horseJumpPowerCounter = 0;
+                horseJumpPower = 0f;
+            } else if (flag) {
+                ++horseJumpPowerCounter;
 
-                if (this.horseJumpPowerCounter < 10) {
-                    this.horseJumpPower = (float) this.horseJumpPowerCounter * 0.1F;
+                if (horseJumpPowerCounter < 10) {
+                    horseJumpPower = (float) horseJumpPowerCounter * 0.1F;
                 } else {
-                    this.horseJumpPower = 0.8F + 2.0F / (float) (this.horseJumpPowerCounter - 9) * 0.1F;
+                    horseJumpPower = 0.8F + 2f / (float) (horseJumpPowerCounter - 9) * 0.1F;
                 }
             }
         } else {
-            this.horseJumpPower = 0.0F;
+            horseJumpPower = 0f;
         }
 
         super.onLivingUpdate();
 
-        if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode()) {
-            this.capabilities.isFlying = false;
-            this.sendPlayerAbilities();
+        if (onGround && capabilities.isFlying && !mc.playerController.isSpectatorMode()) {
+            capabilities.isFlying = false;
+            sendPlayerAbilities();
         }
     }
 

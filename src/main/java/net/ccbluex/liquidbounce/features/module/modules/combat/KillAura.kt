@@ -122,9 +122,11 @@ object KillAura : Module() {
     private val groundRangeValue = FloatValue("GroundRange",3.0f,0f,8f).displayable { reachMode.equals("Air") && rangeDisplay.get()}
     private val airRangeValue = FloatValue("AirRange",3.0f,0f,8f).displayable { reachMode.equals("Air") && rangeDisplay.get() }
 
-    private val lowRangeValue = FloatValue("LowTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get()}
+    private val smoothReach = ListValue("SmoothReach", arrayOf("Normal","Smooth"),"Normal").displayable { reachMode.equals("TargetPosY") && rangeDisplay.get()}
+    private val smoothRangeValue = FloatValue("SmoothReachRange",1.0f,0.0f,3.0f).displayable { reachMode.equals("TargetPosY") && smoothReach.get() != "Normal" && rangeDisplay.get()}
+    private val lowRangeValue = FloatValue("LowTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && smoothReach.get() == "Normal" && rangeDisplay.get()}
     private val middleRangeValue = FloatValue("MiddleTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get()}
-    private val highRangeValue = FloatValue("HighTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && rangeDisplay.get() }
+    private val highRangeValue = FloatValue("HighTargetPosYRange",3.0f,0f,8f).displayable { reachMode.equals("TargetPosY") && smoothReach.get() == "Normal" && rangeDisplay.get() }
 
     private val discoverRangeValue = FloatValue("Discover-Range", 6f, 0f, 8f).displayable { rangeDisplay.get() }
 
@@ -133,7 +135,7 @@ object KillAura : Module() {
 
     private val swingRangeValue = object : FloatValue("SwingRange", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val i = discoverRangeValue.get()
+            val i = max( discoverRangeValue.get(), rangeValue.get() )
             if (i < newValue) set(i)
             if (maxRange > newValue) set(maxRange)
         }
@@ -345,7 +347,7 @@ object KillAura : Module() {
     // Random Value
     private val randomCenterModeValue = ListValue(
         "RandomCenter",
-        arrayOf("Off", "Cubic", "Horizontal", "Vertical"),
+        arrayOf("Off", "Cubic", "Horizontal", "Vertical","Noise"),
         "Off"
     ).displayable { rotationDisplay.get() }
     private val randomCenRangeValue = FloatValue(
@@ -354,6 +356,33 @@ object KillAura : Module() {
         0.0f,
         1.2f
     ).displayable { !randomCenterModeValue.equals("Off") && rotationDisplay.get() }
+    val minPitchFactor = FloatValue("Min Pitch Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val minYawFactor = FloatValue("Min Yaw Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val maxPitchFactor = FloatValue("Max Pitch Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val maxYawFactor = FloatValue("Max Yaw Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val dynamicPitchFactor = FloatValue("Dynaimc Pitch Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val dynamicYawFactor = FloatValue("Dynaimc Yaw Factor", 0F, 0F, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val tolerance = FloatValue("Tolerance", 0.1f, 0.01f, 0.1f).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val minSpeed = FloatValue("Min Speed", 0.1f, 0.01f, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
+    val maxSpeed = FloatValue("Max Speed", 0.2f, 0.01f, 1F).displayable {
+        randomCenterModeValue.get() == "Noise"
+    }
 
     // Keep Rotate
     private val rotationRevValue = BoolValue(
@@ -652,14 +681,13 @@ object KillAura : Module() {
             }
             "targetposy" -> this.currentTarget?.let {
                 val posY = mc.thePlayer?.posY ?: return
-                rangeValue.apply {
-                    set(
-                        when {
-                            it.posY > posY -> highRangeValue.get()
-                            it.posY == posY -> middleRangeValue.get()
-                            else -> lowRangeValue.get()
-                        })
-                }
+                val smooth = (it.posY - posY) * smoothRangeValue.get() + middleRangeValue.get()
+                val reach = when {
+                    it.posY > posY -> highRangeValue.get()
+                    it.posY == posY -> middleRangeValue.get()
+                    else -> lowRangeValue.get()
+                }.takeIf { smoothReach.get() == "Normal" } ?: smooth
+                rangeValue.set(reach)
             } ?: rangeValue.set(middleRangeValue.get())
         }
 

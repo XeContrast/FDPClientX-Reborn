@@ -204,6 +204,16 @@ class WorldEvent(val worldClient: WorldClient?) : Event()
  */
 class ClickWindowEvent(val windowId: Int, val slotId: Int, val mouseButtonClicked: Int, val mode: Int) : CancellableEvent()
 
+class SprintUpdateEvent(eventState: EventState) : Event()
+
+/**
+ * Called in "onLivingUpdate" when the player is sneaking.
+ *
+ * @param strafe the applied strafe slow down
+ * @param forward the applied forward slow down
+ */
+class SneakSlowDownEvent(var strafe: Float, var forward: Float) : Event()
+
 object ClickUpdateEvent : CancellableEvent() {
     fun reInit() {
         isCancelled = false

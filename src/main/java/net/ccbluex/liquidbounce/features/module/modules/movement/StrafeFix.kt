@@ -20,7 +20,7 @@ import kotlin.math.*
 @ModuleInfo(name = "StrafeFix", category = ModuleCategory.MOVEMENT)
 object StrafeFix : Module() {
 
-    private val silentFixVaule = BoolValue("Silent", true)
+    val silentFixVaule = BoolValue("Silent", true)
     
     /**
      * Strafe Fix

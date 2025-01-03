@@ -49,6 +49,11 @@ object MathUtils {
         return Math.random() * (max - min) + min
     }
 
+    @JvmStatic
+    fun randomizeFloat(min: Float, max: Float): Float {
+        return (Math.random() * (max - min) + min).toFloat()
+    }
+
     fun getDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
         return sqrt((x1 - x2).pow((2).toDouble()) + (y1 - y2).pow((2).toDouble()))
     }

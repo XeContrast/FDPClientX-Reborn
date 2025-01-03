@@ -38,7 +38,7 @@ object AntiStaff : Module() {
     private val packet = BoolValue("Packet", true)
     private val velocity = BoolValue("Velocity", false)
 
-    private val autoLeave = ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby", "Quit"), "Off").displayable { tab1.get() || packet.get() }
+    private val autoLeave = ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby","HUB", "Quit"), "Off").displayable { tab1.get() || packet.get() }
 
     private val spectator = BoolValue("StaffSpectator", false).displayable { tab1.get() || packet.get() }
     private val otherSpectator = BoolValue("OtherSpectator", false).displayable { tab1.get() || packet.get() }
@@ -326,6 +326,7 @@ object AntiStaff : Module() {
             when (autoLeave.get().lowercase()) {
                 "leave" -> mc.thePlayer.sendChatMessage("/leave")
                 "lobby" -> mc.thePlayer.sendChatMessage("/lobby")
+                "hub" -> mc.thePlayer.sendChatMessage("/hub")
                 "quit" -> mc.theWorld.sendQuittingDisconnectingPacket()
             }
             attemptLeave = true

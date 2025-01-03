@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.features.module.modules.client
 
+import net.ccbluex.liquidbounce.event.EventState
 import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.MotionEvent
 import net.ccbluex.liquidbounce.features.module.Module
@@ -32,18 +33,19 @@ object Rotations : Module() {
 
     @EventTarget
     fun onMotion(event: MotionEvent) {
+        if (event.eventState != EventState.POST)
+            return
+
         val thePlayer = mc.thePlayer ?: return
 
+        val targetRotation = getRotation() ?: serverRotation
+
         prevHeadPitch = headPitch
-        headPitch = serverRotation!!.pitch
+        headPitch = targetRotation?.pitch ?: return
 
-        if (!shouldRotate() || realistic.get()) {
-            return
-        }
+        thePlayer.rotationYawHead = targetRotation.yaw
 
-        thePlayer.rotationYawHead = serverRotation!!.yaw
-
-        if (body.get()) {
+        if (shouldRotate() && body.get() && !realistic.get()) {
             thePlayer.renderYawOffset = thePlayer.rotationYawHead
         }
 
@@ -81,8 +83,8 @@ object Rotations : Module() {
      * Which rotation should the module use?
      */
     fun getRotation(): Rotation? {
-        return if (smooth.get() && lastRotation != null && targetRotation != null) {
-            smoothRotation(lastRotation!!, targetRotation!!)
+        return if (smooth.get() && targetRotation != null) {
+            smoothRotation(lastRotation ?: return targetRotation, targetRotation!!)
         } else {
             targetRotation
         }

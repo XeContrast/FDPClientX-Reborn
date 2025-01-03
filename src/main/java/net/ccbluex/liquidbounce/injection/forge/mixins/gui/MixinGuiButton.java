@@ -59,7 +59,7 @@ public abstract class MixinGuiButton extends Gui {
     */
    @Inject(method = "drawButton", at = @At("HEAD"), cancellable = true)
    public void drawButton(Minecraft mc, int mouseX, int mouseY, CallbackInfo ci) {
-      if(this.buttonRenderer != null) {
+      if(this.buttonRenderer != null && ClientSpoof.INSTANCE.getRender().get()) {
          if(!visible) {
             return;
          }
