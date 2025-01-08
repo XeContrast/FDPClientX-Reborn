@@ -76,7 +76,7 @@ public class LiquidBounceStyle extends Style {
             if(moduleElement.isShowSettings()) {
                 int yPos = moduleElement.getY() + 4;
                 for(final Value value : moduleValues) {
-                    if(!value.getDisplayable())
+                    if(!value.getStateDisplayable())
                         continue;
 
                     if (value instanceof BoolValue) {

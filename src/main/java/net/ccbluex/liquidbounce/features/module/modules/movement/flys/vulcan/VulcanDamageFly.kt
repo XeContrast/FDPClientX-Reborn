@@ -23,11 +23,11 @@ import kotlin.math.sin
 class VulcanDamageFly : FlyMode("VulcanDamage") {
     private val bypassMode = ListValue("${valuePrefix}BypassMode", arrayOf("Damage", "SelfDamage", "InstantDamage", "Flag"), "InstantDamage")
     private val flyMode = ListValue("${valuePrefix}FlyMode", arrayOf("Timer", "CancelMove", "Clip"), "CancelMove")
-    private val flyHSpeedValue = FloatValue("${valuePrefix}Horizontal", 1.0f, 0.5f, 2.5f).displayable{ flyMode.equals("CancelMove") }
-    private val flyVSpeedValue = FloatValue("${valuePrefix}Vertical", 0.42f, 0.42f, 2.5f).displayable{ flyMode.equals("CancelMove") }
+    private val flyHSpeedValue = FloatValue("${valuePrefix}Horizontal", 1.0f, 0.5f, 2.5f){ flyMode.equals("CancelMove") }
+    private val flyVSpeedValue = FloatValue("${valuePrefix}Vertical", 0.42f, 0.42f, 2.5f){ flyMode.equals("CancelMove") }
     private val flyDistanceValue = FloatValue("${valuePrefix}Distance", 10.0f, 6.0f, 10.0f)
     private val autoDisableValue = BoolValue("${valuePrefix}AutoDisable", true)
-    private val flyTimerValue = FloatValue("${valuePrefix}Timer", 0.05f, 0.05f, 0.25f).displayable{ flyMode.equals("Timer") }
+    private val flyTimerValue = FloatValue("${valuePrefix}Timer", 0.05f, 0.05f, 0.25f){ flyMode.equals("Timer") }
     private var waitFlag = false
     private var isStarted = false
     var isDamaged = false

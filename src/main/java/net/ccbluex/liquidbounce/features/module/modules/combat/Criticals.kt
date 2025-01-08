@@ -44,7 +44,7 @@ object Criticals : Module() {
     }
     val delayValue = IntegerValue("Delay", 0, 0, 500)
     val s08FlagValue = BoolValue("FlagPause", true)
-    private val s08DelayValue = IntegerValue("FlagPause-Time", 100, 100, 5000).displayable { s08FlagValue.get() }
+    private val s08DelayValue = IntegerValue("FlagPause-Time", 100, 100, 5000) { s08FlagValue.get() }
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val CritTiming = ListValue("CritTiming", arrayOf("Always", "OnGround", "OffGround"), "Always")
     private val lookValue = BoolValue("UseC06Packet", false)
@@ -203,11 +203,11 @@ object Criticals : Module() {
 
     override val values = super.values.toMutableList().also {
         modes.map {
-            mode -> mode.values.forEach { value ->
-                //it.add(value.displayable { modeValue.equals(mode.modeName) })
-                val displayableFunction = value.displayableFunction
-                it.add(value.displayable { displayableFunction.invoke() && modeValue.equals(mode.modeName) })
-            }
+                mode -> mode.values.forEach { value ->
+            //it.add(value.displayable { modeValue.equals(mode.modeName) })
+            val displayableFunction = value.displayableFunction
+            it.add(value.displayable { displayableFunction.invoke() && modeValue.equals(mode.modeName) })
+        }
         }
     }
 }

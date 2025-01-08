@@ -109,6 +109,11 @@ public abstract class MixinEntityRenderer {
     @Unique
     public double prevRenderZ = 0d;
 
+    /**
+     * @author XeContrast
+     * @reason MotionCamera && CameraClip Fix
+     */
+
     @Inject(method = "orientCamera",at = @At("HEAD"), cancellable = true)
     private void change(float p_orientCamera_1_, CallbackInfo ci) {
         Entity entity = this.mc.getRenderViewEntity();
@@ -150,7 +155,7 @@ public abstract class MixinEntityRenderer {
                 double d5 = (double)(MathHelper.cos(f1 / 180.0F * 3.1415927F) * MathHelper.cos(f2 / 180.0F * 3.1415927F)) * d3;
                 double d6 = (double)(-MathHelper.sin(f2 / 180.0F * 3.1415927F)) * d3;
 
-                int value = CameraModule.INSTANCE.handleEvents() && CameraModule.INSTANCE.getMotionCamera().get() ? 0 : 8;
+                int value = CameraModule.INSTANCE.handleEvents() && CameraModule.INSTANCE.getCameraclip().get() ? 0 : 8;
                 for(int i = 0; i < value; ++i) {
                     float f3 = (float)((i & 1) * 2 - 1);
                     float f4 = (float)((i >> 1 & 1) * 2 - 1);
@@ -336,7 +341,7 @@ public abstract class MixinEntityRenderer {
             final Reach reach = FDPClient.moduleManager.getModule(Reach.class);
 
             double d0 = Objects.requireNonNull(reach).getState() ? reach.getMaxRange() : mc.playerController.getBlockReachDistance();
-            this.mc.objectMouseOver = entity.rayTrace(reach.getState() ? reach.getBuildReachValue().get() : d0, p_getMouseOver_1_);
+            this.mc.objectMouseOver = entity.rayTrace(reach.getState() ? reach.getBuildReachValue() : d0, p_getMouseOver_1_);
             double d1 = d0;
             Vec3 vec3 = entity.getPositionEyes(p_getMouseOver_1_);
             boolean flag = false;
@@ -353,7 +358,7 @@ public abstract class MixinEntityRenderer {
 
             if(reach.getState()) {
 
-                final MovingObjectPosition movingObjectPosition = entity.rayTrace(reach.getBuildReachValue().get(), p_getMouseOver_1_);
+                final MovingObjectPosition movingObjectPosition = entity.rayTrace(reach.getBuildReachValue(), p_getMouseOver_1_);
 
                 if(movingObjectPosition != null) d1 = movingObjectPosition.hitVec.distanceTo(vec3);
             }
@@ -407,7 +412,7 @@ public abstract class MixinEntityRenderer {
                     }
                 }
             }
-            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (reach.getState() ? reach.getCombatReachValue().get() : 3)) {
+            if (pointedEntity != null && flag && vec3.distanceTo(vec33) > (reach.getState() ? reach.getCombatReachValue() : 3)) {
                 this.pointedEntity = null;
                 this.mc.objectMouseOver = new MovingObjectPosition(MovingObjectPosition.MovingObjectType.MISS, Objects.requireNonNull(vec33), null, new BlockPos(vec33));
             }

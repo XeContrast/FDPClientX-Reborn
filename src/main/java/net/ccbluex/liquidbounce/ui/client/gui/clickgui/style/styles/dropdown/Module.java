@@ -120,11 +120,11 @@ public class Module {
                         scaledResolution.getScaledHeight() * 2 - y * 2 - yPerModule * 2,scaledResolution.getScaledWidth() * 2,
                         yPerModule * 2);
                 GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                settings.stream().filter(s -> s.setting.getDisplayable()).forEach(setting -> setting.drawScreen(mouseX, mouseY));
+                settings.stream().filter(s -> s.setting.getStateDisplayable()).forEach(setting -> setting.drawScreen(mouseX, mouseY));
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
-                settings.stream().filter(s ->!s.setting.getDisplayable()).forEach(setting -> setting.setPercent(0));
+                settings.stream().filter(s ->!s.setting.getStateDisplayable()).forEach(setting -> setting.setPercent(0));
             } else {
-                settings.stream().filter(s -> s.setting.getDisplayable() ).forEach(setting -> setting.drawScreen(mouseX, mouseY));
+                settings.stream().filter(s -> s.setting.getStateDisplayable() ).forEach(setting -> setting.drawScreen(mouseX, mouseY));
             }
         } else {
             settings.forEach(setting -> setting.setPercent(0));
@@ -145,14 +145,14 @@ public class Module {
 
     public void keyTyped(char typedChar, int keyCode) {
         if (opened) {
-            settings.stream().filter(s -> s.setting.getDisplayable()).forEach(setting -> setting.keyTyped(typedChar, keyCode));
+            settings.stream().filter(s -> s.setting.getStateDisplayable()).forEach(setting -> setting.keyTyped(typedChar, keyCode));
         }
     }
 
     public int getY() {
         if (opened) {
             int gay = 17;
-            for (Setting setting : settings.stream().filter(s -> s.setting.getDisplayable() ).collect(Collectors.toList())) {
+            for (Setting setting : settings.stream().filter(s -> s.setting.getStateDisplayable() ).collect(Collectors.toList())) {
                 gay += 15;
             }
             return gay;
@@ -190,7 +190,7 @@ public class Module {
 
         }
         if (opened) {
-            settings.stream().filter(s -> s.setting.getDisplayable()).forEach(setting -> {
+            settings.stream().filter(s -> s.setting.getStateDisplayable()).forEach(setting -> {
                 try {
                     setting.mouseClicked(mouseX, mouseY, mouseButton);
                 } catch (IOException e) {
@@ -201,7 +201,7 @@ public class Module {
     }
     public void mouseReleased(int mouseX, int mouseY, int state) {
         if (opened) {
-            settings.stream().filter(s -> s.setting.getDisplayable()).forEach(setting -> setting.mouseReleased(mouseX, mouseY, state));
+            settings.stream().filter(s -> s.setting.getStateDisplayable()).forEach(setting -> setting.mouseReleased(mouseX, mouseY, state));
         }
     }
     public boolean isHovered(int mouseX, int mouseY) {

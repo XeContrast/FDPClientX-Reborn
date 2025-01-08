@@ -14,11 +14,6 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.steps.StepMode
 import net.minecraft.network.play.client.C03PacketPlayer
 
 class AAC440 : StepMode("AAC4.4.0") {
-    override fun onUpdate(event: UpdateEvent) {
-        Step.off = false
-        Step.doncheck = false
-    }
-
     override fun onStep(event: StepEvent) {
         if (event.eventState == EventState.PRE) {
             if (event.stepHeight > 0.6F && !canStep) return

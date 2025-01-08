@@ -42,10 +42,10 @@ object HotbarSettings : Module() {
     private val hotbarAlphaValue = IntegerValue("HotbarAlpha", 70, 0, 255)
     private val hotbarEaseValue = BoolValue("HotbarEase", true)
     private val BlurValue = BoolValue("Blur", false)
-    private val BlurAmount = FloatValue("BlurAmount", 10F, 1F, 100F).displayable { BlurValue.get() }
+    private val BlurAmount = FloatValue("BlurAmount", 10F, 1F, 100F) { BlurValue.get() }
     private val ItemCountValue = BoolValue("ItemColorCount", false)
     private val ItemFontValue = ListValue("ItemFont", arrayOf("MiSans", "Minecraft"), "Minecraft")
-    private val hotbarAnimSpeedValue = IntegerValue("HotbarAnimSpeed", 10, 5, 20).displayable { hotbarEaseValue.get() }
+    private val hotbarAnimSpeedValue = IntegerValue("HotbarAnimSpeed", 10, 5, 20) { hotbarEaseValue.get() }
     private val hotbarAnimTypeValue = EaseUtils.getEnumEasingList("HotbarAnimType").displayable { hotbarEaseValue.get() }
     private val hotbarAnimOrderValue = EaseUtils.getEnumEasingOrderList("HotbarAnimOrder").displayable { hotbarEaseValue.get() }
     @EventTarget

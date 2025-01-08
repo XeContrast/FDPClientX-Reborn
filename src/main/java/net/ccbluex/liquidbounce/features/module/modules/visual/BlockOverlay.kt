@@ -28,9 +28,9 @@ import java.awt.Color
 @ModuleInfo(name = "BlockOverlay", category = ModuleCategory.VISUAL)
 object BlockOverlay : Module() {
 
-    private val colorRedValue = IntegerValue("Red", 68, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("Green", 117, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { !colorRainbowValue.get() }
+    private val colorRedValue = IntegerValue("Red", 68, 0, 255) { !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("Green", 117, 0, 255) { !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("Blue", 255, 0, 255) { !colorRainbowValue.get() }
     private val colorAlphaValue = IntegerValue("Alpha", 100, 0, 255)
     private val colorRainbowValue = BoolValue("Rainbow", false)
     private val colorWidthValue = FloatValue("LineWidth", 2.0F, 0.0F, 10.0F)

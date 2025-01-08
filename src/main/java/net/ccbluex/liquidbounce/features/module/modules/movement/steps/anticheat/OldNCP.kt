@@ -8,8 +8,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class OldNCP : StepMode("OldNPC") {
     override fun onPacket(event: PacketEvent) {
-        Step.off = true
-        Step.doncheck = true
         val packet = event.packet
 
         if (packet is C03PacketPlayer && isStep) {

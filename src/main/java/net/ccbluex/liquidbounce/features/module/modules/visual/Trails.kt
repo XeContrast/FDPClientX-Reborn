@@ -31,9 +31,9 @@ import java.awt.Color
 object Trails : Module() {
 
     private val typeValue = ListValue("Type", arrayOf("Line", "Rect",  "heart", "lava", "smoke", "cloud", "flame", "slime", "water", "firework"), "Lava")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.displayable }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.displayable }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.displayable }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.stateDisplayable }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.stateDisplayable }
+    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() && colorAlphaValue.stateDisplayable }
     private val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255).displayable { typeValue.equals("Line") || typeValue.equals("Rect") }
     private val colorRainbowValue = BoolValue("Rainbow", false).displayable { typeValue.equals("Line") || typeValue.equals("Rect") }
     private val fadeValue = BoolValue("Fade", true)

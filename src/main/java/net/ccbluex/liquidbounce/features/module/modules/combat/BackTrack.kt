@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @ModuleInfo("Backtrack", category = ModuleCategory.COMBAT)
 object Backtrack : Module() {
 
-    private val nextBacktrackDelay = IntegerValue("NextBacktrackDelay", 0, 0,2000).displayable { mode.get() == "Modern" }
+    private val nextBacktrackDelay = IntegerValue("NextBacktrackDelay", 0, 0,2000) { mode.get() == "Modern" }
     private val maxDelay: IntegerValue = object : IntegerValue("MaxDelay", 80, 0,700) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelay.get()
@@ -72,10 +72,10 @@ object Backtrack : Module() {
         "Caching mode",
         arrayOf("ClientPos", "ServerPos"),
         "ClientPos"
-    ).displayable { mode.get() == "Legacy" }
+    ) { mode.get() == "Legacy" }
 
     // Modern
-    private val style = ListValue("Style", arrayOf("Pulse", "Smooth"), "Smooth").displayable { mode.get() == "Modern" }
+    private val style = ListValue("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode.get() == "Modern" }
 
     private val maxDistance: FloatValue = object : FloatValue("MaxDistance", 3.0f, 0.0f,3.5f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
@@ -90,17 +90,17 @@ object Backtrack : Module() {
             if (i < newValue) set(i)
         }
     }
-    private val smart = BoolValue("Smart", true).displayable { mode.get() == "Modern" }
+    private val smart = BoolValue("Smart", true) { mode.get() == "Modern" }
 
     // ESP
     private val espMode = ListValue(
         "ESP-Mode",
         arrayOf("None", "Box", "Model", "Wireframe"),
         "Box",
-    ).displayable { mode.get() == "Modern" }
-    private val wireframeWidth = FloatValue("WireFrame-Width", 1f, 0.5f,5f).displayable { espMode.get() == "WireFrame" }
+    ) { mode.get() == "Modern" }
+    private val wireframeWidth = FloatValue("WireFrame-Width", 1f, 0.5f,5f) { espMode.get() == "WireFrame" }
 
-    private val espColorMode = ListValue("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom").displayable { espMode.get() != "Model" && mode.get() == "Modern" }
+    private val espColorMode = ListValue("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom") { espMode.get() != "Model" && mode.get() == "Modern" }
     private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false) { espColorMode.get() == "Custom" && espMode.get() != "Model" && mode.get() == "Modern" }.with(0, 255, 0)
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
@@ -122,7 +122,7 @@ object Backtrack : Module() {
         get() = if (mode.get() == "Modern") modernDelay.first else maxDelay.get()
 
     // Legacy
-    private val maximumCachedPositions = IntegerValue("MaxCachedPositions", 10, 1,20).displayable { mode.get() == "Legacy" }
+    private val maximumCachedPositions = IntegerValue("MaxCachedPositions", 10, 1,20) { mode.get() == "Legacy" }
 
     private val backtrackedPlayer = ConcurrentHashMap<UUID, MutableList<BacktrackData>>()
 

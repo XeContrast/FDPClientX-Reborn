@@ -4,8 +4,6 @@
 
 Follow me on BiliBili: https://space.bilibili.com/1353540064
 
-![image](funny.png)
-
 </div>
 
 <div align="Center">

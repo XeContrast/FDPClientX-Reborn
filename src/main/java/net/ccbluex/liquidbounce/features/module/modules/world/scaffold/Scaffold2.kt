@@ -53,7 +53,7 @@ import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.*
 
 @ModuleInfo(name = "Scaffold2", category = ModuleCategory.WORLD)
-class Scaffold2 : Module() {
+object Scaffold2 : Module() {
     private val autodis = BoolValue("AutoDisable", true)
 
     //    private val modeValue = ListValue("Mode", arrayOf("Normal", "TellyBridge"), "Normal")
@@ -81,23 +81,23 @@ class Scaffold2 : Module() {
 
     // ConstantMotion
     private val constantMotionValue =
-        FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("ConstantMotion") }
+        FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f) { towerModeValue.equals("ConstantMotion") }
     private val constantMotionJumpGroundValue = FloatValue(
         "TowerConstantMotionJumpGround",
         0.79f,
         0.76f,
         1f
-    ).displayable { towerModeValue.equals("ConstantMotion") }
+    ) { towerModeValue.equals("ConstantMotion") }
 
     // Teleport
     private val teleportHeightValue =
-        FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f).displayable { towerModeValue.equals("Teleport") }
+        FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f) { towerModeValue.equals("Teleport") }
     private val teleportDelayValue =
-        IntegerValue("TowerTeleportDelay", 0, 0, 20).displayable { towerModeValue.equals("Teleport") }
+        IntegerValue("TowerTeleportDelay", 0, 0, 20) { towerModeValue.equals("Teleport") }
     private val teleportGroundValue =
-        BoolValue("TowerTeleportGround", true).displayable { towerModeValue.equals("Teleport") }
+        BoolValue("TowerTeleportGround", true) { towerModeValue.equals("Teleport") }
     private val teleportNoMotionValue =
-        BoolValue("TowerTeleportNoMotion", false).displayable { towerModeValue.equals("Teleport") }
+        BoolValue("TowerTeleportNoMotion", false) { towerModeValue.equals("Teleport") }
 
     private val towerFakeJump = BoolValue("TowerFakeJump", true)
 
@@ -163,7 +163,7 @@ class Scaffold2 : Module() {
         0,
         0,
         10
-    ).displayable { eagleValue.equals("Normal") || eagleValue.equals("Smart") }
+    ) { eagleValue.equals("Normal") || eagleValue.equals("Smart") }
     private val edgeDistanceValue =
         FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f) { eagleValue.equals("Normal") || eagleValue.equals("Smart") }
 
@@ -171,7 +171,7 @@ class Scaffold2 : Module() {
     private val expandMode = ListValue("ExpandMode", arrayOf("LiquidBounce", "Sigma"), "LiquidBounce")
     private val expandOnlyMove = BoolValue("ExpandOnlyMove", true)
     private val expandOnlyMoveOnlyGround =
-        BoolValue("ExpandOnlyMoveOnlyGround", true).displayable { expandOnlyMove.get() }
+        BoolValue("ExpandOnlyMoveOnlyGround", true) { expandOnlyMove.get() }
     private val expandLengthValue = IntegerValue("ExpandLength", 0, 0, 6)
 
     private val shouldExpand
@@ -183,13 +183,13 @@ class Scaffold2 : Module() {
     private val towerRotationsValue = ListValue("TowerRotations", rotationValues, "Normal")
     private val aacYawOffsetValue = IntegerValue("AACYawOffset", 0, 0, 90)
     private val customYawValue =
-        IntegerValue("CustomYaw", -145, -180, 180).displayable { rotationsValue.equals("Custom") }
+        IntegerValue("CustomYaw", -145, -180, 180) { rotationsValue.equals("Custom") }
     private val customPitchValue =
-        FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") }
+        FloatValue("CustomPitch", 82.4f, -90f, 90f) { rotationsValue.equals("Custom") }
     private val customTowerYawValue =
-        IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { towerRotationsValue.equals("Custom") }
+        IntegerValue("CustomTowerYaw", -145, -180, 180) { towerRotationsValue.equals("Custom") }
     private val customTowerPitchValue =
-        FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { towerRotationsValue.equals("Custom") }
+        FloatValue("CustomTowerPitch", 79f, -90f, 90f) { towerRotationsValue.equals("Custom") }
     private val silentRotationValue = BoolValue("SilentRotation", true)
     private val keepRotationValue = BoolValue("KeepRotation", true)
     private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20) { !keepRotationValue.get() }
@@ -201,9 +201,9 @@ class Scaffold2 : Module() {
 
     // XZ/Y range
     private val searchMode = ListValue("XYZSearch", arrayOf("Auto", "AutoCenter", "Manual", "Sigma"), "AutoCenter")
-    private val xzRangeValue = FloatValue("xzRange", 0.8f, 0f, 1f).displayable { searchMode.equals("Manual") }
-    private var yRangeValue = FloatValue("yRange", 0.8f, 0f, 1f).displayable { searchMode.equals("Manual") }
-    private val minDistValue = FloatValue("MinDist", 0.0f, 0.0f, 0.2f).displayable { searchMode.equals("Manual") }
+    private val xzRangeValue = FloatValue("xzRange", 0.8f, 0f, 1f) { searchMode.equals("Manual") }
+    private var yRangeValue = FloatValue("yRange", 0.8f, 0f, 1f) { searchMode.equals("Manual") }
+    private val minDistValue = FloatValue("MinDist", 0.0f, 0.0f, 0.2f) { searchMode.equals("Manual") }
 
     // Search Accuracy
     private val searchAccuracyValue: IntegerValue = IntegerValue("SearchAccuracy", 8, 1, 16)
@@ -212,13 +212,13 @@ class Scaffold2 : Module() {
     private val towerSearchMode =
         ListValue("Tower-XYZSearch", arrayOf("Auto", "AutoCenter", "Manual", "Sigma"), "AutoCenter")
     private val towerXZRangeValue =
-        FloatValue("Tower-xzRange", 0.8f, 0f, 1f).displayable { towerSearchMode.equals("Manual") }
+        FloatValue("Tower-xzRange", 0.8f, 0f, 1f) { towerSearchMode.equals("Manual") }
     private var towerYRangeValue = FloatValue("Tower-yRange", 0.8f, 0f, 1f) { towerSearchMode.equals("Manual") }
     private val towerMinDistValue = FloatValue("Tower-MinDist", 0.0f, 0.0f, 0.2f) { towerSearchMode.equals("Manual") }
 
     // Tower Search Accuracy
     private val towerSearchAccuracyValue: IntegerValue =
-        IntegerValue("Tower-SearchAccuracy", 8, 1, 16).displayable { towerSearchMode.equals("Manual") } as IntegerValue
+        IntegerValue("Tower-SearchAccuracy", 8, 1, 16) { towerSearchMode.equals("Manual") } as IntegerValue
 
     // Turn Speed
     private val maxTurnSpeedValue: FloatValue = object : FloatValue("MaxTurnSpeed", 180f, 1f, 180f) {
@@ -252,8 +252,8 @@ class Scaffold2 : Module() {
 
     // Zitter
     private val zitterMode = ListValue("Zitter", arrayOf("Off", "Teleport", "Smooth"), "Off")
-    private val zitterSpeed = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f).displayable { !zitterMode.equals("Off") }
-    private val zitterStrength = FloatValue("ZitterStrength", 0.05f, 0f, 0.2f).displayable { !zitterMode.equals("Off") }
+    private val zitterSpeed = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f) { !zitterMode.equals("Off") }
+    private val zitterStrength = FloatValue("ZitterStrength", 0.05f, 0f, 0.2f) { !zitterMode.equals("Off") }
 
     // Game
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 10f)
@@ -266,7 +266,7 @@ class Scaffold2 : Module() {
     // Safety
     private val sameYJumpUp = BoolValue("SameYJumpUp", true)
     private val safeWalkValue = BoolValue("SafeWalk", false)
-    private val airSafeValue = BoolValue("AirSafe", false).displayable { safeWalkValue.get() }
+    private val airSafeValue = BoolValue("AirSafe", false) { safeWalkValue.get() }
     private val round45 = BoolValue("RotationYawRound45", false)
     private val grimACRotation = BoolValue("GrimACRotation", false)
     private val extraClick = ListValue("ExtraClick", arrayOf("None", "RandomCPS"), "None")
@@ -374,13 +374,6 @@ class Scaffold2 : Module() {
 
     private var jumpGround = 0.0
     private val timer = TickTimer()
-
-    fun onStrafe(event: StrafeEvent) {
-        if (speedTelly.get()) {
-            RotationUtils.targetRotation!!.applyStrafeToPlayer(event, false)
-            event.cancelEvent()
-        }
-    }
 
     /**
      * Move player
@@ -528,7 +521,7 @@ class Scaffold2 : Module() {
 
     /** @param */
 
-    @EventTarget
+    @EventTarget()
     fun onUpdate(event: UpdateEvent) {
         if (autodis.get()) {
             if (blocksAmount == 0) {
@@ -536,6 +529,9 @@ class Scaffold2 : Module() {
                 alert("Disable Scaffold")
             }
         }
+
+        mc.thePlayer.isSprinting = canSprint
+        mc.thePlayer.serverSprintState = canSprint
 
         towering = !(towerModeValue.equals("Jump")) && mc.gameSettings.keyBindJump.isKeyDown
 
@@ -1291,6 +1287,10 @@ class Scaffold2 : Module() {
         facesBlock = false
         mc.timer.timerSpeed = 1f
         shouldGoDown = false
+
+        RotationUtils.serverRotation?.let {
+            RotationUtils.setTargetRotation(it)
+        }
 
         if (slot != mc.thePlayer!!.inventory.currentItem) {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer!!.inventory.currentItem))

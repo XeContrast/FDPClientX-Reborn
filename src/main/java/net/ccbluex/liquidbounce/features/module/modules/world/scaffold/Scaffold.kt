@@ -61,13 +61,13 @@ class Scaffold : Module() {
             val i = minDelayValue.get()
             if (i > newValue) set(i)
         }
-    }.displayable { !placeableDelayValue.equals("OFF") && placeableDelayValue.displayable } as IntegerValue
+    }.displayable { !placeableDelayValue.equals("OFF") && placeableDelayValue.stateDisplayable } as IntegerValue
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 0, 0, 1000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = maxDelayValue.get()
             if (i < newValue) set(i)
         }
-    }.displayable { !placeableDelayValue.equals("OFF") && placeableDelayValue.displayable } as IntegerValue
+    }.displayable { !placeableDelayValue.equals("OFF") && placeableDelayValue.stateDisplayable } as IntegerValue
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal").displayable { placeOptions.get() }
     private val searchValue = BoolValue("Search", true).displayable { placeOptions.get() }
@@ -90,12 +90,12 @@ class Scaffold : Module() {
     private val eagleValue = ListValue("Eagle", arrayOf("Silent", "Normal", "Legit", "Off"), "Off").displayable { moveOptions.get() }
     private val eaglelegitvalue = IntegerValue("LegitEagle-Ticks", 30, 0, 1000).displayable { eagleValue.equals("Legit") }
     private val eaglelegitpacketvalue = BoolValue("LegitEagle-Silent", false).displayable { eagleValue.equals("Legit") }
-    private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") && !eagleValue.equals("Legit") && eagleValue.displayable  }
-    private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") && !eagleValue.equals("Legit") && eagleValue.displayable }
+    private val blocksToEagleValue = IntegerValue("BlocksToEagle", 0, 0, 10).displayable { !eagleValue.equals("Off") && !eagleValue.equals("Legit") && eagleValue.stateDisplayable  }
+    private val edgeDistanceValue = FloatValue("EagleEdgeDistance", 0f, 0f, 0.5f).displayable { !eagleValue.equals("Off") && !eagleValue.equals("Legit") && eagleValue.stateDisplayable }
 
     private val timerValue = FloatValue("Timer", 1f, 0.1f, 5f).displayable { moveOptions.get() }
     private val motionSpeedEnabledValue = BoolValue("MotionSpeedSet", false).displayable { moveOptions.get() }
-    private val motionSpeedValue = FloatValue("MotionSpeed", 0.15f, 0.05f, 0.5f).displayable { motionSpeedEnabledValue.get() && motionSpeedEnabledValue.displayable }
+    private val motionSpeedValue = FloatValue("MotionSpeed", 0.15f, 0.05f, 0.5f).displayable { motionSpeedEnabledValue.get() && motionSpeedEnabledValue.stateDisplayable }
     private val speedModifierValue = FloatValue("SpeedModifier", 1f, 0f, 2f).displayable { moveOptions.get() }
 
 
@@ -122,23 +122,23 @@ class Scaffold : Module() {
 
 
     // Jump mode
-    private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") && towerModeValue.displayable }
-    private val jumpDelayValue = IntegerValue("TowerJumpDelay", 0, 0, 20).displayable { towerModeValue.equals("Jump") && towerModeValue.displayable }
+    private val jumpMotionValue = FloatValue("TowerJumpMotion", 0.42f, 0.3681289f, 0.79f).displayable { towerModeValue.equals("Jump") && towerModeValue.stateDisplayable }
+    private val jumpDelayValue = IntegerValue("TowerJumpDelay", 0, 0, 20).displayable { towerModeValue.equals("Jump") && towerModeValue.stateDisplayable }
 
     // Stable/PlusMotion
-    private val stableMotionValue = FloatValue("TowerStableMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("StableMotion") && towerModeValue.displayable }
-    private val plusMotionValue = FloatValue("TowerPlusMotion", 0.1f, 0.01f, 0.2f).displayable { towerModeValue.equals("PlusMotion") && towerModeValue.displayable }
-    private val plusMaxMotionValue = FloatValue("TowerPlusMaxMotion", 0.8f, 0.1f, 2f).displayable { towerModeValue.equals("PlusMotion") && towerModeValue.displayable }
+    private val stableMotionValue = FloatValue("TowerStableMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("StableMotion") && towerModeValue.stateDisplayable }
+    private val plusMotionValue = FloatValue("TowerPlusMotion", 0.1f, 0.01f, 0.2f).displayable { towerModeValue.equals("PlusMotion") && towerModeValue.stateDisplayable }
+    private val plusMaxMotionValue = FloatValue("TowerPlusMaxMotion", 0.8f, 0.1f, 2f).displayable { towerModeValue.equals("PlusMotion") && towerModeValue.stateDisplayable }
 
     // ConstantMotion
-    private val constantMotionValue = FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("ConstantMotion") && towerModeValue.displayable }
-    private val constantMotionJumpGroundValue = FloatValue("TowerConstantMotionJumpGround", 0.79f, 0.76f, 1f).displayable { towerModeValue.equals("ConstantMotion") && towerModeValue.displayable }
+    private val constantMotionValue = FloatValue("TowerConstantMotion", 0.42f, 0.1f, 1f).displayable { towerModeValue.equals("ConstantMotion") && towerModeValue.stateDisplayable }
+    private val constantMotionJumpGroundValue = FloatValue("TowerConstantMotionJumpGround", 0.79f, 0.76f, 1f).displayable { towerModeValue.equals("ConstantMotion") && towerModeValue.stateDisplayable }
 
     // Teleport
-    private val teleportHeightValue = FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f).displayable { towerModeValue.equals("Teleport") && towerModeValue.displayable }
-    private val teleportDelayValue = IntegerValue("TowerTeleportDelay", 0, 0, 20).displayable { towerModeValue.equals("Teleport") && towerModeValue.displayable }
-    private val teleportGroundValue = BoolValue("TowerTeleportGround", true).displayable { towerModeValue.equals("Teleport") && towerModeValue.displayable }
-    private val teleportNoMotionValue = BoolValue("TowerTeleportNoMotion", false).displayable { towerModeValue.equals("Teleport") && towerModeValue.displayable }
+    private val teleportHeightValue = FloatValue("TowerTeleportHeight", 1.15f, 0.1f, 5f).displayable { towerModeValue.equals("Teleport") && towerModeValue.stateDisplayable }
+    private val teleportDelayValue = IntegerValue("TowerTeleportDelay", 0, 0, 20).displayable { towerModeValue.equals("Teleport") && towerModeValue.stateDisplayable }
+    private val teleportGroundValue = BoolValue("TowerTeleportGround", true).displayable { towerModeValue.equals("Teleport") && towerModeValue.stateDisplayable }
+    private val teleportNoMotionValue = BoolValue("TowerTeleportNoMotion", false).displayable { towerModeValue.equals("Teleport") && towerModeValue.stateDisplayable }
 
 
     private val rotOptions = BoolValue("Rotation-Options ", true)
@@ -148,43 +148,43 @@ class Scaffold : Module() {
     private val rotationsValue = ListValue("Rotations", arrayOf("None", "Better", "Vanilla", "AAC", "Static1", "Static2", "Custom", "Advanced", "Backwards", "Snap", "BackSnap"), "AAC").displayable { rotOptions.get() }
     private val towerrotationsValue = ListValue("TowerRotations", arrayOf("None", "Better", "Vanilla", "AAC", "Static1", "Static2", "Custom", "Advacned"), "AAC").displayable { rotOptions.get() }
 
-    private val advancedYawModeValue = ListValue("AdvancedYawRotations", arrayOf("Offset", "Static", "RoundStatic", "Vanilla", "Round", "MoveDirection", "OffsetMove", "RoundMoveDir"), "MoveDirection").displayable { (rotationsValue.equals("Advanced") || towerrotationsValue.equals("Advanced")) && rotationsValue.displayable}
-    private val advancedPitchModeValue = ListValue("AdvancedPitchRotations", arrayOf("Offset", "Static", "Vanilla", "Backwards"), "Static").displayable { advancedYawModeValue.displayable && rotationsValue.displayable }
-    private val advancedYawOffsetValue = IntegerValue("AdvancedOffsetYaw", -15, -180, 180).displayable { advancedYawModeValue.displayable && advancedYawModeValue.equals("Offset") && rotationsValue.displayable }
-    private val advancedYawMoveOffsetValue = IntegerValue("AdvancedMoveOffsetYaw", -15, -180, 180).displayable { advancedYawModeValue.displayable && advancedYawModeValue.equals("Offset") && rotationsValue.displayable }
-    private val advancedYawStaticValue = IntegerValue("AdvancedStaticYaw", 145, -180, 180).displayable { advancedYawModeValue.displayable && (advancedYawModeValue.equals("Static") || advancedYawModeValue.equals("RoundStatic")) && rotationsValue.displayable }
-    private val advancedYawRoundValue = IntegerValue("AdvancedYawRoundValue", 45, 0, 180).displayable { advancedYawModeValue.displayable && (advancedYawModeValue.equals("Round") || advancedYawModeValue.equals("RoundStatic") || advancedYawModeValue.equals("RoundMoveDir")) && rotationsValue.displayable }
-    private val advancedPitchOffsetValue = FloatValue("AdvancedOffsetPitch", -0.4f, -90f, 90f).displayable { advancedYawModeValue.displayable && advancedPitchModeValue.equals("Offset") && rotationsValue.displayable }
-    private val advancedPitchStaticValue = FloatValue("AdvancedStaticPitch", 82.4f, -90f, 90f).displayable { advancedYawModeValue.displayable && advancedPitchModeValue.equals("Static") && rotationsValue.displayable }
+    private val advancedYawModeValue = ListValue("AdvancedYawRotations", arrayOf("Offset", "Static", "RoundStatic", "Vanilla", "Round", "MoveDirection", "OffsetMove", "RoundMoveDir"), "MoveDirection").displayable { (rotationsValue.equals("Advanced") || towerrotationsValue.equals("Advanced")) && rotationsValue.stateDisplayable}
+    private val advancedPitchModeValue = ListValue("AdvancedPitchRotations", arrayOf("Offset", "Static", "Vanilla", "Backwards"), "Static").displayable { advancedYawModeValue.stateDisplayable && rotationsValue.stateDisplayable }
+    private val advancedYawOffsetValue = IntegerValue("AdvancedOffsetYaw", -15, -180, 180).displayable { advancedYawModeValue.stateDisplayable && advancedYawModeValue.equals("Offset") && rotationsValue.stateDisplayable }
+    private val advancedYawMoveOffsetValue = IntegerValue("AdvancedMoveOffsetYaw", -15, -180, 180).displayable { advancedYawModeValue.stateDisplayable && advancedYawModeValue.equals("Offset") && rotationsValue.stateDisplayable }
+    private val advancedYawStaticValue = IntegerValue("AdvancedStaticYaw", 145, -180, 180).displayable { advancedYawModeValue.stateDisplayable && (advancedYawModeValue.equals("Static") || advancedYawModeValue.equals("RoundStatic")) && rotationsValue.stateDisplayable }
+    private val advancedYawRoundValue = IntegerValue("AdvancedYawRoundValue", 45, 0, 180).displayable { advancedYawModeValue.stateDisplayable && (advancedYawModeValue.equals("Round") || advancedYawModeValue.equals("RoundStatic") || advancedYawModeValue.equals("RoundMoveDir")) && rotationsValue.stateDisplayable }
+    private val advancedPitchOffsetValue = FloatValue("AdvancedOffsetPitch", -0.4f, -90f, 90f).displayable { advancedYawModeValue.stateDisplayable && advancedPitchModeValue.equals("Offset") && rotationsValue.stateDisplayable }
+    private val advancedPitchStaticValue = FloatValue("AdvancedStaticPitch", 82.4f, -90f, 90f).displayable { advancedYawModeValue.stateDisplayable && advancedPitchModeValue.equals("Static") && rotationsValue.stateDisplayable }
 
-    private val aacYawValue = IntegerValue("AACYawOffset", 0, 0, 90).displayable { rotationsValue.equals("AAC") && rotationsValue.displayable }
-    private val customYawValue = IntegerValue("CustomYaw", -145, -180, 180).displayable { (rotationsValue.equals("Custom") || rotationsValue.equals("Better")) && rotationsValue.displayable }
-    private val customPitchValue = FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") && rotationsValue.displayable }
-    private val customtowerYawValue = IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { towerrotationsValue.equals("Custom") || towerrotationsValue.equals("Better") && towerrotationsValue.displayable }
-    private val customtowerPitchValue = FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { towerrotationsValue.equals("Custom") && towerrotationsValue.displayable }
-    private val static2BoostValue = BoolValue("Static2StrafeBoost", true).displayable { rotationsValue.equals("Static2") && rotationsValue.displayable }
-    private val silentRotationValue = BoolValue("SilentRotation", true).displayable { !rotationsValue.equals("None") && rotationsValue.displayable }
+    private val aacYawValue = IntegerValue("AACYawOffset", 0, 0, 90).displayable { rotationsValue.equals("AAC") && rotationsValue.stateDisplayable }
+    private val customYawValue = IntegerValue("CustomYaw", -145, -180, 180).displayable { (rotationsValue.equals("Custom") || rotationsValue.equals("Better")) && rotationsValue.stateDisplayable }
+    private val customPitchValue = FloatValue("CustomPitch", 82.4f, -90f, 90f).displayable { rotationsValue.equals("Custom") && rotationsValue.stateDisplayable }
+    private val customtowerYawValue = IntegerValue("CustomTowerYaw", -145, -180, 180).displayable { towerrotationsValue.equals("Custom") || towerrotationsValue.equals("Better") && towerrotationsValue.stateDisplayable }
+    private val customtowerPitchValue = FloatValue("CustomTowerPitch", 79f, -90f, 90f).displayable { towerrotationsValue.equals("Custom") && towerrotationsValue.stateDisplayable }
+    private val static2BoostValue = BoolValue("Static2StrafeBoost", true).displayable { rotationsValue.equals("Static2") && rotationsValue.stateDisplayable }
+    private val silentRotationValue = BoolValue("SilentRotation", true).displayable { !rotationsValue.equals("None") && rotationsValue.stateDisplayable }
     private val minRotationSpeedValue: IntegerValue = object : IntegerValue("MinRotationSpeed", 80, 0, 180) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val v = maxRotationSpeedValue.get()
             if (v < newValue) set(v)
         }
-    }.displayable { !rotationsValue.equals("None") && rotationsValue.displayable } as IntegerValue
+    }.displayable { !rotationsValue.equals("None") && rotationsValue.stateDisplayable } as IntegerValue
     private val maxRotationSpeedValue: IntegerValue = object : IntegerValue("MaxRotationSpeed", 100, 0, 180) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val v = minRotationSpeedValue.get()
             if (v > newValue) set(v)
         }
-    }.displayable { !rotationsValue.equals("None") && rotationsValue.displayable } as IntegerValue
-    private val keepLengthValue = IntegerValue("KeepRotationTick", 1, 0, 20).displayable { !rotationsValue.equals("None") && rotationsValue.displayable }
+    }.displayable { !rotationsValue.equals("None") && rotationsValue.stateDisplayable } as IntegerValue
+    private val keepLengthValue = IntegerValue("KeepRotationTick", 1, 0, 20).displayable { !rotationsValue.equals("None") && rotationsValue.stateDisplayable }
 
     private val bypassOptions = BoolValue("Bypass-Options ", true)
 
     private val autoBlockValue = ListValue("AutoBlock", arrayOf("Spoof", "LiteSpoof", "Switch", "OFF"), "Spoof").displayable { bypassOptions.get() }
 
     private val zitterModeValue = ListValue("ZitterMode", arrayOf("Teleport", "Smooth", "OFF"), "OFF").displayable { bypassOptions.get() }
-    private val zitterSpeedValue = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f).displayable { !zitterModeValue.equals("OFF") && zitterModeValue.displayable }
-    private val zitterStrengthValue = FloatValue("ZitterStrength", 0.072f, 0.05f, 0.2f).displayable { !zitterModeValue.equals("OFF") && zitterModeValue.displayable }
+    private val zitterSpeedValue = FloatValue("ZitterSpeed", 0.13f, 0.1f, 0.3f).displayable { !zitterModeValue.equals("OFF") && zitterModeValue.stateDisplayable }
+    private val zitterStrengthValue = FloatValue("ZitterStrength", 0.072f, 0.05f, 0.2f).displayable { !zitterModeValue.equals("OFF") && zitterModeValue.stateDisplayable }
 
     private val extraClickValue = ListValue("ExtraClick", arrayOf("EmptyC08", "AfterPlace", "RayTrace", "OFF"), "OFF").displayable { bypassOptions.get() }
     private val extraClickMaxDelayValue: IntegerValue = object : IntegerValue("ExtraClickMaxDelay", 100, 20, 300) {
@@ -192,13 +192,13 @@ class Scaffold : Module() {
             val i = extraClickMinDelayValue.get()
             if (i > newValue) set(i)
         }
-    }.displayable { !extraClickValue.equals("OFF") && extraClickValue.displayable } as IntegerValue
+    }.displayable { !extraClickValue.equals("OFF") && extraClickValue.stateDisplayable } as IntegerValue
     private val extraClickMinDelayValue: IntegerValue = object : IntegerValue("ExtraClickMinDelay", 50, 20, 300) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = extraClickMaxDelayValue.get()
             if (i < newValue) set(i)
         }
-    }.displayable { !extraClickValue.equals("OFF") && extraClickValue.displayable } as IntegerValue
+    }.displayable { !extraClickValue.equals("OFF") && extraClickValue.stateDisplayable } as IntegerValue
 
     private val moveFixValue = BoolValue("StrafeFix", false).displayable { bypassOptions.get() }
 
@@ -208,9 +208,9 @@ class Scaffold : Module() {
 
     private val counterDisplayValue = ListValue("Counter", arrayOf("FDP", "Rise", "Simple"), "FDP").displayable { renderOptions.get() }
     private val markValue = BoolValue("Mark", false).displayable { renderOptions.get() }
-    private val markRedValue = IntegerValue("MarkColorRed", 68, 0, 255).displayable { markValue.get() && markValue.displayable }
-    private val markGreenValue = IntegerValue("MarkColorGreen", 117, 0, 255).displayable { markValue.get() && markValue.displayable }
-    private val markBlueValue = IntegerValue("MarkColorBlue", 255, 0, 255).displayable { markValue.get() && markValue.displayable }
+    private val markRedValue = IntegerValue("MarkColorRed", 68, 0, 255).displayable { markValue.get() && markValue.stateDisplayable }
+    private val markGreenValue = IntegerValue("MarkColorGreen", 117, 0, 255).displayable { markValue.get() && markValue.stateDisplayable }
+    private val markBlueValue = IntegerValue("MarkColorBlue", 255, 0, 255).displayable { markValue.get() && markValue.stateDisplayable }
 
     /**
      * MODULE

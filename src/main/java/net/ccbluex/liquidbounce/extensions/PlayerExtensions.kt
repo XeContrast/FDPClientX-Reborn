@@ -73,3 +73,17 @@ fun EntityPlayer.getSmoothDistanceToCoord(x: Float, y: Float, z: Float): Float {
     val f2 = (zposme - z.toDouble()).toFloat()
     return MathHelper.sqrt_double((f * f + f1 * f1 + f2 * f2).toDouble())
 }
+
+fun BlockPos.getAllInBoxMutable(radius: Int): Iterable<BlockPos> {
+    return BlockPos.getAllInBoxMutable(add(-radius, -radius, -radius), add(radius, radius, radius))
+}
+
+/**
+ * Its sole purpose is to prevent duplicate sprint state updates.
+ */
+infix fun EntityLivingBase.setSprintSafely(new: Boolean) {
+    if (new == isSprinting) {
+        return
+    }
+    isSprinting = new
+}

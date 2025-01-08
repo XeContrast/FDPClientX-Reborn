@@ -29,13 +29,13 @@ import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.play.client.C0BPacketEntityAction
 
-@ModuleInfo(name = "SuperKnockback", category = ModuleCategory.COMBAT)
-class SuperKnockback : Module() {
+@ModuleInfo(name = "SuperKnockBack", category = ModuleCategory.COMBAT)
+class SuperKnockBack : Module() {
 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
     private val modeValue = ListValue("Mode", arrayOf("Wtap", "Stap", "WtapStopMotion", "Legit","LegitFast", "LegitSneak", "Silent", "SprintReset", "SneakPacket"), "Legit")
     private val onlyMoveValue = BoolValue("OnlyMove", true)
-    private val onlyMoveForwardValue = BoolValue("OnlyMoveForward", true). displayable { onlyMoveValue.get() }
+    private val onlyMoveForwardValue = BoolValue("OnlyMoveForward", true) { onlyMoveValue.get() }
     private val onlyGroundValue = BoolValue("OnlyGround", false)
     private val delayValue = IntegerValue("Delay", 0, 0, 500)
     private val minEnemyRotDiffToIgnore = FloatValue("MinRot", 180f, 0f,180f)
@@ -69,6 +69,10 @@ class SuperKnockback : Module() {
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                 }
 
+                "legitfast" -> {
+                    mc.thePlayer.sprintingTicksLeft = 0
+                }
+
                 "sneakpacket" -> {
                     if (mc.thePlayer.isSprinting) {
                         mc.thePlayer.isSprinting = true
@@ -98,9 +102,6 @@ class SuperKnockback : Module() {
                     mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
                     ticks = 0
                 }
-            }
-            "legitfast" -> {
-                mc.thePlayer.sprintingTicksLeft = 0
             }
             "stap" -> {
                 if (ticks == 2) {

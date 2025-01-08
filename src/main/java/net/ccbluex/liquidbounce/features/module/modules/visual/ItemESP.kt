@@ -33,10 +33,10 @@ object ItemESP : Module() {
 
     private val entityConvertedPointsMap: MutableMap<EntityItem, DoubleArray> = HashMap()
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "Exhibition", "LightBox", "ShaderOutline", "ShaderGlow"), "Box")
-    private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
-    private val colorRedValue = IntegerValue("R", 0, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { !colorRainbowValue.get() }
+    private val outlineWidth = FloatValue("Outline-Width", 3f, 0.5f, 5f) { modeValue.equals("Outline") }
+    private val colorRedValue = IntegerValue("R", 0, 0, 255) { !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("B", 0, 0, 255) { !colorRainbowValue.get() }
     private val colorRainbowValue = BoolValue("Rainbow", true)
 
     private fun getColor(): Color {

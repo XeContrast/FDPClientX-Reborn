@@ -31,11 +31,11 @@ object ChinaHat : Module() {
     private val yPosValue = FloatValue("YPos", 0f, -1f, 1f)
     private val rotateSpeedValue = FloatValue("RotateSpeed", 2f, 0f, 5f)
     private val drawThePlayerValue = BoolValue("DrawThePlayer", true)
-    private val onlyThirdPersonValue = BoolValue("OnlyThirdPerson", true).displayable { drawThePlayerValue.get() }
+    private val onlyThirdPersonValue = BoolValue("OnlyThirdPerson", true) { drawThePlayerValue.get() }
     private val drawTargetsValue = BoolValue("DrawTargets", true)
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("B", 255, 0, 255) { !colorRainbowValue.get() }
     private val colorAlphaValue = IntegerValue("Alpha", 200, 0, 255)
     private val colorRainbowValue = BoolValue("Rainbow", false)
 

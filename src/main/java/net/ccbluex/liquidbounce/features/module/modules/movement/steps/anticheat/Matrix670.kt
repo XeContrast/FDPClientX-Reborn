@@ -15,8 +15,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class Matrix670 : StepMode("Matrix6.7.0") {
     override fun onUpdate(event: UpdateEvent) {
-        Step.off = false
-        Step.doncheck = false
         if (mc.thePlayer.isCollidedHorizontally && mc.thePlayer.onGround && Step.lastOnGround) {
             mc.thePlayer.stepHeight = Step.heightValue.get()
         }

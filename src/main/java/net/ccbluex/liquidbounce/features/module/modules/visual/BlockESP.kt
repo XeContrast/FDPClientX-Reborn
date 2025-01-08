@@ -30,12 +30,12 @@ import java.awt.Color
 object BlockESP : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline", "2D"), "Box")
-    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
+    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f) { modeValue.equals("Outline") }
     private val blockValue = BlockValue("Block", 168)
     private val radiusValue = IntegerValue("Radius", 40, 5, 120)
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 179, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 72, 0, 255).displayable { !colorRainbowValue.get() }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("G", 179, 0, 255) { !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("B", 72, 0, 255) { !colorRainbowValue.get() }
     private val colorRainbowValue = BoolValue("Rainbow", false)
     private val searchTimer = MSTimer()
     private val posList: MutableList<BlockPos> = ArrayList()

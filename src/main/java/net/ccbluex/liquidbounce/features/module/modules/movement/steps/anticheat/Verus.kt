@@ -14,8 +14,6 @@ import kotlin.math.ceil
 
 class Verus : StepMode("Verus") {
     override fun onStep(event: StepEvent) {
-        Step.doncheck = false
-        Step.off = false
         if (event.eventState == EventState.PRE) else {
             val rstepHeight = mc.thePlayer.entityBoundingBox.minY - stepY
             mc.timer.timerSpeed = 1f / ceil(rstepHeight * 2.0).toFloat()

@@ -77,12 +77,12 @@ object Fucker : Module() {
     private val surroundingsValue = BoolValue("Surroundings", true)
     private val rotationsValue = BoolValue("Rotations", true)
     private val fastMineValue = BoolValue("FastMine", false)
-    private val fastMineSpeed = FloatValue("FastMine-Speed", 1.5f, 1f, 3f).displayable { fastMineValue.get() }
+    private val fastMineSpeed = FloatValue("FastMine-Speed", 1.5f, 1f, 3f) { fastMineValue.get() }
     private val instantValue = BoolValue("InstantMine", false)
     private val showProcess= BoolValue("ShowProcess", false)
     private val coolDownValue = IntegerValue("Cooldown-Seconds", 15, 0, 60)
     private val toggleResetCDValue = BoolValue("ResetCoolDownWhenToggled", false)
-    private val resetOnWorldValue = BoolValue("ResetOnWorldChange", false).displayable { ignoreFirstBlockValue.get() }
+    private val resetOnWorldValue = BoolValue("ResetOnWorldChange", false) { ignoreFirstBlockValue.get() }
 
     private val ignoreOwnBed = BoolValue("IgnoreOwnBed", true)
     private val ownBedDist = IntegerValue("MaxBedDistance", 16, 1,32)

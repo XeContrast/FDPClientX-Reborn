@@ -11,9 +11,6 @@ class EventManager : MinecraftInstance() {
 
     private val registry = hashMapOf<Class<out Event>, MutableList<EventHook>>()
 
-//    private val counter = HashMap<Class<out Event>, Int>()
-//    private var lastSyncTime = System.currentTimeMillis()
-
     /**
      * Register [listener]
      */
@@ -46,19 +43,6 @@ class EventManager : MinecraftInstance() {
         registry.forEach { (_, targets) ->
             targets.removeIf { it.eventClass == listenable }
         }
-
-//    private fun printProfiler() {
-//        println("--- Event Profiler(${Date()}) ---")
-//
-//        var total = 0
-//        for((key, value) in counter.toList().sortedBy { it.second }) {
-//            println("${key.simpleName}: $value")
-//            total += value
-//        }
-//        println("total: $total")
-//
-//        counter.clear()
-//    }
 
     /**
      * Call event to listeners

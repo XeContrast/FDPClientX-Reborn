@@ -70,14 +70,14 @@ object InvManager : Module() {
     private val throwValue = BoolValue("Drop", true)
     private val armorValue = BoolValue("Armor", true)
     private val armorHotbarValue = BoolValue("ArmorHotbar", true)
-    private val silentArmorHotbarValue = BoolValue("SilentArmorHotbar",true).displayable { armorHotbarValue.get() }
+    private val silentArmorHotbarValue = BoolValue("SilentArmorHotbar",true) { armorHotbarValue.get() }
     private val noCombatValue = BoolValue("NoCombat", false)
     private val itemDelayValue = IntegerValue("ItemDelay", 0, 0, 5000)
     private val swingValue = BoolValue("Swing", true)
     private val nbtGoalValue =
         ListValue("NBTGoal", ItemUtils.EnumNBTPriorityType.entries.map { it.toString() }.toTypedArray(), "NONE")
     private val nbtWeaponPriority =
-        FloatValue("NBTWeaponPriority", 0f, 0f, 5f).displayable { !nbtGoalValue.equals("NONE") }
+        FloatValue("NBTWeaponPriority", 0f, 0f, 5f) { !nbtGoalValue.equals("NONE") }
     private val ignoreVehiclesValue = BoolValue("IgnoreVehicles", false)
     private val onlyGoodPotions = BoolValue("OnlyGoodPotion", false)
 //    private val ignoreDurabilityUnder = FloatValue("IgnoreDurabilityUnder", 0.3f, 0f, 1f)

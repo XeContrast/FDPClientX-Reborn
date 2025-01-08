@@ -26,11 +26,11 @@ import kotlin.math.abs
 object PrevFallPos : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Box", "OtherBox", "Outline"), "Box")
-    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
+    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f) { modeValue.equals("Outline") }
     private val fallDistValue = FloatValue("FallDist", 1.15F, 0F, 5F)
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255) { !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("B", 255, 0, 255) { !colorRainbowValue.get() }
     private val colorAlphaValue = IntegerValue("A", 130, 0, 255)
     private val colorRainbowValue = BoolValue("Rainbow", false)
 

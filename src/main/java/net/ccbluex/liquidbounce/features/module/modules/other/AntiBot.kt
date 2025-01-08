@@ -39,105 +39,105 @@ object  AntiBot : Module() {
     private val debugValue = BoolValue("Debug", true)
 
     private val kkBot = BoolValue("KKBot", false)
-    private val tabValue = BoolValue("Tab", true).displayable { modeValue.get() == "Custom" }
+    private val tabValue = BoolValue("Tab", true) { modeValue.get() == "Custom" }
     private val tabModeValue =
-        ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains").displayable { modeValue.get() == "Custom" }
-    private val entityIDValue = BoolValue("EntityID", true).displayable { modeValue.get() == "Custom" }
-    private val colorValue = BoolValue("Color", false).displayable { modeValue.get() == "Custom" }
-    private val livingTimeValue = BoolValue("LivingTime", false).displayable { modeValue.get() == "Custom" }
+        ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains") { modeValue.get() == "Custom" }
+    private val entityIDValue = BoolValue("EntityID", true) { modeValue.get() == "Custom" }
+    private val colorValue = BoolValue("Color", false) { modeValue.get() == "Custom" }
+    private val livingTimeValue = BoolValue("LivingTime", false) { modeValue.get() == "Custom" }
     private val livingTimeTicksValue =
-        IntegerValue("LivingTimeTicks", 40, 1, 200).displayable { modeValue.get() == "Custom" }
-    private val groundValue = BoolValue("Ground", true).displayable { modeValue.get() == "Custom" }
-    private val airValue = BoolValue("Air", false).displayable { modeValue.get() == "Custom" }
-    private val invalidGroundValue = BoolValue("InvalidGround", true).displayable { modeValue.get() == "Custom" }
-    private val invalidSpeedValue = BoolValue("InvalidSpeed", true).displayable { modeValue.get() == "Custom" }
-    private val properties = BoolValue("Properties", false).displayable { modeValue.get() == "Custom" }
-    private val swingValue = BoolValue("Swing", false).displayable { modeValue.get() == "Custom" }
-    private val healthValue = BoolValue("Health", false).displayable { modeValue.get() == "Custom" }
-    private val derpValue = BoolValue("Derp", true).displayable { modeValue.get() == "Custom" }
-    private val wasInvisibleValue = BoolValue("WasInvisible", false).displayable { modeValue.get() == "Custom" }
-    private val validNameValue = BoolValue("ValidName", true).displayable { modeValue.get() == "Custom" }
-    private val armorValue = BoolValue("Armor", false).displayable { modeValue.get() == "Custom" }
-    private val pingValue = BoolValue("Ping", false).displayable { modeValue.get() == "Custom" }
-    private val needHitValue = BoolValue("NeedHit", false).displayable { modeValue.get() == "Custom" }
-    private val noClipValue = BoolValue("NoClip", false).displayable { modeValue.get() == "Custom" }
-    private val matrix7 = BoolValue("Matrix7", false).displayable { modeValue.get() == "Custom" }
-    private val czechHekValue = BoolValue("CzechMatrix", false).displayable { modeValue.get() == "Custom" }
+        IntegerValue("LivingTimeTicks", 40, 1, 200) { modeValue.get() == "Custom" }
+    private val groundValue = BoolValue("Ground", true) { modeValue.get() == "Custom" }
+    private val airValue = BoolValue("Air", false) { modeValue.get() == "Custom" }
+    private val invalidGroundValue = BoolValue("InvalidGround", true) { modeValue.get() == "Custom" }
+    private val invalidSpeedValue = BoolValue("InvalidSpeed", true) { modeValue.get() == "Custom" }
+    private val properties = BoolValue("Properties", false) { modeValue.get() == "Custom" }
+    private val swingValue = BoolValue("Swing", false) { modeValue.get() == "Custom" }
+    private val healthValue = BoolValue("Health", false) { modeValue.get() == "Custom" }
+    private val derpValue = BoolValue("Derp", true) { modeValue.get() == "Custom" }
+    private val wasInvisibleValue = BoolValue("WasInvisible", false) { modeValue.get() == "Custom" }
+    private val validNameValue = BoolValue("ValidName", true) { modeValue.get() == "Custom" }
+    private val armorValue = BoolValue("Armor", false) { modeValue.get() == "Custom" }
+    private val pingValue = BoolValue("Ping", false) { modeValue.get() == "Custom" }
+    private val needHitValue = BoolValue("NeedHit", false) { modeValue.get() == "Custom" }
+    private val noClipValue = BoolValue("NoClip", false) { modeValue.get() == "Custom" }
+    private val matrix7 = BoolValue("Matrix7", false) { modeValue.get() == "Custom" }
+    private val czechHekValue = BoolValue("CzechMatrix", false) { modeValue.get() == "Custom" }
     private val czechHekPingCheckValue =
-        BoolValue("PingCheck", true).displayable { modeValue.get() == "Custom" && czechHekValue.get() }
+        BoolValue("PingCheck", true) { modeValue.get() == "Custom" && czechHekValue.get() }
     private val czechHekGMCheckValue =
-        BoolValue("GamemodeCheck", true).displayable { modeValue.get() == "Custom" && czechHekValue.get() }
-    private val reusedEntityIdValue = BoolValue("ReusedEntityId", false).displayable { modeValue.get() == "Custom" }
-    private val spawnInCombatValue = BoolValue("SpawnInCombat", false).displayable { modeValue.get() == "Custom" }
-    private val skinValue = BoolValue("SkinCheck", false).displayable { modeValue.get() == "Custom" }
-    private val duplicateInWorldValue = BoolValue("DuplicateInWorld", false).displayable { modeValue.get() == "Custom" }
-    private val duplicateInTabValue = BoolValue("DuplicateInTab", false).displayable { modeValue.get() == "Custom" }
+        BoolValue("GamemodeCheck", true) { modeValue.get() == "Custom" && czechHekValue.get() }
+    private val reusedEntityIdValue = BoolValue("ReusedEntityId", false) { modeValue.get() == "Custom" }
+    private val spawnInCombatValue = BoolValue("SpawnInCombat", false) { modeValue.get() == "Custom" }
+    private val skinValue = BoolValue("SkinCheck", false) { modeValue.get() == "Custom" }
+    private val duplicateInWorldValue = BoolValue("DuplicateInWorld", false) { modeValue.get() == "Custom" }
+    private val duplicateInTabValue = BoolValue("DuplicateInTab", false) { modeValue.get() == "Custom" }
     private val duplicateCompareModeValue = ListValue(
         "DuplicateCompareMode",
         arrayOf("OnTime", "WhenSpawn"),
         "OnTime"
-    ).displayable { modeValue.get() == "Custom" }
-    private val fastDamageValue = BoolValue("FastDamage", false).displayable { modeValue.get() == "Custom" }
+    ) { modeValue.get() == "Custom" }
+    private val fastDamageValue = BoolValue("FastDamage", false) { modeValue.get() == "Custom" }
     private val fastDamageTicksValue =
-        IntegerValue("FastDamageTicks", 5, 1, 20).displayable { modeValue.get() == "Custom" && fastDamageValue.get() }
-    private val alwaysInRadiusValue = BoolValue("AlwaysInRadius", false).displayable { modeValue.get() == "Custom" }
+        IntegerValue("FastDamageTicks", 5, 1, 20) { modeValue.get() == "Custom" && fastDamageValue.get() }
+    private val alwaysInRadiusValue = BoolValue("AlwaysInRadius", false) { modeValue.get() == "Custom" }
     private val alwaysRadiusValue =
-        FloatValue("AlwaysInRadiusBlocks", 20f, 5f, 30f).displayable { modeValue.get() == "Custom" }
+        FloatValue("AlwaysInRadiusBlocks", 20f, 5f, 30f) { modeValue.get() == "Custom" }
     private val alwaysInRadiusRemoveValue =
-        BoolValue("AlwaysInRadiusRemove", false).displayable { modeValue.get() == "Custom" }
+        BoolValue("AlwaysInRadiusRemove", false) { modeValue.get() == "Custom" }
     private val alwaysInRadiusWithTicksCheckValue =
-        BoolValue("AlwaysInRadiusWithTicksCheck", false).displayable { modeValue.get() == "Custom" }
+        BoolValue("AlwaysInRadiusWithTicksCheck", false) { modeValue.get() == "Custom" }
 
     //Helmet
     private val allowDiamondHelmet =
-        BoolValue("AllowDiamondHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowDiamondHelmet", true) { modeValue.get() == "UnusualArmor" }
     private val allowGoldenHelmet =
-        BoolValue("AllowGoldenHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowIronHelmet = BoolValue("AllowIronHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowChainHelmet = BoolValue("AllowChainHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowGoldenHelmet", true) { modeValue.get() == "UnusualArmor" }
+    private val allowIronHelmet = BoolValue("AllowIronHelmet", true) { modeValue.get() == "UnusualArmor" }
+    private val allowChainHelmet = BoolValue("AllowChainHelmet", true) { modeValue.get() == "UnusualArmor" }
     private val allowLeatherHelmet =
-        BoolValue("AllowLeatherHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowNoHelmet = BoolValue("AllowNoHelmet", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowLeatherHelmet", true) { modeValue.get() == "UnusualArmor" }
+    private val allowNoHelmet = BoolValue("AllowNoHelmet", true) { modeValue.get() == "UnusualArmor" }
 
     //Chestplate
     private val allowDiamondChestplate =
-        BoolValue("AllowDiamondChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowDiamondChestplate", true) { modeValue.get() == "UnusualArmor" }
     private val allowGoldenChestplate =
-        BoolValue("AllowGoldenChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowGoldenChestplate", true) { modeValue.get() == "UnusualArmor" }
     private val allowIronChestplate =
-        BoolValue("AllowIronChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowIronChestplate", true) { modeValue.get() == "UnusualArmor" }
     private val allowChainChestplate =
-        BoolValue("AllowChainChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowChainChestplate", true) { modeValue.get() == "UnusualArmor" }
     private val allowLeatherChestplate =
-        BoolValue("AllowLeatherChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowLeatherChestplate", true) { modeValue.get() == "UnusualArmor" }
     private val allowNoChestplate =
-        BoolValue("AllowNoChestplate", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowNoChestplate", true) { modeValue.get() == "UnusualArmor" }
 
     //Leggings
     private val allowDiamondLeggings =
-        BoolValue("AllowDiamondLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowDiamondLeggings", true) { modeValue.get() == "UnusualArmor" }
     private val allowGoldenLeggings =
-        BoolValue("AllowGoldenLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowGoldenLeggings", true) { modeValue.get() == "UnusualArmor" }
     private val allowIronLeggings =
-        BoolValue("AllowIronLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowIronLeggings", true) { modeValue.get() == "UnusualArmor" }
     private val allowChainLeggings =
-        BoolValue("AllowChainLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowChainLeggings", true) { modeValue.get() == "UnusualArmor" }
     private val allowLeatherLeggings =
-        BoolValue("AllowLeatherLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowNoLeggings = BoolValue("AllowNoLeggings", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowLeatherLeggings", true) { modeValue.get() == "UnusualArmor" }
+    private val allowNoLeggings = BoolValue("AllowNoLeggings", true) { modeValue.get() == "UnusualArmor" }
 
     //Boots
     private val allowDiamondBoots =
-        BoolValue("AllowDiamondBoots", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowGoldenBoots = BoolValue("AllowGoldenBoots", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowIronBoots = BoolValue("AllowIronBoots", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowChainBoots = BoolValue("AllowChainBoots", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowDiamondBoots", true) { modeValue.get() == "UnusualArmor" }
+    private val allowGoldenBoots = BoolValue("AllowGoldenBoots", true) { modeValue.get() == "UnusualArmor" }
+    private val allowIronBoots = BoolValue("AllowIronBoots", true) { modeValue.get() == "UnusualArmor" }
+    private val allowChainBoots = BoolValue("AllowChainBoots", true) { modeValue.get() == "UnusualArmor" }
     private val allowLeatherBoots =
-        BoolValue("AllowLeatherBoots", true).displayable { modeValue.get() == "UnusualArmor" }
-    private val allowNoBoots = BoolValue("AllowNoBoots", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("AllowLeatherBoots", true) { modeValue.get() == "UnusualArmor" }
+    private val allowNoBoots = BoolValue("AllowNoBoots", true) { modeValue.get() == "UnusualArmor" }
 
     private val removeNoColorLeatherArmor =
-        BoolValue("NoColorLeatherArmor", true).displayable { modeValue.get() == "UnusualArmor" }
+        BoolValue("NoColorLeatherArmor", true) { modeValue.get() == "UnusualArmor" }
 
     private val botList = CopyOnWriteArrayList<EntityLivingBase>()
 

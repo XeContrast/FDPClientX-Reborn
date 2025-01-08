@@ -29,20 +29,20 @@ object PointerESP : Module() {
 
     private val dimensionValue = ListValue("Dimension", arrayOf("2d", "3d"), "2d")
     private val modeValue = ListValue("Mode", arrayOf("Solid", "Line", "LoopLine"), "Solid")
-    private val lineWidthValue = FloatValue("LineWidth", 4f, 1f, 10f).displayable { modeValue.get().contains("Line") }
-    private val redValue = IntegerValue("Red", 255, 0, 255).displayable { !rainbowValue.get() }
-    private val greenValue = IntegerValue("Green", 255, 0, 255).displayable { !rainbowValue.get() }
-    private val blueValue = IntegerValue("Blue", 255, 0, 255).displayable { !rainbowValue.get() }
+    private val lineWidthValue = FloatValue("LineWidth", 4f, 1f, 10f) { modeValue.get().contains("Line") }
+    private val redValue = IntegerValue("Red", 255, 0, 255) { !rainbowValue.get() }
+    private val greenValue = IntegerValue("Green", 255, 0, 255) { !rainbowValue.get() }
+    private val blueValue = IntegerValue("Blue", 255, 0, 255) { !rainbowValue.get() }
     private val rainbowValue = BoolValue("Rainbow", false)
     private val damageColorValue = BoolValue("DamageColor", true)
     private val smoothDamageColorValue = BoolValue("SmoothDamageColor", false)
     private val dmgRedValue =
-        IntegerValue("DamageRed", 255, 0, 255).displayable { !dmgRainbowValue.get() && damageColorValue.get() }
+        IntegerValue("DamageRed", 255, 0, 255) { !dmgRainbowValue.get() && damageColorValue.get() }
     private val dmgGreenValue =
-        IntegerValue("DamageGreen", 0, 0, 255).displayable { !dmgRainbowValue.get() && damageColorValue.get() }
+        IntegerValue("DamageGreen", 0, 0, 255) { !dmgRainbowValue.get() && damageColorValue.get() }
     private val dmgBlueValue =
-        IntegerValue("DamageBlue", 0, 0, 255).displayable { !dmgRainbowValue.get() && damageColorValue.get() }
-    private val dmgRainbowValue = BoolValue("DamageRainbow", false).displayable { damageColorValue.get() }
+        IntegerValue("DamageBlue", 0, 0, 255) { !dmgRainbowValue.get() && damageColorValue.get() }
+    private val dmgRainbowValue = BoolValue("DamageRainbow", false) { damageColorValue.get() }
     private val alphaValue: IntegerValue = object : IntegerValue("Alpha", 255, 0, 255) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             if (distanceAlphaValue.get() && newValue < distanceValue.get()) {
@@ -51,8 +51,8 @@ object PointerESP : Module() {
         }
     }
     private val distanceAlphaValue = BoolValue("DistanceAlpha", true)
-    private val distanceValue = IntegerValue("Distance", 70, 0, 128).displayable { distanceAlphaValue.get() }
-    private val alphaMinValue = IntegerValue("AlphaMin", 100, 0, 255).displayable { distanceAlphaValue.get() }
+    private val distanceValue = IntegerValue("Distance", 70, 0, 128) { distanceAlphaValue.get() }
+    private val alphaMinValue = IntegerValue("AlphaMin", 100, 0, 255) { distanceAlphaValue.get() }
     private val sizeValue = IntegerValue("ArrowSize", 10, 1, 30)
     private val angleValue = IntegerValue("AngleSize", 50, 10, 90)
     private val radiusValue = IntegerValue("Radius", 70, 10, 100)

@@ -18,7 +18,7 @@ class AAC4XGlide : GlideMode("AAC4.X") {
                 mc.timer.timerSpeed = 0.95f
             } else {
                 delay = 0
-                mc.thePlayer.motionY = mc.thePlayer.motionY / 0.9800000190734863
+                mc.thePlayer.motionY /= 0.9800000190734863
                 mc.thePlayer.motionY += 0.03
                 mc.thePlayer.motionY *= 0.9800000190734863
                 mc.thePlayer.jumpMovementFactor = 0.03625f

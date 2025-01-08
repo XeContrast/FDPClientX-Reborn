@@ -23,7 +23,7 @@ object Eagle : Module() {
     
     private val motionPredictValue = FloatValue("MotionPredictAmount", 0.2f, 0.0f, 2.0f)
     private val limitTimeValue = BoolValue("SneakTimeLimit", false)
-    private val holdTime = IntegerValue("MaxSneakTime", 120, 0, 900).displayable{ limitTimeValue.get() }
+    private val holdTime = IntegerValue("MaxSneakTime", 120, 0, 900){ limitTimeValue.get() }
     private val onlyGround = BoolValue("OnlyGround", true)
     private val onlyLookingDown = BoolValue("OnlyLookingDown", true)
     private val onlyMovingBack = BoolValue("OnlyMovingBack", true)

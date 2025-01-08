@@ -21,9 +21,9 @@ import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
 object Rotations : Module() {
 
     private val realistic = BoolValue("Realistic", false)
-    private val body = BoolValue("Body", true).displayable { !realistic.get() }
+    private val body = BoolValue("Body", true) { !realistic.get() }
     private val smooth = BoolValue("SmoothRotation",true)
-    private val Smoothing = FloatValue("SmoothFacing",0.15f,0.1f,0.9f).displayable { smooth.get() }
+    private val Smoothing = FloatValue("SmoothFacing",0.15f,0.1f,0.9f) { smooth.get() }
 
     var prevHeadPitch = 0f
     var headPitch = 0f

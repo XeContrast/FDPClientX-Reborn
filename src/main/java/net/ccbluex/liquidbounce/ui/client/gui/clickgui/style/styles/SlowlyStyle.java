@@ -112,7 +112,7 @@ public class SlowlyStyle extends Style {
 
                 moduleElement.slowlySettingsYPos = moduleElement.getY() + 6;
                 for (final Value value : moduleValues) {
-                    if(!value.getDisplayable())
+                    if(!value.getStateDisplayable())
                         continue;
 
                     if (value instanceof BoolValue) {

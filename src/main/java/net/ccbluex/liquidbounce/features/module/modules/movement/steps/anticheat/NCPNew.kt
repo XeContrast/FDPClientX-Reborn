@@ -17,8 +17,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class NCPNew : StepMode("NCPNew") {
     override fun onUpdate(event: UpdateEvent) {
-        Step.off = false
-        Step.doncheck = false
         if (mc.thePlayer.isCollidedHorizontally && mc.thePlayer.onGround && lastOnGround) {
             mc.thePlayer.stepHeight = heightValue.get()
         }

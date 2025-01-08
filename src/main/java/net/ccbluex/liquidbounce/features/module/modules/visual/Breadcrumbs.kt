@@ -29,18 +29,18 @@ import java.awt.Color
 object Breadcrumbs : Module() {
 
     private val typeValue = ListValue("Type", arrayOf("Line", "Rect", "Sphere", "Rise"), "Line")
-    val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { !colorRainbowValue.get() }
-    val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { !colorRainbowValue.get() }
+    val colorRedValue = IntegerValue("R", 255, 0, 255) { !colorRainbowValue.get() }
+    val colorGreenValue = IntegerValue("G", 255, 0, 255) { !colorRainbowValue.get() }
+    val colorBlueValue = IntegerValue("B", 255, 0, 255) { !colorRainbowValue.get() }
     private val colorAlphaValue = IntegerValue("Alpha", 255, 0, 255)
     val colorRainbowValue = BoolValue("Rainbow", false)
     private val fadeValue = BoolValue("Fade", true)
     private val drawThePlayerValue = BoolValue("DrawThePlayer", true)
     private val drawTargetsValue = BoolValue("DrawTargets", true)
-    private val fadeTimeValue = IntegerValue("FadeTime", 5, 1, 20).displayable { fadeValue.get() }
+    private val fadeTimeValue = IntegerValue("FadeTime", 5, 1, 20) { fadeValue.get() }
     private val precisionValue = IntegerValue("Precision", 4, 1, 20)
-    private val lineWidthValue = IntegerValue("LineWidth", 1, 1, 10).displayable { typeValue.equals("Line") }
-    private val sphereScaleValue = FloatValue("SphereScale", 0.6f, 0.1f, 2f).displayable { typeValue.equals("Sphere") || typeValue.equals("Rise")}
+    private val lineWidthValue = IntegerValue("LineWidth", 1, 1, 10) { typeValue.equals("Line") }
+    private val sphereScaleValue = FloatValue("SphereScale", 0.6f, 0.1f, 2f) { typeValue.equals("Sphere") || typeValue.equals("Rise")}
     private val onlyThirdPersonValue = BoolValue("OnlyThirdPerson", true)
 
     private val points = mutableMapOf<Int, MutableList<BreadcrumbPoint>>()

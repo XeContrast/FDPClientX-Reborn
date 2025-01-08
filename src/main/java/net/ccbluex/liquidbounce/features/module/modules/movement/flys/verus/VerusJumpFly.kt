@@ -19,9 +19,9 @@ import net.minecraft.util.AxisAlignedBB
 class VerusJumpFly : FlyMode("VerusJump") {
 
     private val boostValue = BoolValue("${valuePrefix}Boost", false)
-    private val speedValue = FloatValue("${valuePrefix}Speed", 2f, 0f, 3f).displayable { boostValue.get() }
-    private val boostLength = IntegerValue("${valuePrefix}BoostTime", 500, 300, 1000).displayable { boostValue.get() }
-    private val moveBeforeDamage = BoolValue("${valuePrefix}MoveBeforeDamage", true).displayable { boostValue.get() }
+    private val speedValue = FloatValue("${valuePrefix}Speed", 2f, 0f, 3f) { boostValue.get() }
+    private val boostLength = IntegerValue("${valuePrefix}BoostTime", 500, 300, 1000) { boostValue.get() }
+    private val moveBeforeDamage = BoolValue("${valuePrefix}MoveBeforeDamage", true) { boostValue.get() }
     private val airStrafeValue = BoolValue("${valuePrefix}AirStrafe", true)
 
     private var times = 0

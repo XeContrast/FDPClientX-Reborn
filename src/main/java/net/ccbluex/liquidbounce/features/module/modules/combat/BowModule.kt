@@ -36,32 +36,32 @@ class BowModule : Module() {
 
     // AutoBow
     private val AutoBowValue = BoolValue("AutoBow", false)
-    private val waitForBowAimbot = BoolValue("AutoBow-WaitForBowAimbot", true).displayable { AutoBowValue.get() }
+    private val waitForBowAimbot = BoolValue("AutoBow-WaitForBowAimbot", true) { AutoBowValue.get() }
 
     // BowAimbot
     private val BowAimbotValue = BoolValue("BowAimbot Options", false)
-    private val silentValue = BoolValue("BowAimbot-Silent", true).displayable { BowAimbotValue.get() }
-    private val predictValue = BoolValue("BowAimbot-Predict", true).displayable { BowAimbotValue.get() }
-    private val throughWallsValue = BoolValue("BowAimbot-ThroughWalls", false).displayable { BowAimbotValue.get() }
-    private val predictSizeValue = FloatValue("BowAimbot-PredictSize", 2F, 0.1F, 5F).displayable { predictValue.get() }
+    private val silentValue = BoolValue("BowAimbot-Silent", true) { BowAimbotValue.get() }
+    private val predictValue = BoolValue("BowAimbot-Predict", true) { BowAimbotValue.get() }
+    private val throughWallsValue = BoolValue("BowAimbot-ThroughWalls", false) { BowAimbotValue.get() }
+    private val predictSizeValue = FloatValue("BowAimbot-PredictSize", 2F, 0.1F, 5F) { predictValue.get() }
     private val priorityValue = ListValue(
         "BowAimbot-Priority",
         arrayOf("Health", "Distance", "Direction"),
         "Direction"
-    ).displayable { BowAimbotValue.get() }
-    private val markValue = BoolValue("BowAimbot-Mark", true).displayable { BowAimbotValue.get() }
+    ) { BowAimbotValue.get() }
+    private val markValue = BoolValue("BowAimbot-Mark", true) { BowAimbotValue.get() }
 
     //FastBow
     private val fastBowValue = BoolValue("FastBow", false)
-    private val packetsValue = IntegerValue("FastBow-Packets", 20, 3, 20).displayable { fastBowValue.get() }
-    private val delay = IntegerValue("FastBow-Delay", 0, 0, 500).displayable { fastBowValue.get() }
+    private val packetsValue = IntegerValue("FastBow-Packets", 20, 3, 20) { fastBowValue.get() }
+    private val delay = IntegerValue("FastBow-Delay", 0, 0, 500) { fastBowValue.get() }
 
     //BowAura
     private val bowAuraValue = BoolValue("BowAura Options", false)
     private val AuraSilentValue = BoolValue("Silent", true)
     private val AuraPredictValue = BoolValue("Predict", true)
     private val AuraThroughWallsValue = BoolValue("ThroughWalls", false)
-    private val AuraPredictSizeValue = FloatValue("PredictSize", 2F, 0.1F, 5F).displayable { predictValue.get() }
+    private val AuraPredictSizeValue = FloatValue("PredictSize", 2F, 0.1F, 5F) { predictValue.get() }
     private val AuraPriorityValue = ListValue("Priority", arrayOf("Health", "Distance", "Direction"), "Direction")
     private val AuraMaxDistance = FloatValue("MaxDistance", 100F, 5F, 200F)
     private val AuraMarkValue = BoolValue("Mark", true)

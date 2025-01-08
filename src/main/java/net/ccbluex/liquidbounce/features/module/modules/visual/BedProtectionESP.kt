@@ -32,9 +32,9 @@ class BedProtectionESP : Module() {
     private val renderTargetBlocks = BoolValue("RenderTargetBlocks", true)
 
     private val colorRainbow = BoolValue("Rainbow", false)
-    private val colorRed = IntegerValue("R", 96, 0,255).displayable { !colorRainbow.get() }
-    private val colorGreen = IntegerValue("G", 96, 0,255).displayable { !colorRainbow.get() }
-    private val colorBlue = IntegerValue("B", 96, 0,255).displayable { !colorRainbow.get() }
+    private val colorRed = IntegerValue("R", 96, 0,255) { !colorRainbow.get() }
+    private val colorGreen = IntegerValue("G", 96, 0,255) { !colorRainbow.get() }
+    private val colorBlue = IntegerValue("B", 96, 0,255) { !colorRainbow.get() }
 
     private val searchTimer = MSTimer()
     private val targetBlockList = mutableListOf<BlockPos>()

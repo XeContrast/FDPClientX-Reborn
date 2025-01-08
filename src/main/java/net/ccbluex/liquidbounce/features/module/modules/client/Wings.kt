@@ -19,9 +19,9 @@ import net.ccbluex.liquidbounce.features.value.ListValue
 object Wings : Module() {
     private val onlyThirdPerson = BoolValue("OnlyThirdPerson", true)
     val ColourType = ListValue("Color Type", arrayOf("Custom", "Chroma", "None"), "Chroma")
-    val CR = IntegerValue("R", 255, 0, 255).displayable { ColourType.get() == "Custom" }
-    val CG = IntegerValue("G", 255, 0, 255).displayable { ColourType.get() == "Custom" }
-    val CB = IntegerValue("B", 255, 0, 255).displayable { ColourType.get() == "Custom" }
+    val CR = IntegerValue("R", 255, 0, 255) { ColourType.get() == "Custom" }
+    val CG = IntegerValue("G", 255, 0, 255) { ColourType.get() == "Custom" }
+    val CB = IntegerValue("B", 255, 0, 255) { ColourType.get() == "Custom" }
     var wingStyle = ListValue("WingStyle", arrayOf("Dragon", "Simple"),"Dragon")
 
 

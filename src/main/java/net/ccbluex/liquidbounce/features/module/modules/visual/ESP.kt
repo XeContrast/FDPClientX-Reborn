@@ -42,23 +42,23 @@ object ESP : Module() {
         arrayOf("Box", "OtherBox","HealthLine", "WireFrame", "2D", "Real2D", "CSGO", "CSGOOld", "Outline", "ShaderOutline", "ShaderGlow", "Jello"),
         "CSGO"
     )
-    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f).displayable { modeValue.equals("Outline") }
-    private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f).displayable { modeValue.equals("ShaderOutline") }
-    private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f).displayable { modeValue.equals("ShaderGlow") }
-    private val csgoDirectLineValue = BoolValue("CSGO-DirectLine", false).displayable { modeValue.equals("CSGO") }
-    private val csgoShowHealthValue = BoolValue("CSGO-ShowHealth", true).displayable { modeValue.equals("CSGO") }
-    private val csgoShowHeldItemValue = BoolValue("CSGO-ShowHeldItem", true).displayable { modeValue.equals("CSGO") }
-    private val csgoShowNameValue = BoolValue("CSGO-ShowName", true).displayable { modeValue.equals("CSGO") }
-    private val csgoWidthValue = FloatValue("CSGOOld-Width", 2f, 0.5f, 5f).displayable { modeValue.equals("CSGO-Old") }
+    private val outlineWidthValue = FloatValue("Outline-Width", 3f, 0.5f, 5f) { modeValue.equals("Outline") }
+    private val shaderOutlineRadiusValue = FloatValue("ShaderOutline-Radius", 1.35f, 1f, 2f) { modeValue.equals("ShaderOutline") }
+    private val shaderGlowRadiusValue = FloatValue("ShaderGlow-Radius", 2.3f, 2f, 3f) { modeValue.equals("ShaderGlow") }
+    private val csgoDirectLineValue = BoolValue("CSGO-DirectLine", false) { modeValue.equals("CSGO") }
+    private val csgoShowHealthValue = BoolValue("CSGO-ShowHealth", true) { modeValue.equals("CSGO") }
+    private val csgoShowHeldItemValue = BoolValue("CSGO-ShowHeldItem", true) { modeValue.equals("CSGO") }
+    private val csgoShowNameValue = BoolValue("CSGO-ShowName", true) { modeValue.equals("CSGO") }
+    private val csgoWidthValue = FloatValue("CSGOOld-Width", 2f, 0.5f, 5f) { modeValue.equals("CSGO-Old") }
     private val colorModeValue = ListValue("ColorMode", arrayOf("Name", "Armor", "OFF"), "Name")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("G", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("B", 255, 0, 255).displayable { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
-    private val colorRainbowValue = BoolValue("Rainbow", false).displayable { colorModeValue.get() == "OFF" }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255) { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("G", 255, 0, 255) { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("B", 255, 0, 255) { colorModeValue.get() == "OFF" && !colorRainbowValue.get() }
+    private val colorRainbowValue = BoolValue("Rainbow", false) { colorModeValue.get() == "OFF" }
     private val damageColorValue = BoolValue("ColorOnDamage", true)
-    private val damageRedValue = IntegerValue("DamageR", 255, 0, 255).displayable { damageColorValue.get() }
-    private val damageGreenValue = IntegerValue("DamageG", 0, 0, 255).displayable { damageColorValue.get() }
-    private val damageBlueValue = IntegerValue("DamageB", 0, 0, 255).displayable { damageColorValue.get() }
+    private val damageRedValue = IntegerValue("DamageR", 255, 0, 255) { damageColorValue.get() }
+    private val damageGreenValue = IntegerValue("DamageG", 0, 0, 255) { damageColorValue.get() }
+    private val damageBlueValue = IntegerValue("DamageB", 0, 0, 255) { damageColorValue.get() }
     
 
     private val decimalFormat = DecimalFormat("0.0")

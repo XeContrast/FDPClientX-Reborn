@@ -7,7 +7,7 @@ import net.ccbluex.liquidbounce.features.value.Value
 import net.ccbluex.liquidbounce.utils.ClassUtils
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
 
-abstract class StepMode(val modeName: String) : MinecraftInstance() {
+abstract class StepMode(val modeName: String,val off: Boolean = false,val dontCheck: Boolean = false) : MinecraftInstance() {
     protected val valuePrefix = "$modeName-"
 
     protected val step: Step

@@ -27,14 +27,14 @@ object Aimbot : Module() {
     private val turnSpeedValue = FloatValue("TurnSpeed", 2F, 1F, 180F)
     private val randomTurnValue = FloatValue("TurnSpeedRandomRate", 1.0F, 0F, 15F)
     private val smoothValue = BoolValue("Smooth", false)
-    private val smoothAngleValue = IntegerValue("SmoothMinAngle", 30, 1, 180).displayable { smoothValue.get() }
+    private val smoothAngleValue = IntegerValue("SmoothMinAngle", 30, 1, 180) { smoothValue.get() }
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F)
     private val rotMode = ListValue("RotationMode", arrayOf("LiquidBounce", "Full", "HalfUp", "HalfDown", "CenterSimple", "CenterLine"), "HalfUp")
     private val lockValue = BoolValue("Lock", true)
     private val onClickValue = BoolValue("OnClick", false)
-    private val onClickDurationValue = IntegerValue("OnClickDuration", 500, 100, 1000).displayable { onClickValue.get() }
+    private val onClickDurationValue = IntegerValue("OnClickDuration", 500, 100, 1000) { onClickValue.get() }
     private val jitterValue = BoolValue("Jitter", false)
-    private val randomJitterValue = FloatValue("JitterRandomRate", 1.0F, 0F, 5.0F).displayable { jitterValue.get() }
+    private val randomJitterValue = FloatValue("JitterRandomRate", 1.0F, 0F, 5.0F) { jitterValue.get() }
 
     private val clickTimer = MSTimer()
 

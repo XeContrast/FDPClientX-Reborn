@@ -15,5 +15,5 @@ abstract class ValueElement<T>(val value: Value<T>) : MinecraftInstance() {
 
     open fun onKeyPress(typed: Char, keyCode: Int): Boolean = false
 
-    fun isDisplayable(): Boolean = value.displayable
+    fun isDisplayable(): Boolean = value.stateDisplayable
 }

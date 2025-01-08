@@ -13,8 +13,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class Vulcan : StepMode("Vulcan") {
     override fun onStep(event: StepEvent) {
-        Step.doncheck = false
-        Step.off = false
         if (event.eventState == EventState.PRE) {} else {
             val rstepHeight = mc.thePlayer.entityBoundingBox.minY - stepY
             fakeJump()

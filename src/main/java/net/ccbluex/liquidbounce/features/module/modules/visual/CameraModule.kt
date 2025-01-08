@@ -13,9 +13,9 @@ object CameraModule : Module() {
     val cameraclip = BoolValue("CameraClip",false)
     val nobob = BoolValue("NoBob",false)
     val nofov = BoolValue("NoFov",false)
-    val nofovValue = FloatValue("FOV",1f,0f,1.5f).displayable { nofov.get() }
+    val nofovValue = FloatValue("FOV",1f,0f,1.5f) { nofov.get() }
     val motionCamera: BoolValue = BoolValue("Motion", false)
-    val interpolation = FloatValue("MotionInterpolation", 0.15f, 0.05f, 0.5f).displayable { motionCamera.get() }
+    val interpolation = FloatValue("MotionInterpolation", 0.15f, 0.05f, 0.5f) { motionCamera.get() }
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (nobob.get()) mc.thePlayer.distanceWalkedModified = 0f

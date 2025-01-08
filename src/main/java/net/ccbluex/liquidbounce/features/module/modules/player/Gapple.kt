@@ -40,8 +40,8 @@ object Gapple : Module() {
     private val waitRegen = BoolValue("WaitRegen", true)
     private val invCheck = BoolValue("InvCheck", false)
     private val absorpCheck = BoolValue("NoAbsorption", true)
-    private val fastEatValue = BoolValue("FastEat", false).displayable { modeValue.equals("LegitAuto") || modeValue.equals("Legit") }
-    private val eatDelayValue = IntegerValue("FastEatDelay", 14, 0, 35).displayable { fastEatValue.get() }
+    private val fastEatValue = BoolValue("FastEat", false) { modeValue.equals("LegitAuto") || modeValue.equals("Legit") }
+    private val eatDelayValue = IntegerValue("FastEatDelay", 14, 0, 35) { fastEatValue.get() }
     val timer = MSTimer()
     private var eating = -1
     var delay = 0

@@ -23,14 +23,14 @@ object Ambience : Module() {
 
     private val timeModeValue = ListValue("TimeMode", arrayOf("None", "Normal", "Custom"), "Normal")
     private val weatherModeValue = ListValue("WeatherMode", arrayOf("None", "Sun", "Rain", "Thunder"), "None")
-    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 24).displayable { timeModeValue.equals("Custom") }
-    private val changeWorldTimeSpeedValue = IntegerValue("ChangeWorldTimeSpeed", 150, 10, 500).displayable { timeModeValue.equals("Normal") }
-    private val weatherStrengthValue = FloatValue("WeatherStrength", 1f, 0f, 1f).displayable { !weatherModeValue.equals("None") }
+    private val customWorldTimeValue = IntegerValue("CustomTime", 1, 0, 24) { timeModeValue.equals("Custom") }
+    private val changeWorldTimeSpeedValue = IntegerValue("ChangeWorldTimeSpeed", 150, 10, 500) { timeModeValue.equals("Normal") }
+    private val weatherStrengthValue = FloatValue("WeatherStrength", 1f, 0f, 1f) { !weatherModeValue.equals("None") }
 
     val worldColor = BoolValue("WorldColor", false)
-    val worldColorRed = IntegerValue("WorldRed", 255, 0,255).displayable { worldColor.get() }
-    val worldColorGreen = IntegerValue("WorldGreen", 255, 0,255).displayable { worldColor.get() }
-    val worldColorBlue = IntegerValue("WorldBlue", 255, 0,255).displayable { worldColor.get() }
+    val worldColorRed = IntegerValue("WorldRed", 255, 0,255) { worldColor.get() }
+    val worldColorGreen = IntegerValue("WorldGreen", 255, 0,255) { worldColor.get() }
+    val worldColorBlue = IntegerValue("WorldBlue", 255, 0,255) { worldColor.get() }
 
 
     var i = 0L

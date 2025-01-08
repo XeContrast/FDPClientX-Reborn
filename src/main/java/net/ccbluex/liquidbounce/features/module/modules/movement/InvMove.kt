@@ -40,11 +40,10 @@ object InvMove : Module() {
     private val rotateValue = BoolValue("Rotate", false)
     private val noMoveClicksValue = BoolValue("NoMoveClicks", false)
     val noSprintValue = ListValue("NoSprint", arrayOf("Real", "PacketSpoof", "None"), "None")
-    private val noSprintPacket = BoolValue("GrimAC",true).displayable{ bypassValue.get() == "SaveC0E"}
 
-    private val blinkPacketList = mutableListOf<C03PacketPlayer>()
-    private val clickPacketList = mutableListOf<C0EPacketClickWindow>()
-    private val packetListYes = mutableListOf<C0EPacketClickWindow>()
+    private val blinkPacketList = ArrayDeque<C03PacketPlayer>()
+    private val clickPacketList = ArrayDeque<C0EPacketClickWindow>()
+    private val packetListYes = ArrayDeque<C0EPacketClickWindow>()
     private var lastInvOpen = false
     var invOpen = false
         private set
@@ -278,6 +277,9 @@ object InvMove : Module() {
     }
 
     private fun reset() {
+        if (mc.thePlayer == null || mc.theWorld == null)
+            return
+
         for (affectedBinding in affectedBindings)
             affectedBinding.pressed = false.takeIf { affectedBinding.pressed }!!
     }

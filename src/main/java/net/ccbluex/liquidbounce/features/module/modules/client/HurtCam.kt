@@ -22,12 +22,12 @@ import java.awt.Color
 @ModuleInfo(name = "HurtCam", category = ModuleCategory.CLIENT, canEnable = false)
 object HurtCam : Module() {
     val modeValue = ListValue("Mode", arrayOf("Vanilla", "Cancel", "FPS"), "Vanilla")
-    private val colorRedValue = IntegerValue("R", 255, 0, 255).displayable { modeValue.equals("FPS") }
-    private val colorGreenValue = IntegerValue("G", 0, 0, 255).displayable { modeValue.equals("FPS") }
-    private val colorBlueValue = IntegerValue("B", 0, 0, 255).displayable { modeValue.equals("FPS") }
-    private val colorRainbow = BoolValue("Rainbow", false).displayable { modeValue.equals("FPS") }
-    private val timeValue = IntegerValue("FPSTime", 1000, 0, 1500).displayable { modeValue.equals("FPS") }
-    private val fpsHeightValue = IntegerValue("FPSHeight", 25, 10, 50).displayable { modeValue.equals("FPS") }
+    private val colorRedValue = IntegerValue("R", 255, 0, 255) { modeValue.equals("FPS") }
+    private val colorGreenValue = IntegerValue("G", 0, 0, 255) { modeValue.equals("FPS") }
+    private val colorBlueValue = IntegerValue("B", 0, 0, 255) { modeValue.equals("FPS") }
+    private val colorRainbow = BoolValue("Rainbow", false) { modeValue.equals("FPS") }
+    private val timeValue = IntegerValue("FPSTime", 1000, 0, 1500) { modeValue.equals("FPS") }
+    private val fpsHeightValue = IntegerValue("FPSHeight", 25, 10, 50) { modeValue.equals("FPS") }
 
     private var hurt = 0L
 

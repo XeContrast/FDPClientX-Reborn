@@ -28,12 +28,12 @@ class AimAssist : Module() {
     private val edgeSpeed = FloatValue("EdgeSpeed", 20F, 1F, 100F)
     private val edgeRandom = FloatValue("EdgeRandomRange", 1.0F, 0F, 15F)
     private val onTargetSlowdown = BoolValue("OnTargetSlowdown", true)
-    private val slowdownAmount = FloatValue("SlowDownAmount", 0.5f, 0.1f, 0.7f).displayable { onTargetSlowdown.get() }
+    private val slowdownAmount = FloatValue("SlowDownAmount", 0.5f, 0.1f, 0.7f) { onTargetSlowdown.get() }
     private val fovValue = FloatValue("FOV", 180F, 1F, 180F)
     private val onClickValue = BoolValue("OnClick", false)
-    private val onClickDurationValue = IntegerValue("OnClickDuration", 500, 100, 1000).displayable { onClickValue.get() }
+    private val onClickDurationValue = IntegerValue("OnClickDuration", 500, 100, 1000) { onClickValue.get() }
     private val jitterValue = BoolValue("Jitter", false)
-    private val randomJitterValue = FloatValue("JitterRandomRate", 1.0F, 0F, 5.0F).displayable { jitterValue.get() }
+    private val randomJitterValue = FloatValue("JitterRandomRate", 1.0F, 0F, 5.0F) { jitterValue.get() }
 
     private val clickTimer = MSTimer()
 

@@ -35,27 +35,27 @@ class AutoBot : Module() {
     private val autoPotValue = BoolValue("AutoPot", true)
 
     // Auto Soup
-    private val autoSoupHealthValue = FloatValue("Health", 15f, 0f, 20f).displayable { autoSoupValue.get() }
-    private val autoSoupDelayValue = IntegerValue("Delay", 150, 0, 500).displayable { autoSoupValue.get() }
-    private val autoSoupOpenInventoryValue = BoolValue("OpenInv", false).displayable { autoSoupValue.get() }
-    private val autoSoupSimulateInventoryValue = BoolValue("SimulateInventory", true).displayable { autoSoupValue.get() }
-    private val autoSoupBowlValue = ListValue("Bowl", arrayOf("Drop", "Move", "Stay"), "Drop").displayable { autoSoupValue.get() }
+    private val autoSoupHealthValue = FloatValue("Health", 15f, 0f, 20f) { autoSoupValue.get() }
+    private val autoSoupDelayValue = IntegerValue("Delay", 150, 0, 500) { autoSoupValue.get() }
+    private val autoSoupOpenInventoryValue = BoolValue("OpenInv", false) { autoSoupValue.get() }
+    private val autoSoupSimulateInventoryValue = BoolValue("SimulateInventory", true) { autoSoupValue.get() }
+    private val autoSoupBowlValue = ListValue("Bowl", arrayOf("Drop", "Move", "Stay"), "Drop") { autoSoupValue.get() }
     private val autoSoupTimer = MSTimer()
 
     // Auto Pot
-    private val autoPotThrowMode = ListValue("AutoPot-ThrowMode", arrayOf("Up", "Forward", "Down", "Custom"), "Up").displayable { autoPotValue.get() }
-    private val autoPotHealthValue = FloatValue("AutoPot-Health", 15F, 1F, 20F).displayable { autoPotValue.get() }
-    private val autoPotDelayValue = IntegerValue("AutoPot-Delay", 500, 500, 1000).displayable { autoPotValue.get() }
-    private val autoPotThrowTickValue = IntegerValue("AutoPot-ThrowTick", 3, 1, 10).displayable { autoPotValue.get() }
-    private val autoPotSelectValue = IntegerValue("AutoPot-SelectSlot", -1, -1, 9).displayable { autoPotValue.get() }
-    private val autoPotGroundDistanceValue = FloatValue("AutoPot-GroundDistance", 2F, 0F, 4F).displayable { autoPotValue.get() && !autoPotOnGround.get() }
-    private val autoPotThrowAngleOption = IntegerValue("AutoPot-ThrowAngle", -45, -90, 90).displayable { autoPotThrowMode.equals("Custom") && autoPotValue.get() }
-    private val autoPotOpenInventoryValue = BoolValue("AutoPot-OpenInv", false).displayable { autoPotValue.get() }
-    private val autoPotSimulateInventoryValue = BoolValue("AutoPot-SimulateInventory", true).displayable { autoPotValue.get() }
-    private val autoPotRegenValue = BoolValue("AutoPot-Regen", true).displayable { autoPotValue.get() }
-    private val autoPotUtilityValue = BoolValue("AutoPot-Utility", true).displayable { autoPotValue.get() }
-    private val autoPotNotCombatValue = BoolValue("AutoPot-NotCombat", true).displayable { autoPotValue.get() }
-    private val autoPotOnGround = BoolValue("AutoPot-OnGround", true).displayable { autoPotValue.get() }
+    private val autoPotThrowMode = ListValue("AutoPot-ThrowMode", arrayOf("Up", "Forward", "Down", "Custom"), "Up") { autoPotValue.get() }
+    private val autoPotHealthValue = FloatValue("AutoPot-Health", 15F, 1F, 20F) { autoPotValue.get() }
+    private val autoPotDelayValue = IntegerValue("AutoPot-Delay", 500, 500, 1000) { autoPotValue.get() }
+    private val autoPotThrowTickValue = IntegerValue("AutoPot-ThrowTick", 3, 1, 10) { autoPotValue.get() }
+    private val autoPotSelectValue = IntegerValue("AutoPot-SelectSlot", -1, -1, 9) { autoPotValue.get() }
+    private val autoPotGroundDistanceValue = FloatValue("AutoPot-GroundDistance", 2F, 0F, 4F) { autoPotValue.get() && !autoPotOnGround.get() }
+    private val autoPotThrowAngleOption = IntegerValue("AutoPot-ThrowAngle", -45, -90, 90) { autoPotThrowMode.equals("Custom") && autoPotValue.get() }
+    private val autoPotOpenInventoryValue = BoolValue("AutoPot-OpenInv", false) { autoPotValue.get() }
+    private val autoPotSimulateInventoryValue = BoolValue("AutoPot-SimulateInventory", true) { autoPotValue.get() }
+    private val autoPotRegenValue = BoolValue("AutoPot-Regen", true) { autoPotValue.get() }
+    private val autoPotUtilityValue = BoolValue("AutoPot-Utility", true) { autoPotValue.get() }
+    private val autoPotNotCombatValue = BoolValue("AutoPot-NotCombat", true) { autoPotValue.get() }
+    private val autoPotOnGround = BoolValue("AutoPot-OnGround", true) { autoPotValue.get() }
     private var autoPotThrowing = false
     private var autoPotThrowTime = 0
     private var autoPotPot = -1

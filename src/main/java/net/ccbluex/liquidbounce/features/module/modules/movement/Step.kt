@@ -27,8 +27,6 @@ object Step : Module() {
     var canStep = false
     val timer = MSTimer()
     private var high = 0.0f
-    var doncheck = false
-    var off = false //你麻痹不每个设置一个直接狗日的不工作了
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.steps", StepMode::class.java)
         .map { it.newInstance() as StepMode }
         .sortedBy { it.modeName }
@@ -63,8 +61,6 @@ object Step : Module() {
 
     override fun onEnable() {
         high = 0f
-        doncheck = false
-        off = false
     }
 
     @EventTarget
@@ -75,7 +71,7 @@ object Step : Module() {
             event.stepHeight = 0.6F
             return
         }
-        if (doncheck || mc.thePlayer.entityBoundingBox.minY - stepY > 0.6) {
+        if (mode.dontCheck || mc.thePlayer.entityBoundingBox.minY - stepY > 0.6) {
             if (timerValue.get() < 1.0) {
                 wasTimer = true
                 mc.timer.timerSpeed = timerValue.get()
@@ -86,7 +82,7 @@ object Step : Module() {
             mode.onStep(event)
         }
         if (event.eventState == EventState.PRE) {
-            if (off) {
+            if (mode.off) {
                 mc.thePlayer.stepHeight = 0.6f
                 event.stepHeight = 0.6f
                 return

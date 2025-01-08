@@ -72,41 +72,41 @@ object NoSlow : Module() {
     //Modify Slowdown / Packets
     private val blockModifyValue = BoolValue("Blocking", true)
     private val blockForwardMultiplier =
-        FloatValue("BlockForwardMultiplier", 1.0F, 0.2F, 1.0F).displayable { blockModifyValue.get() }
+        FloatValue("BlockForwardMultiplier", 1.0F, 0.2F, 1.0F) { blockModifyValue.get() }
     private val blockStrafeMultiplier =
-        FloatValue("BlockStrafeMultiplier", 1.0F, 0.2F, 1.0F).displayable { blockModifyValue.get() }
+        FloatValue("BlockStrafeMultiplier", 1.0F, 0.2F, 1.0F) { blockModifyValue.get() }
     private val consumeModifyValue = BoolValue("Consume", true)
     private val consumePacketValue = ListValue(
         "ConsumePacket",
         arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","Bug","Intave","InvalidC08", "Packet").sortedArray(),
         "None"
-    ).displayable { consumeModifyValue.get() }
+    ) { consumeModifyValue.get() }
     private val consumeTimingValue =
-        ListValue("ConsumeTiming", arrayOf("Pre", "Post"), "Pre").displayable { consumeModifyValue.get() }
+        ListValue("ConsumeTiming", arrayOf("Pre", "Post"), "Pre") { consumeModifyValue.get() }
     private val consumeForwardMultiplier =
-        FloatValue("ConsumeForwardMultiplier", 1.0F, 0.2F, 1.0F).displayable { consumeModifyValue.get() }
+        FloatValue("ConsumeForwardMultiplier", 1.0F, 0.2F, 1.0F) { consumeModifyValue.get() }
     private val consumeStrafeMultiplier =
-        FloatValue("ConsumeStrafeMultiplier", 1.0F, 0.2F, 1.0F).displayable { consumeModifyValue.get() }
+        FloatValue("ConsumeStrafeMultiplier", 1.0F, 0.2F, 1.0F) { consumeModifyValue.get() }
     private val bowModifyValue = BoolValue("Bow", true)
     private val bowPacketValue = ListValue(
         "BowPacket",
         arrayOf("None", "AAC5", "SpamItemChange", "SpamPlace", "SpamEmptyPlace","UNCP", "Glitch", "Grim","InvalidC08", "Packet"),
         "None"
-    ).displayable { bowModifyValue.get() }
+    ) { bowModifyValue.get() }
     private val bowTimingValue =
-        ListValue("BowTiming", arrayOf("Pre", "Post"), "Pre").displayable { bowModifyValue.get() }
+        ListValue("BowTiming", arrayOf("Pre", "Post"), "Pre") { bowModifyValue.get() }
     private val bowForwardMultiplier =
-        FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F).displayable { bowModifyValue.get() }
+        FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F) { bowModifyValue.get() }
     private val bowStrafeMultiplier =
-        FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F).displayable { bowModifyValue.get() }
-    private val customOnGround = BoolValue("CustomOnGround", false).displayable { modeValue.equals("Custom") }
-    private val customDelayValue = IntegerValue("CustomDelay", 60, 10, 200).displayable { modeValue.equals("Custom") }
+        FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F) { bowModifyValue.get() }
+    private val customOnGround = BoolValue("CustomOnGround", false) { modeValue.equals("Custom") }
+    private val customDelayValue = IntegerValue("CustomDelay", 60, 10, 200) { modeValue.equals("Custom") }
     val soulSandValue = BoolValue("SoulSand", true)
 
     //AACv4
-    private val c07Value = BoolValue("AAC4-C07", true).displayable { modeValue.equals("AAC4") }
-    private val c08Value = BoolValue("AAC4-C08", true).displayable { modeValue.equals("AAC4") }
-    private val groundValue = BoolValue("AAC4-OnGround", true).displayable { modeValue.equals("AAC4") }
+    private val c07Value = BoolValue("AAC4-C07", true) { modeValue.equals("AAC4") }
+    private val c08Value = BoolValue("AAC4-C08", true) { modeValue.equals("AAC4") }
+    private val groundValue = BoolValue("AAC4-OnGround", true) { modeValue.equals("AAC4") }
 
     // Slowdown on teleport
     private val teleportValue = BoolValue("Teleport", false)
@@ -114,19 +114,19 @@ object NoSlow : Module() {
         "TeleportMode",
         arrayOf("Vanilla", "VanillaNoSetback", "Custom", "Decrease"),
         "Vanilla"
-    ).displayable { teleportValue.get() }
-    private val teleportNoApplyValue = BoolValue("TeleportNoApply", false).displayable { teleportValue.get() }
-    private val teleportCustomSpeedValue = FloatValue("Teleport-CustomSpeed", 0.13f, 0f, 1f).displayable {
+    ) { teleportValue.get() }
+    private val teleportNoApplyValue = BoolValue("TeleportNoApply", false) { teleportValue.get() }
+    private val teleportCustomSpeedValue = FloatValue("Teleport-CustomSpeed", 0.13f, 0f, 1f) {
         teleportValue.get() && teleportModeValue.equals("Custom")
     }
     private val teleportCustomYValue =
-        BoolValue("Teleport-CustomY", false).displayable { teleportValue.get() && teleportModeValue.equals("Custom") }
+        BoolValue("Teleport-CustomY", false) { teleportValue.get() && teleportModeValue.equals("Custom") }
     private val teleportDecreasePercentValue = FloatValue(
         "Teleport-DecreasePercent",
         0.13f,
         0f,
         1f
-    ).displayable { teleportValue.get() && teleportModeValue.equals("Decrease") }
+    ) { teleportValue.get() && teleportModeValue.equals("Decrease") }
 
     private var pendingFlagApplyPacket = false
     private var lastMotionX = 0.0
@@ -431,7 +431,7 @@ object NoSlow : Module() {
                     if (event.eventState == EventState.PRE) mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
                 }
                 "invalidc08" -> {
-                    val heldItem = mc.thePlayer.heldItem!!
+                    val heldItem = mc.thePlayer.heldItem ?: return
                     if (event.eventState == EventState.PRE) {
                         // Food Only
                         if (heldItem.item is ItemPotion || heldItem.item is ItemBucketMilk) {

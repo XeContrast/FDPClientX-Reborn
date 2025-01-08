@@ -14,20 +14,21 @@ import net.minecraft.client.gui.FontRenderer
 import java.awt.Color
 import java.util.*
 import kotlin.jvm.internal.Intrinsics
-import kotlin.math.roundToInt
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
-abstract class Value<T>(val name: String, var value: T) {
+abstract class Value<T>(val name: String, var value: T,var canDisplay: () -> Boolean) : ReadWriteProperty<Any?, T> {
     val default = value
     var textHovered: Boolean = false
 
-    private var displayableFunc: () -> Boolean = { true }
+    private var displayableFunc: () -> Boolean = { canDisplay.invoke() }
 
     fun displayable(func: () -> Boolean): Value<T> {
         displayableFunc = func
         return this
     }
 
-    val displayable: Boolean
+    val stateDisplayable: Boolean
         get() = displayableFunc()
 
     val displayableFunction: () -> Boolean
@@ -48,7 +49,11 @@ abstract class Value<T>(val name: String, var value: T) {
         }
     }
 
-
+    // Support for delegating values using the `by` keyword.
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        set(value)
+    }
 
     fun get() = value
 
@@ -68,7 +73,7 @@ abstract class Value<T>(val name: String, var value: T) {
 
     // this is better api for ListValue and TextValue
 
-    open class ColorValue(name: String, value: Int, canDisplay: () -> Boolean) : Value<Int>(name, value) {
+    open class ColorValue(name: String, value: Int, displayable: () -> Boolean = { true }) : Value<Int>(name, value,displayable) {
         val minimum: Int = -10000000
         val maximum: Int = 1000000
         fun set(newValue: Number) {
@@ -120,12 +125,23 @@ abstract class Value<T>(val name: String, var value: T) {
         Intrinsics.checkParameterIsNotNull(name, "name")
         ColorValue(name, value)
     }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (value?.hashCode() ?: 0)
+        result = 31 * result + canDisplay.hashCode()
+        result = 31 * result + (default?.hashCode() ?: 0)
+        result = 31 * result + textHovered.hashCode()
+        result = 31 * result + displayableFunc.hashCode()
+        result = 31 * result + Expanded.hashCode()
+        return result
+    }
 }
 
 /**
  * Text value represents a value with a string
  */
-open class TextValue(name: String, value: String) : Value<String>(name, value) {
+open class TextValue(name: String, value: String,displayable: () -> Boolean = { true }) : Value<String>(name, value,displayable) {
     override fun toJson() = JsonPrimitive(value)
 
     override fun fromJson(element: JsonElement) {
@@ -141,33 +157,10 @@ open class TextValue(name: String, value: String) : Value<String>(name, value) {
 
 }
 
-open class NumberValue(name: String, value: Double, val minimum: Double = 0.0, val maximum: Double = Double.MAX_VALUE,val inc: Double/* = 1.0*/)
-    : Value<Double>(name, value) {
-
-    fun set(newValue: Number) {
-        set(newValue.toDouble())
-    }
-
-    override fun toJson() = JsonPrimitive(value)
-
-    override fun fromJson(element: JsonElement) {
-        if (element.isJsonPrimitive)
-            value = element.asDouble
-    }
-    open fun getDouble(): Double {
-        return ((this.get() as Number).toDouble() / this.inc).roundToInt() * this.inc
-    }
-
-    fun append(o: Double): NumberValue {
-        set(get() + o)
-        return this
-    }
-}
-
 /**
  * List value represents a selectable list of values
  */
-open class ListValue(name: String, val values: Array<String>, value: String) : Value<String>(name, value) {
+open class ListValue(name: String, val values: Array<String>, value: String,displayable: () -> Boolean = { true }) : Value<String>(name, value,displayable) {
     @JvmField
     var openList = false
 
@@ -236,14 +229,12 @@ open class ListValue(name: String, val values: Array<String>, value: String) : V
  */
 //open class IntegerValue(name: String, value: Int, val minimum: Int = 0, val maximum: Int = Integer.MAX_VALUE) : Value<Int>(name, value) {
 
-open class IntegerValue(name: String, value: Int, val minimum: Int = 0, val maximum: Int = Integer.MAX_VALUE, val suffix: String, displayable: () -> Boolean)
-    : Value<Int>(name, value) {
+open class IntegerValue(name: String, value: Int, val minimum: Int = 0, val maximum: Int = Integer.MAX_VALUE, val suffix: String, displayable: () -> Boolean = { true })
+    : Value<Int>(name, value,displayable) {
 
-    constructor(name: String, value: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, value, minimum, maximum, "", displayable)
+    constructor(name: String, value: Int, minimum: Int, maximum: Int, displayable: () -> Boolean = { true }): this(name, value, minimum, maximum, "", displayable)
     constructor(name: String, value: Int, minimum: Int, maximum: Int, suffix: String): this(name, value, minimum, maximum, suffix, { true } )
     constructor(name: String, value: Int, minimum: Int, maximum: Int): this(name, value, minimum, maximum, { true } )
-
-
 
     fun set(newValue: Number) {
         set(newValue.toInt())
@@ -266,7 +257,7 @@ class BlockValue(name: String, value: Int) : IntegerValue(name, value, 1, 197)
 /**
  * Bool value represents a value with a boolean
  */
-open class BoolValue(name: String, value: Boolean) : Value<Boolean>(name, value) {
+open class BoolValue(name: String, value: Boolean,displayable: () -> Boolean = { true }) : Value<Boolean>(name, value,displayable) {
 
     val animation = AnimationHelper(this)
     override fun toJson() = JsonPrimitive(value)
@@ -288,10 +279,10 @@ open class BoolValue(name: String, value: Boolean) : Value<Boolean>(name, value)
 /**
  * Float value represents a value with a float
  */
-open class FloatValue(name: String, value: Float, val minimum: Float = 0F, val maximum: Float = Float.MAX_VALUE, val suffix: String, displayable: () -> Boolean)
-    : Value<Float>(name, value) {
+open class FloatValue(name: String, value: Float, val minimum: Float = 0F, val maximum: Float = Float.MAX_VALUE, val suffix: String, displayable: () -> Boolean = { true })
+    : Value<Float>(name, value,displayable) {
 
-    constructor(name: String, value: Float, minimum: Float, maximum: Float, displayable: () -> Boolean): this(name, value, minimum, maximum, "", displayable)
+    constructor(name: String, value: Float, minimum: Float, maximum: Float, displayable: () -> Boolean = { true }): this(name, value, minimum, maximum, "", displayable)
     constructor(name: String, value: Float, minimum: Float, maximum: Float, suffix: String): this(name, value, minimum, maximum, suffix, { true } )
     constructor(name: String, value: Float, minimum: Float, maximum: Float): this(name, value, minimum, maximum, { true } )
     fun set(newValue: Number) {
@@ -307,7 +298,7 @@ open class FloatValue(name: String, value: Float, val minimum: Float = 0F, val m
     }
 }
 
-open class  ColorValue(name : String, value: Int) : Value<Int>(name, value) {
+open class  ColorValue(name : String, value: Int,displayable: () -> Boolean = { true }) : Value<Int>(name, value,displayable) {
     open fun getValue(): Int {
         return super.get()
     }
@@ -355,7 +346,7 @@ open class  ColorValue(name : String, value: Int) : Value<Int>(name, value) {
 
 }
 
-class FontValue(valueName: String, value: FontRenderer) : Value<FontRenderer>(valueName, value) {
+class FontValue(valueName: String, value: FontRenderer,displayable: () -> Boolean = { true }) : Value<FontRenderer>(valueName, value,displayable) {
 
     private val cache: MutableList<Pair<String, FontRenderer>> = mutableListOf()
     private fun updateCache() {

@@ -59,18 +59,18 @@ object AntiKB : Module() {
             "VanillaMode",
             arrayOf("Jump", "Simple", "Glitch").sortedArray(),
             "Jump"
-        ).displayable { mainMode.get() == "Vanilla" }
+        ) { mainMode.get() == "Vanilla" }
     private val grimMode =
         ListValue(
             "GrimACMode",
             arrayOf("GrimReduce","GrimVertical","GrimClick").sortedArray(),
             "GrimReduce"
-        ).displayable { mainMode.get() == "GrimAC" }
+        ) { mainMode.get() == "GrimAC" }
     private val cancelMode = ListValue(
         "CancelMode",
         arrayOf("S12Cancel", "S32Cancel", "SendC0F", "HighVersion", "GrimS32Cancel", "GrimC07", "Spoof").sortedArray(),
         "S12Cancel"
-    ).displayable { mainMode.get() == "Cancel" }
+    ) { mainMode.get() == "Cancel" }
     private val matMode = ListValue(
         "MatrixMode", arrayOf(
             "Ground",
@@ -82,228 +82,228 @@ object AntiKB : Module() {
             "Spoof",
             "Clip"
         ).sortedArray(), "Ground"
-    ).displayable { mainMode.get() == "Matrix" }
+    ) { mainMode.get() == "Matrix" }
     private val aacMode = ListValue(
         "AACMode",
         arrayOf("AAC4Reduce", "AAC5Reduce","AAC5.2Reduce", "AAC5.2.0", "AAC5Vertical", "AAC5.2.0Combat", "AACPush", "AACZero").sortedArray(),
         "AAC4Reduce"
-    ).displayable { mainMode.get() == "AAC" }
+    ) { mainMode.get() == "AAC" }
     private val reverseMode = ListValue(
         "ReverseMode",
         arrayOf("Reverse", "SmoothReverse").sortedArray(),
         "Reverse"
-    ).displayable { mainMode.get() == "Reverse" }
+    ) { mainMode.get() == "Reverse" }
     private val otherMode = ListValue(
         "OtherMode",
         arrayOf("AttackReduce","BlocksMC", "IntaveReduce", "Karhu", "Delay", "Phase").sortedArray(),
         "AttackReduce"
-    ).displayable { mainMode.get() == "Other" }
+    ) { mainMode.get() == "Other" }
 
-    private val horizontal = FloatValue("Horizontal", 0F, -1F, 1F).displayable {
+    private val horizontal = FloatValue("Horizontal", 0F, -1F, 1F) {
         mainMode.get() == "Vanilla" && (vanillaMode.get() == "Simple")
     }
-    private val vertical = FloatValue("Vertical", 0F, -1F, 1F).displayable {
+    private val vertical = FloatValue("Vertical", 0F, -1F, 1F) {
         mainMode.get() in arrayOf(
             "AAC",
             "Vanilla"
         ) && (vanillaMode.get() == "Simple" || aacMode.get() == "AAC5.2.0")
     }
     private val limitMaxMotionValue =
-        BoolValue("LimitMaxMotion", false).displayable { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" }
+        BoolValue("LimitMaxMotion", false) { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" }
     private val maxXZMotion = FloatValue(
         "MaxXZMotion",
         0.4f,
         0f,
         1.9f
-    ).displayable { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" && limitMaxMotionValue.get() }
+    ) { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" && limitMaxMotionValue.get() }
     private val maxYMotion = FloatValue(
         "MaxYMotion",
         0.36f,
         0f,
         0.46f
-    ).displayable { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" && limitMaxMotionValue.get() }
+    ) { mainMode.get() == "Vanilla" && vanillaMode.get() == "Simple" && limitMaxMotionValue.get() }
 
     private val modifyTimerValue =
-        BoolValue("ModifyTimer", true).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "Spoof" }
+        BoolValue("ModifyTimer", true) { mainMode.get() == "Cancel" && cancelMode.get() == "Spoof" }
     private val mtimerValue = FloatValue(
         "Timer",
         0.6F,
         0.1F,
         1F
-    ).displayable { modifyTimerValue.get() && mainMode.get() == "Cancel" && cancelMode.get() == "Spoof" }
+    ) { modifyTimerValue.get() && mainMode.get() == "Cancel" && cancelMode.get() == "Spoof" }
 
     private val reverseStrength = FloatValue(
         "ReverseStrength",
         1f,
         0.1f,
         1f
-    ).displayable { mainMode.get() == "Reverse" && reverseMode.get() == "Reverse" }
+    ) { mainMode.get() == "Reverse" && reverseMode.get() == "Reverse" }
     private val reverse2Strength = FloatValue(
         "ReverseStrength",
         1f,
         0.02f,
         0.1f
-    ).displayable { mainMode.get() == "Reverse" && reverseMode.get() == "SmoothReverse" }
-    private val onLook = BoolValue("onLook", false).displayable {
+    ) { mainMode.get() == "Reverse" && reverseMode.get() == "SmoothReverse" }
+    private val onLook = BoolValue("onLook", false) {
         reverseMode.get() in arrayOf(
             "Reverse",
             "SmoothReverse"
         ) && mainMode.get() == "Reverse"
     }
-    private val range = FloatValue("Range", 3.0F, 1F, 5.0F).displayable {
+    private val range = FloatValue("Range", 3.0F, 1F, 5.0F) {
         onLook.get() && reverseMode.get() in arrayOf("Reverse", "SmoothReverse") && mainMode.get() == "Reverse"
     }
-    private val maxAngleDifference = FloatValue("MaxAngleDifference", 45.0f, 5.0f, 90f).displayable {
+    private val maxAngleDifference = FloatValue("MaxAngleDifference", 45.0f, 5.0f, 90f) {
         onLook.get() && reverseMode.get() in arrayOf("Reverse", "SmoothReverse") && mainMode.get() == "Reverse"
     }
 
     private val alwaysValue =
-        BoolValue("Always", true).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
+        BoolValue("Always", true) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
     private val onlyAirValue =
-        BoolValue("OnlyBreakAir", true).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
+        BoolValue("OnlyBreakAir", true) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
     private val worldValue =
-        BoolValue("BreakOnWorld", false).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
+        BoolValue("BreakOnWorld", false) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
     private val sendC03Value =
         BoolValue(
             "SendC03",
             false
-        ).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" } // bypass latest but flag timer
+        ) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" } // bypass latest but flag timer
     private val C06Value =
         BoolValue(
             "Send1.17C06",
             false
-        ).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" && sendC03Value.get() } // need via to 1.17+
+        ) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" && sendC03Value.get() } // need via to 1.17+
     private val flagPauseValue = IntegerValue(
         "FlagPause-Time",
         50,
         0,
         5000
-    ).displayable { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
+    ) { mainMode.get() == "Cancel" && cancelMode.get() == "GrimC07" }
 
     private val reduceAmount = FloatValue(
         "ReduceAmount",
         0.8f,
         0.0f,
         1f
-    ).displayable { mainMode.get() == "Other" && otherMode.get() == "AttackReduce" }
+    ) { mainMode.get() == "Other" && otherMode.get() == "AttackReduce" }
 
     private val jumpCooldownMode = ListValue(
         "JumpCooldownMode",
         arrayOf("Ticks", "ReceivedHits"),
         "Ticks"
-    ).displayable { vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
+    ) { vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
     private val ticksUntilJump = IntegerValue(
         "TicksUntilJump",
         4,
         0,
         20
-    ).displayable { jumpCooldownMode.get() == "Ticks" && vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
+    ) { jumpCooldownMode.get() == "Ticks" && vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
     private val hitsUntilJump = IntegerValue(
         "ReceivedHitsUntilJump",
         2,
         0,
         5
-    ).displayable { jumpCooldownMode.get() == "ReceivedHits" && vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
+    ) { jumpCooldownMode.get() == "ReceivedHits" && vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
     private val chance =
-        IntegerValue("Chance", 100, 0, 100).displayable { vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
+        IntegerValue("Chance", 100, 0, 100) { vanillaMode.get() == "Jump" && mainMode.get() == "Vanilla" }
 
     private val delayValue = IntegerValue(
         "Delayed-Delay",
         300,
         50,
         1000
-    ).displayable { otherMode.get() == "Delay" && mainMode.get() == "Other" }
+    ) { otherMode.get() == "Delay" && mainMode.get() == "Other" }
     private val blinkValue =
-        BoolValue("Delayed-Blink", true).displayable { otherMode.get() == "Delay" && mainMode.get() == "Other" }
+        BoolValue("Delayed-Blink", true) { otherMode.get() == "Delay" && mainMode.get() == "Other" }
     private val blinkOutbound = BoolValue(
         "Delayed-BlinkOutgoing",
         true
-    ).displayable { blinkValue.get() && otherMode.get() == "Delay" && mainMode.get() == "Other" }
+    ) { blinkValue.get() && otherMode.get() == "Delay" && mainMode.get() == "Other" }
     private val delayC0F = BoolValue(
         "Delayed-DelayTransaction",
         true
-    ).displayable { !blinkValue.get() && otherMode.get() == "Delay" && mainMode.get() == "Other" }
+    ) { !blinkValue.get() && otherMode.get() == "Delay" && mainMode.get() == "Other" }
 
     private val aacPushXZReducer =
-        FloatValue("AACPushXZReducer", 2F, 1F, 3F).displayable { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
+        FloatValue("AACPushXZReducer", 2F, 1F, 3F) { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
     private val aacPushYReducer =
-        BoolValue("AACPushYReducer", true).displayable { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
+        BoolValue("AACPushYReducer", true) { aacMode.get() == "AACPush" && mainMode.get() == "AAC" }
 
     private val phaseHeightValue =
-        FloatValue("Height", 0.5F, 0F, 1F).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
+        FloatValue("Height", 0.5F, 0F, 1F) { mainMode.get() == "Other" && otherMode.get() == "Phase" }
     private val phaseOnlyGroundValue =
-        BoolValue("OnlyGround", true).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
+        BoolValue("OnlyGround", true) { mainMode.get() == "Other" && otherMode.get() == "Phase" }
     private val phaseMode = ListValue(
         "Mode",
         arrayOf("Normal", "Packet"),
         "Normal"
-    ).displayable { mainMode.get() == "Other" && otherMode.get() == "Phase" }
+    ) { mainMode.get() == "Other" && otherMode.get() == "Phase" }
 
     private val reduceFactor = FloatValue(
         "Factor",
         0.6f,
         0.0f,
         1f
-    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    ) { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
     private val hurtTimeMode = ListValue(
         "HurtTimeMode",
         arrayOf("Single", "Range"),
         "Single"
-    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
+    ) { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" }
     private val hurtTime = IntegerValue(
         "HurtTime",
         9,
         1,
         10
-    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Single" }
+    ) { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Single" }
     private val minHurtTime = IntegerValue(
         "MinHurtTime",
         9,
         1,
         10
-    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
+    ) { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
     private val maxHurtTime = IntegerValue(
         "MaxHurtTime",
         9,
         1,
         10
-    ).displayable { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
+    ) { otherMode.get() == "IntaveReduce" && mainMode.get() == "Other" && hurtTimeMode.get() == "Range" }
 
     private val smartVelo =
-        BoolValue("SmartVelo", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("SmartVelo", true) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val sendc0fValue =
-        BoolValue("C0F", false).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("C0F", false) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val C0fpacketamount = IntegerValue(
         "C0FPacketAmount",
         0,
         1,
         20
-    ).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" && sendc0fValue.get() }
+    ) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" && sendc0fValue.get() }
     private val C02packetamount = IntegerValue(
         "C02PacketAmount",
         1,
         1,
         20
-    ).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+    ) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val sprintSpoof =
-        BoolValue("SpoofSprint", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("SpoofSprint", true) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val playerJump =
-        BoolValue("PlayerJump", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("PlayerJump", true) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val spoofJump =
-        BoolValue("SpoofJump", false).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("SpoofJump", false) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
     private val callEvent =
-        BoolValue("CallEvent", true).displayable { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
+        BoolValue("CallEvent", true) { grimMode.get() == "GrimVertical" && mainMode.get() == "GrimAC" }
 
-    private val reduceCount = IntegerValue("ReduceCount",4,1,10).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
-    private val reduceTimes = IntegerValue("ReduceTimes",1,1,5).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
+    private val reduceCount = IntegerValue("ReduceCount",4,1,10) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
+    private val reduceTimes = IntegerValue("ReduceTimes",1,1,5) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimReduce" }
 
-    private val minClick = IntegerValue("MinClicks",3,1,20).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val maxClick = IntegerValue("MaxClicks",3,1,20).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val hurtTimeToClick = IntegerValue("HurtTimeToClick", 10, 0,10).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val whenFacingEnemyOnly = BoolValue("WhenFacingEnemyOnly", true).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val ignoreBlocking = BoolValue("IgnoreBlocking", false).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val clickRange = FloatValue("ClickRange", 3f, 1f,6f).displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
-    private val swingMode = ListValue("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal").displayable { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val minClick = IntegerValue("MinClicks",3,1,20) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val maxClick = IntegerValue("MaxClicks",3,1,20) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val hurtTimeToClick = IntegerValue("HurtTimeToClick", 10, 0,10) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val whenFacingEnemyOnly = BoolValue("WhenFacingEnemyOnly", true) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val ignoreBlocking = BoolValue("IgnoreBlocking", false) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val clickRange = FloatValue("ClickRange", 3f, 1f,6f) { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
+    private val swingMode = ListValue("SwingMode", arrayOf("Off", "Normal", "Packet"), "Normal") { mainMode.get() == "GrimAC" && grimMode.get() == "GrimClick"}
     
     private val debug = BoolValue("Debug",false)
 

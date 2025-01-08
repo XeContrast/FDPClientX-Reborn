@@ -25,8 +25,8 @@ import org.lwjgl.input.Mouse
 object AutoClicker : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Normal", "Gaussian", "LegitJitter", "LegitButterfly"), "Normal")
-    private val legitJitterValue = ListValue("LegitJitterMode", arrayOf("Jitter1", "Jitter2", "Jitter3", "SimpleJitter"), "Jitter1").displayable {modeValue.equals("LegitJitter")}
-    private val legitButterflyValue = ListValue("LegitButterflyMode", arrayOf("Butterfly1", "Butterfly2"), "Butterfly1").displayable {modeValue.equals("LegitButterfly")}
+    private val legitJitterValue = ListValue("LegitJitterMode", arrayOf("Jitter1", "Jitter2", "Jitter3", "SimpleJitter"), "Jitter1") {modeValue.equals("LegitJitter")}
+    private val legitButterflyValue = ListValue("LegitButterflyMode", arrayOf("Butterfly1", "Butterfly2"), "Butterfly1") {modeValue.equals("LegitButterfly")}
 
 
     // Normal
@@ -47,23 +47,23 @@ object AutoClicker : Module() {
         }
     }
     private val rightValue = BoolValue("RightClick", true)
-    private val rightBlockOnlyValue = BoolValue("RightBlockOnly", false).displayable { rightValue.get() }
+    private val rightBlockOnlyValue = BoolValue("RightBlockOnly", false) { rightValue.get() }
     private val leftValue = BoolValue("LeftClick", true)
-    private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false).displayable { leftValue.get() }
-    private val breakStopValue = BoolValue("BreakingStop", true).displayable { leftValue.get() }
+    private val leftSwordOnlyValue = BoolValue("LeftSwordOnly", false) { leftValue.get() }
+    private val breakStopValue = BoolValue("BreakingStop", true) { leftValue.get() }
     private val blockValue = BoolValue("AutoBlock", false). displayable { leftValue.get() }
     private val blockOnClick = BoolValue("AutoBlockOnRightClick", true). displayable { leftValue.get() && blockValue.get() }
     private val blockMode = ListValue("AutoblockMode", arrayOf("Percent", "Click", "Ticks", "Miliseconds"), "Percent"). displayable { leftValue.get() && blockValue.get() }
-    private val blockPercentStartValue = FloatValue("PercentStart", 0.2f, 0.05f, 1f).displayable { blockMode.displayable && blockMode.equals("Percent") }
-    private val blockPercentEndValue = FloatValue("PercentEnd", 0.8f, 0.05f, 1f).displayable { blockMode.displayable && blockMode.equals("Percent") }
-    private val blockTicksValue = IntegerValue("BlockTicks", 2, 1, 10).displayable { blockMode.displayable && blockMode.equals("Ticks") }
-    private val blockMsValue = IntegerValue("BlockMiliseconds", 80, 1, 1000).displayable { blockMode.displayable && blockMode.equals("Miliseconds") }
+    private val blockPercentStartValue = FloatValue("PercentStart", 0.2f, 0.05f, 1f) { blockMode.stateDisplayable && blockMode.equals("Percent") }
+    private val blockPercentEndValue = FloatValue("PercentEnd", 0.8f, 0.05f, 1f) { blockMode.stateDisplayable && blockMode.equals("Percent") }
+    private val blockTicksValue = IntegerValue("BlockTicks", 2, 1, 10) { blockMode.stateDisplayable && blockMode.equals("Ticks") }
+    private val blockMsValue = IntegerValue("BlockMiliseconds", 80, 1, 1000) { blockMode.stateDisplayable && blockMode.equals("Miliseconds") }
     private val jitterValue = BoolValue("Jitter", false)
     
 
     // Gaussian
-    private val gaussianCpsValue = IntegerValue("Gaussian-CPS", 5, 1, 40).displayable { modeValue.equals("Gaussian") }
-    private val gaussianSigmaValue = FloatValue("Gaussian-Sigma", 0.5F, 0.1F, 5F).displayable { modeValue.equals("Gaussian") }
+    private val gaussianCpsValue = IntegerValue("Gaussian-CPS", 5, 1, 40) { modeValue.equals("Gaussian") }
+    private val gaussianSigmaValue = FloatValue("Gaussian-Sigma", 0.5F, 0.1F, 5F) { modeValue.equals("Gaussian") }
 
 
     private var gaussianClickDelay = 0F

@@ -38,7 +38,7 @@ public class ValueButton {
             name = String.valueOf(this.value.get());
         } else if (value instanceof IntegerValue) {
             IntegerValue v = (IntegerValue) value;
-            name = name + (v.getDisplayable() ? ((Number) v.get()).intValue() : ((Number) v.get()).doubleValue());
+            name = name + (v.getStateDisplayable() ? ((Number) v.get()).intValue() : ((Number) v.get()).doubleValue());
         }
     }
 

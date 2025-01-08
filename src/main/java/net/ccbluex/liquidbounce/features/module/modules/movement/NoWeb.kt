@@ -18,7 +18,7 @@ object NoWeb : Module() {
         .sortedBy { it.modeName }
 
     private val mode: NoWebMode
-        get() = modes.find { modeValue.equals(it.modeName) } ?: throw NullPointerException() // this should not happen
+        get() = modes.find { modeValue.equals(it.modeName) } ?: modes.firstOrNull() ?: throw IllegalStateException("No mode available")
 
     private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "OldAAC") {
         override fun onChange(oldValue: String, newValue: String) {

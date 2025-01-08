@@ -35,9 +35,9 @@ object ChestAura : Module() {
     private val throughWallsValue = BoolValue("ThroughWalls", true)
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val rotationsValue = BoolValue("Rotations", true)
-    private val legitrotations = BoolValue("LegitRotations",true).displayable { rotationsValue.get()}
+    private val legitrotations = BoolValue("LegitRotations",true) { rotationsValue.get()}
     private val discoverDelayEnabledValue = BoolValue("DiscoverDelay", false)
-    private val discoverDelayValue = IntegerValue("DiscoverDelayValue", 200, 50, 300).displayable { discoverDelayEnabledValue.get() }
+    private val discoverDelayValue = IntegerValue("DiscoverDelayValue", 200, 50, 300) { discoverDelayEnabledValue.get() }
     private val onlyOnGroundValue = BoolValue("OnlyOnGround", true)
     private val notOpenedValue = BoolValue("NotOpened", false)
     private val noCombatingValue = BoolValue("NoCombating", true)

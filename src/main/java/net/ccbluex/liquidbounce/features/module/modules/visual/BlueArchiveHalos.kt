@@ -19,17 +19,17 @@ import kotlin.math.sin
 
 @ModuleInfo("BlueArchiveHalos", category = ModuleCategory.VISUAL)
 class BlueArchiveHalos : Module() {
-    private val mode = ListValue("Mode", arrayOf("Shiroko", "Hoshino", "Aris", "Yuuka", "Natsu", "Reisa", "Shiroko*Terror"),"Shiroko")
-    private val showInFirstPerson = BoolValue("FirstPerson",true)
+    private val mode by ListValue("Mode", arrayOf("Shiroko", "Hoshino", "Aris", "Yuuka", "Natsu", "Reisa", "Shiroko*Terror"),"Shiroko")
+    private val showInFirstPerson by BoolValue("FirstPerson",true)
 
     private var animations: Animation = Animation(Easing.LINEAR, 2000)
     private var isReversing = false
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (mc.gameSettings.thirdPersonView == 0 && !showInFirstPerson.get()) return
+        if (mc.gameSettings.thirdPersonView == 0 && !showInFirstPerson) return
 
-        when (mode.get().lowercase()) {
+        when (mode.lowercase()) {
             "shiroko" -> drawShirokoHalo()
             "hoshino" -> drawHoshinoHalo()
             "aris" -> drawArisHalo()

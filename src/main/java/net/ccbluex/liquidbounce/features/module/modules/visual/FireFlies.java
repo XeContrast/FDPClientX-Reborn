@@ -30,8 +30,8 @@ import java.util.List;
 
 @ModuleInfo(name = "FireFlies", category = ModuleCategory.VISUAL)
 public class FireFlies extends Module {
-    private final BoolValue darkImprint = new BoolValue("DarkImprint", false);
-    private final BoolValue lighting = new BoolValue("Lighting", false);
+    private final BoolValue darkImprint = new BoolValue("DarkImprint", false,() -> true);
+    private final BoolValue lighting = new BoolValue("Lighting", false,() -> true);
     private final FloatValue spawnDelay = new FloatValue("SpawnDelay", 3.0f, 1.0f, 10.0f);
     private final ArrayList<FirePart> FIRE_PARTS_LIST = new ArrayList<>();
     private final ResourceLocation FIRE_PART_TEX = new ResourceLocation("fdpclient/firepart.png");

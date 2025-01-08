@@ -26,7 +26,7 @@ object Speed : Module() {
             .sortedBy { it.modeName }
 
     private val mode: SpeedMode
-        get() = modes.find { modeValue.equals(it.modeName) } ?: throw NullPointerException() // this should not happen
+        get() = modes.find { modeValue.equals(it.modeName) } ?: modes.firstOrNull() ?: throw IllegalStateException("No mode available")
 
     private val modeValue: ListValue = object : ListValue("Mode", modes.map { it.modeName }.toTypedArray(), "VulcanHop") {
         override fun onChange(oldValue: String, newValue: String) {

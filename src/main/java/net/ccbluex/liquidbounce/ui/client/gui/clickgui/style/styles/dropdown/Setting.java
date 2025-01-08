@@ -159,7 +159,7 @@ public class Setting {
 
     private int getY() {
         int y = module.y + 14;
-        for (Setting dropDownSetting : module.settings.stream().filter(s -> s.setting.getDisplayable()).collect(Collectors.toList())) {
+        for (Setting dropDownSetting : module.settings.stream().filter(s -> s.setting.getStateDisplayable()).collect(Collectors.toList())) {
             if (dropDownSetting == this) {
                 break;
             } else {

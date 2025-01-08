@@ -30,15 +30,15 @@ object DamageParticle : Module() {
     private val aliveTicksValue = IntegerValue("AliveTicks", 20, 10, 50)
     private val sizeValue = IntegerValue("Size", 3, 1, 7)
     private val colourValue = ListValue("ColourType", arrayOf("Damage", "Custom", "Rainbow"), "Custom")
-    private val colorRedValue = IntegerValue("Red", 68, 0, 255).displayable { colourValue.get() == "Custom" }
-    private val colorGreenValue = IntegerValue("Green", 117, 0, 255).displayable { colourValue.get() == "Custom" }
-    private val colorBlueValue = IntegerValue("Blue", 255, 0, 255).displayable { colourValue.get() == "Custom" }
+    private val colorRedValue = IntegerValue("Red", 68, 0, 255) { colourValue.get() == "Custom" }
+    private val colorGreenValue = IntegerValue("Green", 117, 0, 255) { colourValue.get() == "Custom" }
+    private val colorBlueValue = IntegerValue("Blue", 255, 0, 255) { colourValue.get() == "Custom" }
     private val colorAlphaValue = IntegerValue("Alpha", 100, 0, 255)
     private val shadowValue = ListValue(
         "Mode",
         arrayOf("LB", "Default", "Autumn", "Outline", "None"),
         "Outline"
-    ).displayable { colourValue.get() != "Damage" }
+    ) { colourValue.get() != "Damage" }
     private val healthData = mutableMapOf<Int, Float>()
     private val particles = mutableListOf<SingleParticle>()
 

@@ -24,9 +24,9 @@ import net.minecraft.network.play.client.C03PacketPlayer
 object FastUse : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("NCP","Instant", "Timer", "CustomDelay", "DelayedInstant", "MinemoraTest", "AAC", "NewAAC","Medusa","Matrix","Fast"), "DelayedInstant")
-    private val timerValue = FloatValue("Timer", 1.22F, 0.1F, 2.0F).displayable { modeValue.equals("Timer") }
-    private val durationValue = IntegerValue("InstantDelay", 14, 0, 35).displayable { modeValue.equals("DelayedInstant") }
-    private val delayValue = IntegerValue("CustomDelay", 0, 0, 300).displayable { modeValue.equals("CustomDelay") }
+    private val timerValue = FloatValue("Timer", 1.22F, 0.1F, 2.0F) { modeValue.equals("Timer") }
+    private val durationValue = IntegerValue("InstantDelay", 14, 0, 35) { modeValue.equals("DelayedInstant") }
+    private val delayValue = IntegerValue("CustomDelay", 0, 0, 300) { modeValue.equals("CustomDelay") }
     private val viaFixValue = BoolValue("ViaVersion", false)
 
     private val msTimer = MSTimer()

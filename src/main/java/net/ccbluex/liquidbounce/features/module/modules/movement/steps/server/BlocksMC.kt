@@ -16,8 +16,6 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 class BlocksMC : StepMode("BlocksMC") {
     override fun onStep(event: StepEvent) {
-        Step.off = false
-        Step.doncheck = false
         if (event.eventState == EventState.PRE) else {
             fakeJump()
 

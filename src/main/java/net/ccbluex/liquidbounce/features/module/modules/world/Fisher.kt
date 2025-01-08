@@ -26,7 +26,7 @@ object Fisher : Module() {
 
     private val detectionValue = ListValue("Detection", arrayOf("Motion", "Sound"), "Sound")
     private val recastValue = BoolValue("Recast", true)
-    private val recastDelayValue = IntegerValue("RecastDelay", 1, 0, 1000).displayable { recastValue.get() }
+    private val recastDelayValue = IntegerValue("RecastDelay", 1, 0, 1000) { recastValue.get() }
 
     private var stage = Stage.NOTHING
     private val recastTimer = MSTimer()

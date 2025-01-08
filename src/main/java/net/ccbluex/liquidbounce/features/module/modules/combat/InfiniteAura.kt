@@ -39,19 +39,19 @@ import kotlin.concurrent.thread
 object InfiniteAura : Module() {
 
     private val modeValue = ListValue("Mode", arrayOf("Aura", "Click"), "Aura")
-    private val targetsValue = IntegerValue("Targets", 3, 1, 10).displayable { modeValue.equals("Aura") }
+    private val targetsValue = IntegerValue("Targets", 3, 1, 10) { modeValue.equals("Aura") }
     private val cpsValue = IntegerValue("CPS", 1, 1, 10)
     private val distValue = IntegerValue("Distance", 30, 20, 100)
     private val moveDistanceValue = FloatValue("MoveDistance", 5F, 2F, 15F)
     private val noRegenValue = BoolValue("NoRegen", true)
     private val noLagBackValue = BoolValue("NoLagback", true)
-    private val swingValue = BoolValue("Swing", true).displayable { modeValue.equals("Aura") }
+    private val swingValue = BoolValue("Swing", true) { modeValue.equals("Aura") }
     private val pathRenderValue = BoolValue("PathRender", true)
-    private val colorRedValue = IntegerValue("ColorRed", 0, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorGreenValue = IntegerValue("ColorGreen", 160, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorBlueValue = IntegerValue("ColorBlue", 255, 0, 255).displayable { pathRenderValue.get() && !colorRainbowValue.get() }
-    private val colorAlphaValue = IntegerValue("ColorAlpha", 150, 0, 255).displayable { pathRenderValue.get() }
-    private val colorRainbowValue = BoolValue("Rainbow", false).displayable { pathRenderValue.get() }
+    private val colorRedValue = IntegerValue("ColorRed", 0, 0, 255) { pathRenderValue.get() && !colorRainbowValue.get() }
+    private val colorGreenValue = IntegerValue("ColorGreen", 160, 0, 255) { pathRenderValue.get() && !colorRainbowValue.get() }
+    private val colorBlueValue = IntegerValue("ColorBlue", 255, 0, 255) { pathRenderValue.get() && !colorRainbowValue.get() }
+    private val colorAlphaValue = IntegerValue("ColorAlpha", 150, 0, 255) { pathRenderValue.get() }
+    private val colorRainbowValue = BoolValue("Rainbow", false) { pathRenderValue.get() }
 
     var lastTarget: EntityLivingBase? = null
 

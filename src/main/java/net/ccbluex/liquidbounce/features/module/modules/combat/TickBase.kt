@@ -47,12 +47,12 @@ object TickBase : Module() {
     private val timerChargedValue = FloatValue("TimerCharged", 0.45f, 0.05f,5f)
 
     // Normal Mode Settings
-    private val rangeValue = FloatValue("Range", 3.5f, 1f,5f).displayable { timerBoostMode.get() == "Normal" }
-    private val cooldownTickValue = IntegerValue("CooldownTick", 10, 1,50).displayable { timerBoostMode.get() == "Normal" }
+    private val rangeValue = FloatValue("Range", 3.5f, 1f,5f) { timerBoostMode.get() == "Normal" }
+    private val cooldownTickValue = IntegerValue("CooldownTick", 10, 1,50) { timerBoostMode.get() == "Normal" }
 
     // Smart & SmartMove Mode Settings
-    private val minRange = FloatValue("MinRange", 1f, 1f,5f).displayable { timerBoostMode.get() != "Normal" }
-    private val maxRange = FloatValue("MaxRange", 5f, 1f,5f).displayable { timerBoostMode.get() != "Normal" }
+    private val minRange = FloatValue("MinRange", 1f, 1f,5f) { timerBoostMode.get() != "Normal" }
+    private val maxRange = FloatValue("MaxRange", 5f, 1f,5f) { timerBoostMode.get() != "Normal" }
 
     private val minTickDelay: IntegerValue = object : IntegerValue("MinTickDelay", 50, 1,100) {
         override fun onChange(oldValue: Int, newValue: Int) {
@@ -66,13 +66,13 @@ object TickBase : Module() {
         }
     }.displayable {timerBoostMode.get() == "Smart"} as IntegerValue
 
-    private val lookThreshold = FloatValue("LookThreshold", 0.5f, 0.1f,1f).displayable { timerBoostMode.get() == "SmartMove" }
+    private val lookThreshold = FloatValue("LookThreshold", 0.5f, 0.1f,1f) { timerBoostMode.get() == "SmartMove" }
 
     // Optional
     private val onlykillaura = BoolValue("OnlyKillaura",false)
     private val resetOnlagBack = BoolValue("ResetOnLagback", false)
     private val resetOnKnockback = BoolValue("ResetOnKnockback", false)
-    private val chatDebug = BoolValue("ChatDebug", true).displayable { resetOnlagBack.get() || resetOnKnockback.get() }
+    private val chatDebug = BoolValue("ChatDebug", true) { resetOnlagBack.get() || resetOnKnockback.get() }
 
     private fun timerReset() {
         mc.timer.timerSpeed = 1f

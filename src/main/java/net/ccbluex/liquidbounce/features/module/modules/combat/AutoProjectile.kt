@@ -27,7 +27,7 @@ object AutoProjectile : Module() {
 
     private val mode = ListValue("Mode", arrayOf("Normal", "Smart"), "Normal")
     private val range = FloatValue("Range", 8F, 1F,20F)
-    private val throwDelay = IntegerValue("ThrowDelay", 1000, 50,2000).displayable { mode.get() != "Smart" }
+    private val throwDelay = IntegerValue("ThrowDelay", 1000, 50,2000) { mode.get() != "Smart" }
 
     private val minThrowDelay: IntegerValue = object : IntegerValue("MinThrowDelay", 1000, 50,2000) {
         fun isSupported() = mode.get() == "Smart"

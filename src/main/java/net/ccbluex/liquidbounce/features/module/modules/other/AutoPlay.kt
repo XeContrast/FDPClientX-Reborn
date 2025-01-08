@@ -32,10 +32,10 @@ object AutoPlay : Module() {
 
     private val modeValue = ListValue("Server", arrayOf("RedeSky", "BlocksMC", "Minemora", "Hypixel", "Jartex", "Pika", "Hydracraft", "HyCraft", "MineFC/HeroMC_Bedwars", "Supercraft"), "BlocksMC")
 
-    private val bwModeValue = ListValue("Mode", arrayOf("SOLO", "4v4v4v4"), "4v4v4v4").displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val autoStartValue = BoolValue("AutoStartAtLobby", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val replayWhenKickedValue = BoolValue("ReplayWhenKicked", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
-    private val showGuiWhenFailedValue = BoolValue("ShowGuiWhenFailed", true).displayable { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val bwModeValue = ListValue("Mode", arrayOf("SOLO", "4v4v4v4"), "4v4v4v4") { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val autoStartValue = BoolValue("AutoStartAtLobby", true) { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val replayWhenKickedValue = BoolValue("ReplayWhenKicked", true) { modeValue.equals("MineFC/HeroMC_Bedwars") }
+    private val showGuiWhenFailedValue = BoolValue("ShowGuiWhenFailed", true) { modeValue.equals("MineFC/HeroMC_Bedwars") }
     private val delayValue = IntegerValue("JoinDelay", 3, 0, 7)
 
     private var clicking = false

@@ -74,15 +74,15 @@ object CombatVisuals : Module() {
     private val isMarkMode: Boolean
         get() = markValue.get() != "None"
 
-    val colorRedValue = IntegerValue("Mark-Red", 0, 0,255).displayable { isMarkMode }
-    val colorGreenValue = IntegerValue("Mark-Green", 160, 0,255).displayable { isMarkMode }
-    val colorBlueValue = IntegerValue("Mark-Blue", 255, 0,255).displayable { isMarkMode }
+    val colorRedValue = IntegerValue("Mark-Red", 0, 0,255) { isMarkMode }
+    val colorGreenValue = IntegerValue("Mark-Green", 160, 0,255) { isMarkMode }
+    val colorBlueValue = IntegerValue("Mark-Blue", 255, 0,255) { isMarkMode }
 
-    val colorRedTwoValue = IntegerValue("Mark-Red 2", 0, 0, 255).displayable { isMarkMode && markValue.get() == "Zavz" }
-    val colorGreenTwoValue = IntegerValue("Mark-Green 2", 160, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
-    val colorBlueTwoValue = IntegerValue("Mark-Blue 2", 255, 0,255).displayable { isMarkMode && markValue.get() == "Zavz" }
+    val colorRedTwoValue = IntegerValue("Mark-Red 2", 0, 0, 255) { isMarkMode && markValue.get() == "Zavz" }
+    val colorGreenTwoValue = IntegerValue("Mark-Green 2", 160, 0,255) { isMarkMode && markValue.get() == "Zavz" }
+    val colorBlueTwoValue = IntegerValue("Mark-Blue 2", 255, 0,255) { isMarkMode && markValue.get() == "Zavz" }
 
-    private val boxOutline = BoolValue("Mark-Outline", true).displayable { isMarkMode && markValue.get() == "RoundBox" }
+    private val boxOutline = BoolValue("Mark-Outline", true) { isMarkMode && markValue.get() == "RoundBox" }
 
     // fake sharp
     private val fakeSharp = BoolValue("FakeSharp", true)
@@ -95,8 +95,8 @@ object CombatVisuals : Module() {
     //Sound
     private val sound = ListValue("Sound", arrayOf("None", "Hit", "Explode", "Orb", "Pop", "Splash", "Lightning"), "Pop")
 
-    private val volume = FloatValue("Volume", 1f, 0.1f, 5f).displayable { sound.get() != "None" }
-    private val pitch = FloatValue("Pitch", 1f, 0.1f,5f).displayable { sound.get() != "None" }
+    private val volume = FloatValue("Volume", 1f, 0.1f, 5f) { sound.get() != "None" }
+    private val pitch = FloatValue("Pitch", 1f, 0.1f,5f) { sound.get() != "None" }
 
     private val squidValue = BoolValue("Squid", false)
 

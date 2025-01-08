@@ -38,12 +38,12 @@ object AntiStaff : Module() {
     private val packet = BoolValue("Packet", true)
     private val velocity = BoolValue("Velocity", false)
 
-    private val autoLeave = ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby","HUB", "Quit"), "Off").displayable { tab1.get() || packet.get() }
+    private val autoLeave = ListValue("AutoLeave", arrayOf("Off", "Leave", "Lobby","HUB", "Quit"), "Off") { tab1.get() || packet.get() }
 
-    private val spectator = BoolValue("StaffSpectator", false).displayable { tab1.get() || packet.get() }
-    private val otherSpectator = BoolValue("OtherSpectator", false).displayable { tab1.get() || packet.get() }
+    private val spectator = BoolValue("StaffSpectator", false) { tab1.get() || packet.get() }
+    private val otherSpectator = BoolValue("OtherSpectator", false) { tab1.get() || packet.get() }
 
-    private val inGame = BoolValue("InGame", true).displayable { autoLeave.get() != "Off" }
+    private val inGame = BoolValue("InGame", true) { autoLeave.get() != "Off" }
     private val warn = ListValue("Warn", arrayOf("Chat", "Notification"), "Chat")
 
     private val checkedStaff = ConcurrentHashMap.newKeySet<String>()

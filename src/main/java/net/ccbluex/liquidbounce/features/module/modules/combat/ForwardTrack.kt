@@ -37,9 +37,9 @@ import java.awt.Color
 @ModuleInfo("ForwardTrack", category = ModuleCategory.COMBAT)
 object ForwardTrack : Module() {
     private val espMode = ListValue("ESP-Mode", arrayOf("Box", "Model", "Wireframe"), "Model")
-    private val wireframeWidth = FloatValue("WireFrame-Width", 1f, 0.5f,5f).displayable { espMode.get() == "WireFrame" }
+    private val wireframeWidth = FloatValue("WireFrame-Width", 1f, 0.5f,5f) { espMode.get() == "WireFrame" }
 
-    private val espColorMode = ListValue("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom").displayable { espMode.get() != "Model" }
+    private val espColorMode = ListValue("ESP-Color", arrayOf("Custom", "Rainbow"), "Custom") { espMode.get() != "Model" }
     private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false)
     { espColorMode.get() == "Custom" && espMode.get() != "Model" }.with(0, 255, 0)
 

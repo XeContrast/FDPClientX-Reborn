@@ -9,10 +9,11 @@ import net.ccbluex.liquidbounce.event.EventTarget
 import net.ccbluex.liquidbounce.event.PacketEvent
 import net.ccbluex.liquidbounce.event.UpdateEvent
 import net.ccbluex.liquidbounce.extensions.isMoving
+import net.ccbluex.liquidbounce.extensions.setSprintSafely
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.combat.SuperKnockback
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
@@ -29,23 +30,22 @@ import kotlin.math.abs
 object Sprint : Module() {
     private val modes = ListValue("Modes", arrayOf("Vanilla","Legit"),"Legit")
 
-    private val blindness = BoolValue("Blindness",true).displayable { modes.get() == "Vanilla" }
-    private val usingItem = BoolValue("UsingItem",true).displayable { modes.get() == "Vanilla" }
-    private val inventory = BoolValue("Inventory",true).displayable { modes.get() == "Vanilla" }
-    private val food = BoolValue("Food",true).displayable { modes.get() == "Vanilla" }
+    private val blindness = BoolValue("Blindness",true) { modes.get() == "Vanilla" }
+    private val usingItem = BoolValue("UsingItem",true) { modes.get() == "Vanilla" }
+    private val inventory = BoolValue("Inventory",true) { modes.get() == "Vanilla" }
+    private val food = BoolValue("Food",true) { modes.get() == "Vanilla" }
 
-    val onlyOnSprintPress = BoolValue("OnlyOnSprintPress", false)
     private val alwaysCorrect = BoolValue("AlwaysCorrectSprint", false)
 
-    private val checkServerSide = BoolValue("CheckServerSide", false).displayable { modes.get() == "Vanilla" }
-    private val checkServerSideGround = BoolValue("CheckServerSideOnlyGround", false).displayable { modes.get() == "Vanilla" && checkServerSide.get() }
+    private val checkServerSide = BoolValue("CheckServerSide", false) { modes.get() == "Vanilla" }
+    private val checkServerSideGround = BoolValue("CheckServerSideOnlyGround", false) { modes.get() == "Vanilla" && checkServerSide.get() }
 
-    val jumpDirectionsValue = BoolValue("JumpDirections", false).displayable { modes.get() == "Vanilla" }
-    private val allDirectionsValue = BoolValue("AllDirections", false).displayable { modes.get() == "Vanilla" }
-    private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None").displayable { allDirectionsValue.get() }
+    val jumpDirectionsValue = BoolValue("JumpDirections", false) { modes.get() == "Vanilla" }
+    private val allDirectionsValue = BoolValue("AllDirections", false) { modes.get() == "Vanilla" }
+    private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None") { allDirectionsValue.get() }
     private val allDirectionsLimitSpeedGround = BoolValue("AllDirectionsLimitSpeedOnlyGround", true)
-    private val allDirectionsLimitSpeedValue = FloatValue("AllDirectionsLimitSpeed", 0.7f, 0.5f, 1f).displayable { allDirectionsBypassValue.displayable && allDirectionsBypassValue.equals("LimitSpeed") }
-    private val noPacketValue = BoolValue("NoPackets", true).displayable { modes.get() == "Vanilla" }
+    private val allDirectionsLimitSpeedValue = FloatValue("AllDirectionsLimitSpeed", 0.7f, 0.5f, 1f) { allDirectionsBypassValue.stateDisplayable && allDirectionsBypassValue.equals("LimitSpeed") }
+    private val noPacketValue = BoolValue("NoPackets", true) { modes.get() == "Vanilla" }
     private var switchStat = false
     private var forceSprint = false
     private var isSprinting = false
@@ -146,7 +146,7 @@ object Sprint : Module() {
         val player = mc.thePlayer ?: return
 
         if (handleEvents() || alwaysCorrect.get()) {
-            player.isSprinting = !shouldStopSprinting(movementInput, isUsingItem)
+            player setSprintSafely !shouldStopSprinting(movementInput, isUsingItem)
             isSprinting = player.isSprinting
             if (player.isSprinting && allDirectionsValue.get() && modes.get() != "Legit") {
                 if (!allDirectionsLimitSpeedGround.get() || player.onGround) {
@@ -171,6 +171,12 @@ object Sprint : Module() {
         if (!player.isMoving) {
             return true
         }
+//
+//        if (player.isRiding)
+//            return true
+
+        if ((!Scaffold2.canSprint && Scaffold2.handleEvents()))
+            return true
 
         if (player.isCollidedHorizontally) {
             return true

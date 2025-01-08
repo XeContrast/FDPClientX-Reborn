@@ -25,16 +25,16 @@ object AutoRod : Module() {
 
     private val facingEnemy = BoolValue("FacingEnemy", true)
 
-    private val ignoreOnEnemyLowHealth = BoolValue("IgnoreOnEnemyLowHealth", true).displayable { facingEnemy.get() }
-    private val healthFromScoreboard = BoolValue("HealthFromScoreboard", false).displayable { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
-    private val absorption = BoolValue("Absorption", false).displayable { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
+    private val ignoreOnEnemyLowHealth = BoolValue("IgnoreOnEnemyLowHealth", true) { facingEnemy.get() }
+    private val healthFromScoreboard = BoolValue("HealthFromScoreboard", false) { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
+    private val absorption = BoolValue("Absorption", false) { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
 
     private val activationDistance = FloatValue("ActivationDistance", 8f, 1f,20f)
     private val enemiesNearby = IntegerValue("EnemiesNearby", 1, 1,5)
 
     // Improve health check customization
     private val playerHealthThreshold = IntegerValue("PlayerHealthThreshold", 5, 1,20)
-    private val enemyHealthThreshold = IntegerValue("EnemyHealthThreshold", 5, 1,20).displayable { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
+    private val enemyHealthThreshold = IntegerValue("EnemyHealthThreshold", 5, 1,20) { facingEnemy.get() && ignoreOnEnemyLowHealth.get() }
     private val escapeHealthThreshold = IntegerValue("EscapeHealthThreshold", 10, 1,20)
 
     private val pushDelay = IntegerValue("PushDelay", 100, 50,1000)

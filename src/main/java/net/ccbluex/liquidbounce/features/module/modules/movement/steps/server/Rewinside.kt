@@ -13,8 +13,6 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class Rewinside : StepMode("Rewinside") {
     override fun onStep(event: StepEvent) {
-        Step.off = false
-        Step.doncheck = false
         if (event.eventState == EventState.PRE) {} else {
             fakeJump()
 

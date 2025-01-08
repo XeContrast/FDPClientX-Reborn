@@ -9,7 +9,7 @@ import net.ccbluex.liquidbounce.features.module.modules.movement.steps.StepMode
 import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.utils.MovementUtils
 
-class Hypixel : StepMode("Hypixel") {
+class Hypixel : StepMode("Hypixel",true,true) {
     private val test = BoolValue("Test",false)
     private var offGroundTicks = -1
     private var stepping = false
@@ -21,8 +21,6 @@ class Hypixel : StepMode("Hypixel") {
 
     @EventTarget
     override fun onMotion(event: MotionEvent) {
-        Step.off = true
-        Step.doncheck = true
         if (event.eventState == EventState.PRE) {
             val time = System.currentTimeMillis()
             if (mc.thePlayer.onGround && mc.thePlayer.isCollidedHorizontally && MovementUtils.isMoving && time - lastStep >= Step.delayValue.get()) {

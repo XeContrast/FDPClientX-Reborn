@@ -67,19 +67,19 @@ object FakeLag : Module() {
     private val pauseOnChest = BoolValue("PauseOnChest", false)
 
     private val line = BoolValue("Line", true)
-    private val rainbow = BoolValue("Rainbow", false).displayable { line.get() }
+    private val rainbow = BoolValue("Rainbow", false) { line.get() }
     private val red = IntegerValue("R",
         0,
         0,255,
-    ).displayable { !rainbow.get() && line.get() }
+    ) { !rainbow.get() && line.get() }
     private val green = IntegerValue("G",
         255,
         0,255,
-    ).displayable { !rainbow.get() && line.get() }
+    ) { !rainbow.get() && line.get() }
     private val blue = IntegerValue("B",
         0,
         0,255,
-    ).displayable { !rainbow.get() && line.get() }
+    ) { !rainbow.get() && line.get() }
 
     private val packetQueue = LinkedHashMap<Packet<*>, Long>()
     private val positions = LinkedHashMap<Vec3, Long>()

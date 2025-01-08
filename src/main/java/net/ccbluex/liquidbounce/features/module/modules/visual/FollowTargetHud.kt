@@ -35,19 +35,19 @@ import kotlin.math.roundToInt
 class FollowTargetHud : Module() {
 
     private val zoomIn = BoolValue("ZoomIn", true)
-    private val zoomTicks = IntegerValue("ZoomInTicks", 4, 2, 15).displayable {zoomIn.get()}
+    private val zoomTicks = IntegerValue("ZoomInTicks", 4, 2, 15) {zoomIn.get()}
     private val modeValue = ListValue("Mode", arrayOf("Juul", "Jello", "Material", "Material2", "Arris", "FDP"), "Juul")
     private val fontValue = FontValue("Font", Fonts.font40)
-    private val materialShadow = BoolValue("MaterialShadow", false).displayable {modeValue.equals("Material") || modeValue.equals("Material2")}
-    private val fdpVertical = BoolValue("FDPVertical", false).displayable {modeValue.equals("FDP")}
-    private val fdpText = BoolValue("FDPDrawText", true).displayable {modeValue.equals("FDP") && !fdpVertical.get()}
-    private val fdpRed = BoolValue("FDPRed", false).displayable {modeValue.equals("FDP")}
+    private val materialShadow = BoolValue("MaterialShadow", false) {modeValue.equals("Material") || modeValue.equals("Material2")}
+    private val fdpVertical = BoolValue("FDPVertical", false) {modeValue.equals("FDP")}
+    private val fdpText = BoolValue("FDPDrawText", true) {modeValue.equals("FDP") && !fdpVertical.get()}
+    private val fdpRed = BoolValue("FDPRed", false) {modeValue.equals("FDP")}
     private val smoothMove = BoolValue("SmoothHudMove", true)
-    private val smoothValue = FloatValue("SmoothHudMoveValue", 5.2f, 1f, 8f).displayable { smoothMove.get() }
+    private val smoothValue = FloatValue("SmoothHudMoveValue", 5.2f, 1f, 8f) { smoothMove.get() }
     private val smoothRot = BoolValue("SmoothHudRotations", true)
     private val rotSmoothValue = FloatValue("SmothHudRotationValue", 2.1f, 1f, 6f). displayable {smoothRot.get() }
-    private val jelloColorValue = BoolValue("JelloHPColor", true).displayable { modeValue.equals("Jello") }
-    private val jelloAlphaValue = IntegerValue("JelloAlpha", 170, 0, 255).displayable { modeValue.equals("Jello") }
+    private val jelloColorValue = BoolValue("JelloHPColor", true) { modeValue.equals("Jello") }
+    private val jelloAlphaValue = IntegerValue("JelloAlpha", 170, 0, 255) { modeValue.equals("Jello") }
     private val scaleValue = FloatValue("Scale", 1F, 1F, 4F)
     private val staticScale = BoolValue("StaticScale", false)
     private val translateY = FloatValue("TanslateY", 0.55F,-2F,2F)

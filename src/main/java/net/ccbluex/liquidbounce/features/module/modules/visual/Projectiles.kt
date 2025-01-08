@@ -53,9 +53,9 @@ object Projectiles : Module() {
     private val maxTrailSize = IntegerValue("MaxTrailSize", 20, 1, 100)
 
     private val colorMode = ListValue("Color", arrayOf("Custom", "BowPower", "Rainbow"), "Custom")
-    private val colorRed = IntegerValue("R", 0, 0, 255).displayable { colorMode.get() == "Custom" }
-    private val colorGreen = IntegerValue("G", 160, 0, 255).displayable { colorMode.get() == "Custom" }
-    private val colorBlue = IntegerValue("B", 255, 0, 255).displayable { colorMode.get() == "Custom" }
+    private val colorRed = IntegerValue("R", 0, 0, 255) { colorMode.get() == "Custom" }
+    private val colorGreen = IntegerValue("G", 160, 0, 255) { colorMode.get() == "Custom" }
+    private val colorBlue = IntegerValue("B", 255, 0, 255) { colorMode.get() == "Custom" }
 
     private val trailPositions = mutableMapOf<Entity, ArrayDeque<ProjectilePos>>()
 

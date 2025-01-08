@@ -516,7 +516,43 @@ class RotationUtils : MinecraftInstance(), Listenable {
                 xSearch += xDist
             }
 
-            if (vecRotation == null || randMode == "Off" || randMode == "Noise") return vecRotation
+            if (randMode == "Noise") {
+                if (gaussianHasReachedTarget(curVec3!!, vecRotation!!.vec, tolerance.get())) {
+                    val yawFactor = if (dynamicYawFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicYawFactor.get()) else (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ))
+                    val pitchFactor = if (dynamicPitchFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        maxPitchFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicPitchFactor.get()) else (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        minPitchFactor.get()
+                    ))
+                    targetRotation?.let {
+                        it.yaw += random.nextGaussian().toFloat() * yawFactor
+                        it.pitch += random.nextGaussian().toFloat() * pitchFactor
+                    }
+                } else {
+                    targetRotation?.let {
+                        it.yaw += MathUtils.interpolate(
+                            curVec3.xCoord,
+                            vecRotation!!.vec.xCoord,
+                            MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())
+                        ).toFloat()
+                        it.yaw += MathUtils.interpolate(
+                            curVec3.yCoord,
+                            vecRotation!!.vec.yCoord,
+                            MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())
+                        ).toFloat()
+                    }
+                }
+            }
+
+            if (randMode == "Off" || randMode == "Noise") return vecRotation
 
             var rand1 = random.nextDouble()
             var rand2 = random.nextDouble()
@@ -556,32 +592,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
                     curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
                     curVec3.zCoord
                 )
-
-                "noise" -> if (gaussianHasReachedTarget(curVec3, vecRotation.vec, tolerance.get())) {
-                    val yawFactor = if (dynamicYawFactor.get() > 0f) (MathUtils.randomizeFloat(
-                        minYawFactor.get(),
-                        maxYawFactor.get()
-                    ) + MovementUtils.getSpeed * dynamicYawFactor.get()) else (MathUtils.randomizeFloat(
-                        minYawFactor.get(),
-                        maxYawFactor.get()
-                    ))
-                    val pitchFactor = if (dynamicPitchFactor.get() > 0f) (MathUtils.randomizeFloat(
-                        minPitchFactor.get(),
-                        maxPitchFactor.get()
-                    ) + MovementUtils.getSpeed * dynamicPitchFactor.get()) else (MathUtils.randomizeFloat(
-                        minPitchFactor.get(),
-                        minPitchFactor.get()
-                    ))
-                    targetRotation?.let {
-                        it.yaw += random.nextGaussian().toFloat() * yawFactor
-                        it.pitch += random.nextGaussian().toFloat() * pitchFactor
-                    }
-                } else {
-                    targetRotation?.let {
-                        it.yaw += MathUtils.interpolate(curVec3.xCoord, vecRotation!!.vec.xCoord, MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())).toFloat()
-                        it.yaw += MathUtils.interpolate(curVec3.yCoord, vecRotation!!.vec.yCoord, MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())).toFloat()
-                    }
-                }
             }
             val randomRotation = toRotation(randomVec3, predict)
 
@@ -934,7 +944,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
          * @param rotation your target rotation
          */
         fun setTargetRotation(rotation: Rotation, kl: Int) {
-            if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
+            if (rotation.yaw.isNaN() || rotation.pitch.isNaN() || rotation.pitch > 90 || rotation.pitch < -90) return
 
             rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
             targetRotation = rotation
@@ -942,7 +952,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
             revTick = 0
         }
 
-        var speedForReset = 0f to 0f
+        var speedForReset = 180f to 180f
         var angleThresholdForReset = 0f
         @JvmStatic
         fun setTargetRotation(

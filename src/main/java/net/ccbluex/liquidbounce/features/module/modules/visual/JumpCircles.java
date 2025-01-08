@@ -37,8 +37,8 @@ public class JumpCircles extends Module {
 
     private final FloatValue maxTime = new FloatValue("Max TIme", 3000, 2000, 8000);
     private final FloatValue radius = new FloatValue("Radius", 2, 1, 3);
-    private final ListValue texture = new ListValue("Texture", new String[]{"KonchalEbal", "CubicalPieces", "Leeches", "Circle"}, "Leeches");
-    private final BoolValue deepestLight = new BoolValue("Deepest Light", true);
+    private final ListValue texture = new ListValue("Texture", new String[]{"KonchalEbal", "CubicalPieces", "Leeches", "Circle"}, "Leeches",() -> true);
+    private final BoolValue deepestLight = new BoolValue("Deepest Light", true,() -> true);
     private final String staticLoc = "fdpclient/newjumpcircles/default/", animatedLoc = "fdpclient/newjumpcircles/animated/";
     private final ResourceLocation JUMP_CIRCLE = new ResourceLocation(staticLoc + "circle.png");
     private final ResourceLocation JUMP_KONCHAL = new ResourceLocation(staticLoc + "konchal.png");
@@ -144,6 +144,7 @@ public class JumpCircles extends Module {
         mc.getTextureManager().bindTexture(res);
         mc.getTextureManager().getTexture(res).setBlurMipmap(true, true);
         GlStateManager.pushMatrix();
+        GlStateManager.pushAttrib();
         GlStateManager.translate(pos.xCoord - radius / 2.D, pos.yCoord, pos.zCoord - radius / 2.D);
         GL11.glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
         RenderUtil.customRotatedObject2D(0, 0, radius, radius, rotate);
@@ -157,6 +158,7 @@ public class JumpCircles extends Module {
         worldRenderer.pos(radius, radius, 0).tex(1, 1).color(red,green,blue,alpha).endVertex();
         worldRenderer.pos(radius, 0, 0).tex(1, 0).color(red,green,blue,alpha).endVertex();
         tessellator.draw();
+        GlStateManager.popAttrib();
         GlStateManager.popMatrix();
         if (immersive) {
             int[] colors = new int[4];
@@ -165,6 +167,7 @@ public class JumpCircles extends Module {
             colors[2] = getColor(alphaPC);
             colors[3] = getColor(alphaPC);
             GlStateManager.pushMatrix();
+            GlStateManager.pushAttrib();
             GlStateManager.translate(pos.xCoord, pos.yCoord, pos.zCoord);
             GL11.glRotated(rotate, 0.0f, 1.0f, 0.0f);
             worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
@@ -180,6 +183,7 @@ public class JumpCircles extends Module {
                 worldRenderer.pos(radiusPost / 2.F, extY, -radiusPost / 2.F).tex(1, 0).color(ColorUtils.getRedFromColor(ColorUtils.darker(colors[3], aPC)),ColorUtils.getGreenFromColor(ColorUtils.darker(colors[3], aPC)), ColorUtils.getBlueFromColor(ColorUtils.darker(colors[3], aPC)), ColorUtils.getAlphaFromColor(ColorUtils.darker(colors[3], aPC))).endVertex();
             }
             tessellator.draw();
+            GlStateManager.popAttrib();
             GlStateManager.popMatrix();
         }
     }

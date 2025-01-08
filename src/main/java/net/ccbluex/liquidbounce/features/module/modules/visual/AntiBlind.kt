@@ -25,7 +25,7 @@ object AntiBlind : Module() {
     val pumpkinEffectValue = BoolValue("Pumpkin", true)
     val fireEffectValue = FloatValue("FireAlpha", 0.3f, 0f, 1f)
     private val fullBrightValue = BoolValue("FullBright", true)
-    private val fullBrightModeValue = ListValue("FullBrightMode", arrayOf("None", "Gamma", "NightVision"), "Gamma").displayable { fullBrightValue.get() }
+    private val fullBrightModeValue = ListValue("FullBrightMode", arrayOf("None", "Gamma", "NightVision"), "Gamma") { fullBrightValue.get() }
     val bossHealthValue = BoolValue("Boss-Health", true)
 
     private var prevGamma = -1f
@@ -35,10 +35,9 @@ object AntiBlind : Module() {
     }
 
     override fun onDisable() {
-        if (prevGamma == -1f) return
-        mc.gameSettings.gammaSetting = prevGamma
+        mc.gameSettings.gammaSetting = 0F
         prevGamma = -1f
-        if (mc.thePlayer != null) mc.thePlayer.removePotionEffectClient(Potion.nightVision.id)
+        mc.thePlayer?.removePotionEffectClient(Potion.nightVision.id)
     }
 
     @EventTarget(ignoreCondition = true)
@@ -47,7 +46,7 @@ object AntiBlind : Module() {
             if(fullBrightValue.get()) {
                 when (fullBrightModeValue.get().lowercase()) {
                     "gamma" -> if (mc.gameSettings.gammaSetting <= 100f) mc.gameSettings.gammaSetting++
-                    "nightvision" -> mc.thePlayer.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
+                    "nightvision" -> mc.thePlayer?.addPotionEffect(PotionEffect(Potion.nightVision.id, 1337, 1))
                 }
             }
         } else if (prevGamma != -1f) {

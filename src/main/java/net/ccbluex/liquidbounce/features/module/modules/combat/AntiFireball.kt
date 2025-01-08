@@ -27,8 +27,8 @@ import java.util.*
 class AntiFireBall : Module() {
     private val timer = MSTimer()
 
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
-    private val rotationValue = BoolValue("Rotation", true)
+    private val swingValue by ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val rotationValue by BoolValue("Rotation", true)
     private val maxTurnSpeed: FloatValue =
         object : FloatValue("MaxTurnSpeed", 120f, 0f, 180f) {
             override fun onChanged(oldValue: Float, newValue: Float) {
@@ -51,7 +51,7 @@ class AntiFireBall : Module() {
                 FDPClient.moduleManager[Tracers::class.java]!!.drawTraces(entity, Color.white, true)
             }
             if (entity is EntityFireball && mc.thePlayer.getDistanceToEntity(entity) < 3 && timer.hasTimePassed(300)) {
-                if (rotationValue.get()) {
+                if (rotationValue) {
                     RotationUtils.setTargetRotation(
                         RotationUtils.limitAngleChange(
                             RotationUtils.serverRotation!!,
@@ -62,7 +62,7 @@ class AntiFireBall : Module() {
                     )
                 }
 
-                when (swingValue.get().lowercase(Locale.getDefault())) {
+                when (swingValue.lowercase(Locale.getDefault())) {
                     "normal" -> mc.thePlayer.swingItem()
                     "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
                 }

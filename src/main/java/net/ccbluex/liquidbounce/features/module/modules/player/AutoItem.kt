@@ -25,11 +25,11 @@ import net.minecraft.util.MovingObjectPosition
 @ModuleInfo(name = "AutoItem", category = ModuleCategory.PLAYER)
 object AutoItem : Module() {
     private val autoTool = BoolValue("AutoTool", true)
-    private val fakeItem = BoolValue("FakeItem", false).displayable { autoTool.get() }
-    private val switchBack = BoolValue("SwitchBack", false).displayable { autoTool.get() }
-    private val onlySneaking = BoolValue("OnlySneaking", false).displayable { autoTool.get() }
+    private val fakeItem = BoolValue("FakeItem", false) { autoTool.get() }
+    private val switchBack = BoolValue("SwitchBack", false) { autoTool.get() }
+    private val onlySneaking = BoolValue("OnlySneaking", false) { autoTool.get() }
     private val autoWeapon = BoolValue("AutoWeapon", false)
-    private val onlySwordValue = BoolValue("OnlySword", false).displayable { autoWeapon.get() }
+    private val onlySwordValue = BoolValue("OnlySword", false) { autoWeapon.get() }
     private val silent = BoolValue("Spoof", false)
     private var formerSlot = 0
     private var attackEnemy = false

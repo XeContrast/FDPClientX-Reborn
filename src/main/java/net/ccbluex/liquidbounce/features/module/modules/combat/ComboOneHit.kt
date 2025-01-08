@@ -21,10 +21,10 @@ import net.minecraft.network.play.client.C0APacketAnimation
 @SuppressWarnings("ALL")
 object ComboOneHit : Module() {
 
-    private val amountValue = IntegerValue("Packets", 200, 0, 500)
-    private val swingValue = ListValue("SwingMode", arrayOf("Normal","Packet"), "Normal")
-    private val onlyAuraValue = BoolValue("OnlyAura", false)
-    private val gameBreaking = BoolValue("GameBreaking", false)
+    private val amountValue by IntegerValue("Packets", 200, 0, 500)
+    private val swingValue by ListValue("SwingMode", arrayOf("Normal","Packet"), "Normal")
+    private val onlyAuraValue by BoolValue("OnlyAura", false)
+    private val gameBreaking by BoolValue("GameBreaking", false)
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
@@ -32,20 +32,20 @@ object ComboOneHit : Module() {
             mc.netHandler.addToSendQueue(C02PacketUseEntity(event.targetEntity, C02PacketUseEntity.Action.ATTACK))
         }
         fun swingPacket() {
-            when(swingValue.get().lowercase()) {
+            when(swingValue.lowercase()) {
                 "normal" -> mc.thePlayer.swingItem()
 
                 "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
             }
         }
-        if (onlyAuraValue.get() && !FDPClient.moduleManager[KillAura::class.java]!!.state && !FDPClient.moduleManager[InfiniteAura::class.java]!!.state) return
+        if (onlyAuraValue && !FDPClient.moduleManager[KillAura::class.java]!!.state && !FDPClient.moduleManager[InfiniteAura::class.java]!!.state) return
 
-        repeat (amountValue.get()) {
+        repeat (amountValue) {
             swingPacket()
             sendPacket()
         }
-        if (gameBreaking.get()) {
-            repeat (amountValue.get()) {
+        if (gameBreaking) {
+            repeat (amountValue) {
                 swingPacket()
                 repeat(3) {
                     sendPacket()

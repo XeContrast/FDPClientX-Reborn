@@ -29,9 +29,9 @@ class LagRange : Module() {
             if (i > newValue) set(i)
         }
     }
-    private val delay = IntegerValue("Delay", 150, 50, 2000)
-    private val fov = IntegerValue("Fov", 90, 0, 180)
-    private val onGround = BoolValue("OnGround", false)
+    private val delay by IntegerValue("Delay", 150, 50, 2000)
+    private val fov by IntegerValue("Fov", 90, 0, 180)
+    private val onGround by BoolValue("OnGround", false)
 
     private var lastLagTime: Long = 0
     private var reach: Float = 0F
@@ -47,17 +47,17 @@ class LagRange : Module() {
     private fun shouldStart(): Boolean {
         val player = mc.thePlayer ?: return false
         val world = mc.theWorld ?: return false
-        if (onGround.get() && !mc.thePlayer.onGround) return false
+        if (onGround && !mc.thePlayer.onGround) return false
         if (!MovementUtils.isMoving) return false
-        if (fov.get() == 0) return false
-        if (System.currentTimeMillis() - lastLagTime < delay.get()) return false
+        if (fov == 0) return false
+        if (System.currentTimeMillis() - lastLagTime < delay) return false
 
         world.loadedEntityList
             .filter { it != null && EntityUtils.isSelected(it,true)}
             .filter { player.getDistanceToEntityBox(it) <= reach && it != player}
             .filter { EntityUtils.isLookingOnEntities(
                 it,
-                fov.get().toDouble())
+                fov.toDouble())
             }
             .forEach { _ ->
                 reach = RandomUtils.nextFloat(min.get(), max.get())
