@@ -1,12 +1,11 @@
-package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
+package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element
 
-import codes.som.anthony.koffee.types.int
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.NewUi
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.CategoryElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -15,6 +14,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val height: Float) {
 
@@ -28,7 +28,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
     fun drawBox(mouseX: Int, mouseY: Int, accentColor: Color): Boolean {
 //        RoundedRectShader.draw(xPos - 0.5F, yPos - 0.5F, xPos + width + 0.5F, yPos + height + 0.5F, 4F, ColorManager.buttonOutline)
         Stencil.write(true)
-        RenderUtils.drawRoundedRect(xPos, yPos, xPos + width, yPos + height, 4F, ColorManager.textBox.rgb)
+        RenderUtils.drawRoundedRect(xPos, yPos, xPos + width, yPos + height, 4F, ColorManager.textBox)
         Stencil.erase(true)
         if (searchBox.isFocused) {
             RenderUtils.newDrawRect(xPos, yPos + height - 1F, xPos + width, yPos + height, accentColor.rgb)
@@ -42,7 +42,7 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
 
         Stencil.dispose()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage(IconManager.search, (xPos + width - 15).toInt(), (yPos + 5F).toInt(), 10, 10, true)
+        RenderUtils.drawImage2(IconManager.search, (xPos + width - 15F).toInt(), (yPos + 5F).roundToInt(), 10, 10)
         GlStateManager.enableAlpha()
         return searchBox.text.isNotEmpty()
     }
@@ -77,7 +77,8 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
 
 //        Fonts.fontLarge.drawString("Search", x + 10F, y + 10F, -1)
         Fonts.fontSmall.drawString("Search", NewUi.getInstance().windowXStart + 20f, y - 12F, -1)
-        RenderUtils.drawImage(IconManager.back, (NewUi.getInstance().windowXStart + 4f).toInt(), (y - 15F).toInt(), 10, 10,true)
+        RenderUtils.drawImage2(IconManager.back,
+            (NewUi.getInstance().windowXStart + 4f).toInt(), (y - 15F).toInt(), 10, 10)
 
         var startY = y + startYY
         if (mouseY < y + startYY || mouseY >= y + h)

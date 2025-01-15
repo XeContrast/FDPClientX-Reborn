@@ -1,26 +1,28 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.ccbluex.liquidbounce.features.value.FontValue
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
+import net.ccbluex.liquidbounce.utils.FontUtils.getName
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-class FontElement(private val saveValue: FontValue): ValueElement<FontRenderer>(saveValue) {
+class FontElement(val saveValue: FontValue): ValueElement<FontRenderer>(saveValue) {
     private var expandHeight = 0F
     private var expansion = false
 
-    private val maxSubWidth = -(saveValue.values.minOfOrNull { -Fonts.font40.getStringWidth(mc.thePlayer.name) } ?: 0F).toFloat() + 20F
+    private val maxSubWidth = -(saveValue.values.minOfOrNull { -Fonts.font40.getStringWidth(it.getName()) } ?: 0F).toFloat() + 20F
 
     companion object {
-        val expanding = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }
+        val expanding = IconManager.expand
+    }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)
@@ -36,7 +38,7 @@ class FontElement(private val saveValue: FontValue): ValueElement<FontRenderer>(
         RenderUtils.drawImage(expanding, -4, -4, 8, 8)
         glPopMatrix()
         glPopMatrix()
-        Fonts.font40.drawString(mc.thePlayer.name, x + width - 14F - maxSubWidth, y + 6F, -1)
+        Fonts.font40.drawString(value.get().getName(), x + width - 14F - maxSubWidth, y + 6F, -1)
         glPushMatrix()
         GlStateManager.translate(x + width - 14F - maxSubWidth, y + 7F, 0F)
         GlStateManager.scale(percent, percent, percent)
@@ -66,6 +68,6 @@ class FontElement(private val saveValue: FontValue): ValueElement<FontRenderer>(
         }
     }
 
-    private val unusedValues: List<String>
-        get() = listOf(saveValue.values.filter { it != value.get() }.map {mc.thePlayer.name }.toString())
+    val unusedValues: List<String>
+        get() = saveValue.values.filter { it != value.get() }.map { it.getName() }
 }

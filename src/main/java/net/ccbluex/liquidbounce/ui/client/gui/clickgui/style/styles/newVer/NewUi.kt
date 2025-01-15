@@ -1,16 +1,17 @@
 package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.ccbluex.liquidbounce.FDPClient
+import net.ccbluex.liquidbounce.extensions.setAlpha
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.CategoryElement
+import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.SearchElement
 import net.ccbluex.liquidbounce.ui.client.gui.ClickGUIModule
-import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.SearchElement
-import net.ccbluex.liquidbounce.ui.client.gui.newVer.IconManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.CategoryElement
 import net.ccbluex.liquidbounce.ui.client.gui.options.modernuiLaunchOption.clickGuiConfig
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationUtils
 import net.ccbluex.liquidbounce.utils.MouseUtils.mouseWithinBounds
 import net.ccbluex.liquidbounce.utils.Rectangle
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
@@ -39,9 +40,9 @@ class NewUi private constructor() : GuiScreen() {
     // 30
 
     var windowXStart = 30f
-    private var windowYStart = 30f
-    private var windowXEnd = 500f
-    private var windowYEnd = 400f
+    var windowYStart = 30f
+    var windowXEnd = 500f
+    var windowYEnd = 400f
     private val windowWidth
         get() = abs(windowXEnd - windowXStart)
     private val windowHeight
@@ -52,7 +53,7 @@ class NewUi private constructor() : GuiScreen() {
     private val searchXOffset = 10f
     private val searchYOffset = 30f
 
-    private var sideWidth = 120f
+    var sideWidth = 120f
     private val categoryXOffset
         get() = sideWidth
     private val searchWidth
@@ -89,14 +90,14 @@ class NewUi private constructor() : GuiScreen() {
 
 
     init {
-        ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
+        ModuleCategory.entries.forEach { categoryElements.add(CategoryElement(it)) }
         searchElement = SearchElement(windowXStart + searchXOffset, windowYStart + searchYOffset, searchWidth, searchHeight)
         categoryElements[0].focused = true
     }
 
     private fun reload() {
         categoryElements.clear()
-        ModuleCategory.values().forEach { categoryElements.add(CategoryElement(it)) }
+        ModuleCategory.entries.forEach { categoryElements.add(CategoryElement(it)) }
         categoryElements[0].focused = true
     }
 
@@ -241,13 +242,13 @@ class NewUi private constructor() : GuiScreen() {
 //            drawFullSized(mouseX, mouseY, partialTicks, NewGUI.accentColor, -mouseX.toFloat(), -mouseY.toFloat())
 //        else
 //            drawFullSized(mouseX, mouseY, partialTicks, NewGUI.accentColor)
-        drawFullSized(mouseX, mouseY, partialTicks, ClickGUIModule.generateColor())
+        drawFullSized(mouseX, mouseY, partialTicks, ColorUtils.rainbow())
 //        handlingPostRotationAnimation()
     }
 
     private fun drawFullSized(mouseX: Int, mouseY: Int, partialTicks: Float, accentColor: Color, xOffset: Float = 0f, yOffset: Float = 0f) {
         val windowRadius = 4f
-        RenderUtils.drawRoundedRect((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYEnd + yOffset), windowRadius, backgroundColor.rgb)
+        RenderUtils.drawRoundedRect((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYEnd + yOffset), windowRadius, backgroundColor)
         RenderUtils.customRounded((windowXStart + xOffset), (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, windowRadius, windowRadius, 0f, 0f, backgroundColor2.rgb)
 
         // something to make it look more like windoze - inf, 2022
@@ -256,11 +257,11 @@ class NewUi private constructor() : GuiScreen() {
         else
             fading -= 0.2f * RenderUtils.deltaTime * 0.045f
         fading = MathHelper.clamp_float(fading, 0f, 1f)
+        xButtonColor.setAlpha(fading)
         RenderUtils.customRounded((windowXEnd + xOffset) - 20f, (windowYStart + yOffset), (windowXEnd + xOffset), (windowYStart + yOffset) + 20f, 0f, windowRadius, 0f, 0f, xButtonColor.rgb)
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage(
-            IconManager.removeIcon,
-            ((windowXEnd + xOffset) - 15.0).toInt(), ((windowYStart + yOffset) + 5.0).toInt(), 10, 10
+        RenderUtils.drawImage(IconManager.removeIcon,
+            ((windowXEnd + xOffset) - 15).toInt(), ((windowYStart + yOffset) + 5.0).toInt(), 10, 10
         )
         GlStateManager.enableAlpha()
 
@@ -288,14 +289,14 @@ class NewUi private constructor() : GuiScreen() {
             if (ce.focused) {
                 lastFastYStart = startY + 6f
                 lastFastYEnd = startY + elementHeight - 6f
-                startYAnim = if (ClickGUIModule.fastRenderValue.get())
+                startYAnim = if (ClickGUIModule.fastRenderValue)
                     startY + 6f
                              else
                                  AnimationUtils.animate(startY + 6f,
                                     startYAnim,
                                     (if (startYAnim - (startY + 5f) > 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
                                 )
-                endYAnim =  if (ClickGUIModule.fastRenderValue.get())
+                endYAnim =  if (ClickGUIModule.fastRenderValue)
                                 startY + elementHeight - 6f
                             else
                                 AnimationUtils.animate(
@@ -311,7 +312,7 @@ class NewUi private constructor() : GuiScreen() {
         val offset = 8f
         val drawYStart = if (resizeDragging || moveDragging) lastFastYStart else startYAnim
         val drawYEnd = if (resizeDragging || moveDragging) lastFastYEnd else endYAnim
-        RenderUtils.drawRoundedRect((windowXStart + xOffset) + 2f + offset, drawYStart, (windowXStart + xOffset) + 4f + offset, drawYEnd, 1f, accentColor.rgb)
+        RenderUtils.drawRoundedRect((windowXStart + xOffset) + 2f + offset, drawYStart, (windowXStart + xOffset) + 4f + offset, drawYEnd, 1f, accentColor)
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 

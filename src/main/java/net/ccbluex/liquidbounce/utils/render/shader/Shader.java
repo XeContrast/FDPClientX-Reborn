@@ -54,6 +54,53 @@ public abstract class Shader extends MinecraftInstance {
         ClientUtils.getLogger().info("[Shader] Successfully loaded: {}", fragmentShader);
     }
 
+    public Shader(final String fragmentShader, final String shaderFolder) {
+        int vertexShaderID, fragmentShaderID;
+
+        try {
+            final InputStream vertexStream = getClass().getResourceAsStream("/assets/minecraft/fdpclient/shader/vertex.vert");
+            vertexShaderID = createShader(IOUtils.toString(vertexStream), ARBVertexShader.GL_VERTEX_SHADER_ARB);
+            IOUtils.closeQuietly(vertexStream);
+
+            final InputStream fragmentStream = getClass().getResourceAsStream("/assets/minecraft/fdpclient/shader/" + shaderFolder + "/" + fragmentShader);
+            fragmentShaderID = createShader(IOUtils.toString(fragmentStream), ARBFragmentShader.GL_FRAGMENT_SHADER_ARB);
+            IOUtils.closeQuietly(fragmentStream);
+        }catch(final Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if(vertexShaderID == 0 || fragmentShaderID == 0)
+            return;
+
+        program = ARBShaderObjects.glCreateProgramObjectARB();
+
+        if(program == 0)
+            return;
+
+        ARBShaderObjects.glAttachObjectARB(program, vertexShaderID);
+        ARBShaderObjects.glAttachObjectARB(program, fragmentShaderID);
+
+        ARBShaderObjects.glLinkProgramARB(program);
+        ARBShaderObjects.glValidateProgramARB(program);
+
+        ClientUtils.getLogger().info("[Shader] Successfully loaded: {}", fragmentShader);
+    }
+
+
+    public static void drawQuad(final float x, final float y, final float width, final float height) {
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0.0F, 0.0F);
+        GL11.glVertex2d(x, y + height);
+        GL11.glTexCoord2f(1.0F, 0.0F);
+        GL11.glVertex2d(x + width, y + height);
+        GL11.glTexCoord2f(1.0F, 1.0F);
+        GL11.glVertex2d(x + width, y);
+        GL11.glTexCoord2f(0.0F, 1.0F);
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+    }
+
     public void init() {
         GL20.glUseProgram(this.program);
     }

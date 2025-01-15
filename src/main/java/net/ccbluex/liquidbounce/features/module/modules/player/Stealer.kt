@@ -14,18 +14,29 @@ import net.ccbluex.liquidbounce.features.value.BoolValue
 import net.ccbluex.liquidbounce.features.value.IntegerValue
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.Notification
 import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
+import net.ccbluex.liquidbounce.utils.render.RoundedUtil
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
+import net.minecraft.block.BlockContainer
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.inventory.GuiChest
+import net.minecraft.client.renderer.ActiveRenderInfo
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.inventory.Slot
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import net.minecraft.network.Packet
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
+import net.minecraft.util.BlockPos
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.opengl.Display
+import org.lwjgl.util.glu.GLU
+import java.awt.Color
 import kotlin.random.Random
 
 @ModuleInfo(name = "Stealer", category = ModuleCategory.PLAYER)
@@ -66,8 +77,9 @@ object Stealer : Module() {
     private val autoCloseValue = BoolValue("AutoClose", true)
     val silentTitleValue = BoolValue("SilentTitle", false)
     val silenceValue = BoolValue("SilentMode", true)
-    val showStringValue = BoolValue("Silent-ShowString", true).displayable { silenceValue.get() }
-    val stillDisplayValue = BoolValue("Silent-StillDisplay", true).displayable { silenceValue.get() }
+    val showStringValue = BoolValue("Silent-ShowString", true) { silenceValue.get() }
+    val stillDisplayValue = BoolValue("Silent-StillDisplay", true) { silenceValue.get() }
+    private val silentView by BoolValue("SilentView",true) { silenceValue.get() }
 
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -95,6 +107,8 @@ object Stealer : Module() {
     private val chestTimer = MSTimer()
     private var nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
 
+    private var currentContainerPos: BlockPos? = null
+
     private val autoCloseTimer = MSTimer()
     private var nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
 
@@ -110,6 +124,55 @@ object Stealer : Module() {
         if (stopMotionValue.get() && mc.currentScreen is GuiChest) {
             event.x = 0.0
             event.z = 0.0
+        }
+    }
+
+    @EventTarget
+    fun onRender2D(event: Render2DEvent) {
+        if (silentView) {
+            if (mc.thePlayer.openContainer == null || mc.currentScreen == null)
+                return
+            val container = mc.thePlayer?.openContainer ?: return
+            val slots = container.inventorySlots.size
+
+            val scaleFactor: Int = event.scaledResolution.scaleFactor
+
+            if (slots > 0) {
+                val projection: FloatArray = calculate(currentContainerPos ?: return, scaleFactor) ?: return
+
+                val roundX = projection[0] - (164 / 2f)
+                val roundY = projection[1] / 1.5f
+
+                GlStateManager.pushMatrix()
+                GlStateManager.translate(roundX + 82, roundY + 30, 0f)
+                GlStateManager.translate(-(roundX + 82), -(roundY + 30), 0f)
+
+                RoundedUtil.drawRound(roundX, roundY, 164F, 60f, 3f, Color(0, 0, 0, 120))
+
+                val startX = (roundX + 5).toDouble()
+                val startY = (roundY + 5).toDouble()
+
+                val itemRender = mc.renderItem
+
+                GlStateManager.pushMatrix()
+                RenderHelper.enableGUIStandardItemLighting()
+                itemRender.zLevel = 200.0f
+
+                for (slot in container.inventorySlots) {
+                    if (slot.inventory != mc.thePlayer.inventory) {
+                        val x = (startX + (slot.slotNumber % 9) * 18).toInt()
+                        val y = (startY + (slot.slotNumber.toDouble() / 9) * 18).toInt()
+
+                        itemRender.renderItemAndEffectIntoGUI(slot.stack, x, y)
+                    }
+                }
+
+                GlStateManager.popMatrix()
+
+                itemRender.zLevel = 0.0f
+                GlStateManager.popMatrix()
+                GlStateManager.disableLighting()
+            }
         }
     }
 
@@ -328,6 +391,17 @@ object Stealer : Module() {
         if (packet is S2DPacketOpenWindow) {
             chestTimer.reset()
         }
+
+        if (silentView) {
+            if (packet is C08PacketPlayerBlockPlacement) {
+                if (packet.position != null) {
+                    val block = mc.theWorld.getBlockState(packet.position).block
+                    if (block is BlockContainer) {
+                        currentContainerPos = packet.position
+                    }
+                }
+            }
+        }
     }
 
     private fun move(screen: GuiChest, slot: Slot) {
@@ -353,6 +427,46 @@ object Stealer : Module() {
         }
 
         return true
+    }
+
+    fun calculate(blockPos: BlockPos, factor: Int): FloatArray? {
+        try {
+            val renderX = mc.renderManager.renderPosX
+            val renderY = mc.renderManager.renderPosY
+            val renderZ = mc.renderManager.renderPosZ
+
+            val x = blockPos.x + 0.5f - renderX
+            val y = blockPos.y + 0.5f - renderY
+            val z = blockPos.z + 0.5f - renderZ
+
+            val projectedCenter: FloatArray = project(x, y, z, factor)!!
+            if (projectedCenter[2] >= 0.0 && projectedCenter[2] < 1.0) {
+                return floatArrayOf(projectedCenter[0], projectedCenter[1], projectedCenter[0], projectedCenter[1])
+            }
+            return null
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
+    private fun project(x: Double, y: Double, z: Double, factor: Int): FloatArray? {
+        if (GLU.gluProject(
+                x.toFloat(),
+                y.toFloat(),
+                z.toFloat(),
+                ActiveRenderInfo.MODELVIEW,
+                ActiveRenderInfo.PROJECTION,
+                ActiveRenderInfo.VIEWPORT,
+                ActiveRenderInfo.OBJECTCOORDS
+            )
+        ) {
+            return floatArrayOf(
+                (ActiveRenderInfo.OBJECTCOORDS[0] / factor),
+                ((Display.getHeight() - ActiveRenderInfo.OBJECTCOORDS[1]) / factor),
+                ActiveRenderInfo.OBJECTCOORDS[2]
+            )
+        }
+        return null
     }
 
     private val fullInventory: Boolean

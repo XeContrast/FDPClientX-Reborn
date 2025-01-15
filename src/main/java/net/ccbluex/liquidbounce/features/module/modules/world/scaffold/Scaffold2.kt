@@ -275,14 +275,14 @@ object Scaffold2 : Module() {
             if (newValue < extraClickMinCPS.get()) set(extraClickMinCPS.get())
         }
 
-        fun isSupported(): Boolean = extraClick.equals("RandomCPS")
+        override fun isSupported(): Boolean = extraClick.equals("RandomCPS")
     }
     private val extraClickMinCPS: FloatValue = object : FloatValue("ClickMinCPS", 5f, 1f, 20f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             if (newValue > extraClickMaxCPS.get()) set(extraClickMaxCPS.get())
         }
 
-        fun isSupported(): Boolean = extraClick.equals("RandomCPS")
+        override fun isSupported(): Boolean = extraClick.equals("RandomCPS")
     }
     private val clickTimer = MSTimer()
     private var extraClickDelay = 0L
@@ -521,7 +521,7 @@ object Scaffold2 : Module() {
 
     /** @param */
 
-    @EventTarget()
+    @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (autodis.get()) {
             if (blocksAmount == 0) {

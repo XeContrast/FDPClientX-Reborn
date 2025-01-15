@@ -1,14 +1,14 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.value.impl
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.ccbluex.liquidbounce.features.value.ListValue
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.IconManager
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.value.ValueElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MouseUtils
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
@@ -16,16 +16,16 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
     private var expandHeight = 0F
     private var expansion = false
 
-    private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it) }.sorted().firstOrNull() ?: 0F).toFloat() + 20F
+    private val maxSubWidth = -(saveValue.values.minOfOrNull { -Fonts.font40.getStringWidth(it) } ?: 0F).toFloat() + 20F
 
     companion object {
-        val expanding = ResourceLocation("fdpclient/ui/clickgui/new/expand.png") }
+        val expanding = IconManager.expand }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)
         val percent = expandHeight / (16F * (saveValue.values.size - 1F))
         Fonts.font40.drawString(value.name, x + 10F, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
-        RenderUtils.drawRoundedRect(x + width - 18F - maxSubWidth, y + 2F, x + width - 10F, y + 18F + expandHeight, 4F, ColorManager.button.rgb)
+        RenderUtils.drawRoundedRect(x + width - 18F - maxSubWidth, y + 2F, x + width - 10F, y + 18F + expandHeight, 4F, ColorManager.button)
         GlStateManager.resetColor()
         glPushMatrix()
         glTranslatef(x + width - 20F, y + 10F, 0F)

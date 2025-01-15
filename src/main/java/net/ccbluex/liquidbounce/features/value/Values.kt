@@ -10,6 +10,7 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.Element.Companion.MAX_GRAD
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.AnimationHelper
 import net.ccbluex.liquidbounce.utils.ClientUtils
+import net.ccbluex.liquidbounce.utils.FontUtils.getAllFontDetails
 import net.minecraft.client.gui.FontRenderer
 import java.awt.Color
 import java.util.*
@@ -70,6 +71,11 @@ abstract class Value<T>(val name: String, var value: T,var canDisplay: () -> Boo
 
     protected open fun onChange(oldValue: T, newValue: T) {}
     protected open fun onChanged(oldValue: T, newValue: T) {}
+    open fun isSupported() = canDisplay.invoke()
+
+    open fun setSupport(condition: (Boolean) -> Boolean) {
+        canDisplay = { condition(isSupported()) }
+    }
 
     // this is better api for ListValue and TextValue
 
@@ -124,17 +130,6 @@ abstract class Value<T>(val name: String, var value: T,var canDisplay: () -> Boo
     open fun ColorValue(name: String, value: Int) {
         Intrinsics.checkParameterIsNotNull(name, "name")
         ColorValue(name, value)
-    }
-
-    override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + (value?.hashCode() ?: 0)
-        result = 31 * result + canDisplay.hashCode()
-        result = 31 * result + (default?.hashCode() ?: 0)
-        result = 31 * result + textHovered.hashCode()
-        result = 31 * result + displayableFunc.hashCode()
-        result = 31 * result + Expanded.hashCode()
-        return result
     }
 }
 
@@ -347,26 +342,6 @@ open class  ColorValue(name : String, value: Int,displayable: () -> Boolean = { 
 }
 
 class FontValue(valueName: String, value: FontRenderer,displayable: () -> Boolean = { true }) : Value<FontRenderer>(valueName, value,displayable) {
-
-    private val cache: MutableList<Pair<String, FontRenderer>> = mutableListOf()
-    private fun updateCache() {
-        cache.clear()
-        for (fontOfFonts in Fonts.getFonts()) {
-            val details = Fonts.getFontDetails(fontOfFonts) ?: continue
-            val name = details[0].toString()
-            val size = details[1].toString().toInt()
-            val format = "$name $size"
-
-            cache.add(format to fontOfFonts)
-        }
-
-        cache.sortBy { it.first }
-    }
-    private fun getAllFontDetails(): Array<Pair<String, FontRenderer>> {
-        if (cache.size == 0) updateCache()
-
-        return cache.toTypedArray()
-    }
     override fun toJson(): JsonElement {
         val fontDetails = Fonts.getFontDetails(value)
         val valueObject = JsonObject()

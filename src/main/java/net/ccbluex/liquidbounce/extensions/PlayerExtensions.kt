@@ -7,6 +7,7 @@ import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.minecraft.client.Minecraft
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
@@ -76,6 +77,12 @@ fun EntityPlayer.getSmoothDistanceToCoord(x: Float, y: Float, z: Float): Float {
 
 fun BlockPos.getAllInBoxMutable(radius: Int): Iterable<BlockPos> {
     return BlockPos.getAllInBoxMutable(add(-radius, -radius, -radius), add(radius, radius, radius))
+}
+
+fun EntityPlayerSP.tryJump() {
+    if (!mc.gameSettings.keyBindJump.isKeyDown) {
+        jump()
+    }
 }
 
 /**

@@ -30,7 +30,7 @@ object AutoProjectile : Module() {
     private val throwDelay = IntegerValue("ThrowDelay", 1000, 50,2000) { mode.get() != "Smart" }
 
     private val minThrowDelay: IntegerValue = object : IntegerValue("MinThrowDelay", 1000, 50,2000) {
-        fun isSupported() = mode.get() == "Smart"
+        override fun isSupported() = mode.get() == "Smart"
         override fun onChange(oldValue: Int, newValue: Int) {
             val v = maxThrowDelay.get()
             if (v < newValue) set(v)
@@ -38,7 +38,7 @@ object AutoProjectile : Module() {
     }
 
     private val maxThrowDelay: IntegerValue = object : IntegerValue("MaxThrowDelay", 1500, 50,2000) {
-        fun isSupported() = mode.get() == "Smart"
+        override fun isSupported() = mode.get() == "Smart"
         override fun onChange(oldValue: Int, newValue: Int) {
             val v = minThrowDelay.get()
             if (v > newValue) set(v)

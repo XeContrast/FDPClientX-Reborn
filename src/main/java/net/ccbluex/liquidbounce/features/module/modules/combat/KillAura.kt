@@ -274,6 +274,7 @@ object KillAura : Module() {
     private val silentRotationValue =
         BoolValue("SilentRotation", true) { !rotationModeValue.equals("None") && rotationDisplay.get() }
 
+    private val angleThresholdUntilReset by FloatValue("AngleThresholdUntilReset", 5f, 0.1f,180f)
     private val maxYawTurnSpeedValue: FloatValue = object : FloatValue("MaxYawTurnSpeed", 180f, 1f, 180f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val v = minYawTurnSpeedValue.get()
@@ -389,12 +390,6 @@ object KillAura : Module() {
         "RotationReverse",
         false
     ) { !rotationModeValue.equals("None") && rotationDisplay.get() }
-    private val rotationRevTickValue = IntegerValue(
-        "RotationReverseTick",
-        5,
-        1,
-        20
-    ) { rotationRevValue.get() && rotationRevValue.stateDisplayable }
     private val keepDirectionValue =
         BoolValue("KeepDirection", true) { !rotationModeValue.equals("None") && rotationDisplay.get() }
     private val keepDirectionTickValue = IntegerValue(
@@ -570,8 +565,8 @@ object KillAura : Module() {
             RotationUtils.setTargetRotationReverse(
                 it,
                 keepDirectionTickValue.get().takeIf { keepDirectionValue.get() } ?: 1,
-                rotationRevTickValue.get().takeIf { rotationRevValue.get() } ?: 0,
-                minResetSpeedValue.get() to maxResetSpeedValue.get()
+                minResetSpeedValue.get() to maxResetSpeedValue.get(),
+                angleThresholdUntilReset
             )
         }
         if (wasBlink) {
@@ -1231,7 +1226,7 @@ object KillAura : Module() {
             ) ?: return false
 
 
-        var diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation!!, directRotation)
+        var diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, directRotation)
         if (diffAngle < 0) diffAngle = -diffAngle
         if (diffAngle > 180.0) diffAngle = 180.0
 
@@ -1254,20 +1249,20 @@ object KillAura : Module() {
 
         val rotation = when (rotationModeValue.get()) {
             "LiquidBounce", "ForceCenter", "Optimal" -> RotationUtils.limitAngleChange(
-                RotationUtils.serverRotation!!,
+                RotationUtils.serverRotation,
                 directRotation,
                 RandomUtils.nextFloat(minYawTurnSpeedValue.get(), maxYawTurnSpeedValue.get()),
                 RandomUtils.nextFloat(minPitchTurnSpeedValue.get(), maxPitchTurnSpeedValue.get())
             )
 
             "LockView" -> RotationUtils.limitAngleChange(
-                RotationUtils.serverRotation!!,
+                RotationUtils.serverRotation,
                 directRotation,
                 180.0F
             )
 
             "SmoothCenter", "SmoothLiquid", "SmoothCustom" -> RotationUtils.limitAngleChange(
-                RotationUtils.serverRotation!!,
+                RotationUtils.serverRotation,
                 directRotation,
                 (calculateSpeed).toFloat()
             )
@@ -1279,8 +1274,8 @@ object KillAura : Module() {
             RotationUtils.setTargetRotationReverse(
                 rotation,
                 keepDirectionTickValue.get().takeIf { keepDirectionValue.get() } ?: 1,
-                rotationRevTickValue.get().takeIf { rotationRevValue.get() } ?: 0,
-                minResetSpeedValue.get() to maxResetSpeedValue.get()
+                minResetSpeedValue.get() to maxResetSpeedValue.get(),
+                angleThresholdUntilReset
             )
         } else {
             rotation.toPlayer(mc.thePlayer)

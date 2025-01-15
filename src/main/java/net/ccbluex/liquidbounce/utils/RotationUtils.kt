@@ -45,12 +45,12 @@ class RotationUtils : MinecraftInstance(), Listenable {
         if (keepLength > 0) {
             keepLength--
         } else {
-            if (revTick > 0) {
-                revTick--
+            if (getRotationDifference(rotation, mc.thePlayer.rotation) <= angleThresholdForReset) {
+                reset()
+            } else {
+                val speed = RandomUtils.nextFloat(speedForReset.first, speedForReset.second)
+                targetRotation = limitAngleChange(rotation, mc.thePlayer.rotation, speed).fixedSensitivity()
             }
-            reset()
-            val speed = RandomUtils.nextFloat(speedForReset.first, speedForReset.second)
-            targetRotation = limitAngleChange(rotation, mc.thePlayer.rotation, speed).fixedSensitivity()
         }
 
         if (random.nextGaussian() > 0.8) x = Math.random()
@@ -60,9 +60,9 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (StrafeFix.doFix) {
+        if (StrafeFix.handleEvents()) {
             targetRotation?.let {
-                it.applyStrafeToPlayer(event,!StrafeFix.silentFix)
+                it.applyStrafeToPlayer(event,!StrafeFix.silentFixVaule.get())
                 event.cancelEvent()
             }
         }
@@ -79,7 +79,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
         if (packet is C03PacketPlayer) {
             targetRotation?.let { rotation ->
-                val (yaw,pitch) = serverRotation!!
+                val (yaw,pitch) = serverRotation
                 if (rotation.yaw == yaw && rotation.pitch == pitch)
                     return
 
@@ -112,13 +112,12 @@ class RotationUtils : MinecraftInstance(), Listenable {
         private val random = Random()
 
         private var keepLength = 0
-        private var revTick = 0
 
 
         @JvmField
         var targetRotation: Rotation? = null
         @JvmField
-        var serverRotation: Rotation? = Rotation(0f, 0f)
+        var serverRotation = Rotation(0f, 0f)
 
         const val keepCurrentRotation: Boolean = false
 
@@ -797,7 +796,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
          * @return difference between rotation
          */
         fun getRotationDifference(rotation: Rotation): Double {
-            return if (serverRotation == null) 0.0 else getRotationDifference(rotation, serverRotation)
+            return getRotationDifference(rotation, serverRotation)
         }
 
         fun angleDifference(a: Float, b: Float) = MathHelper.wrapAngleTo180_float(a - b)
@@ -949,7 +948,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
             rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
             targetRotation = rotation
             keepLength = kl
-            revTick = 0
         }
 
         var speedForReset = 180f to 180f
@@ -974,8 +972,8 @@ class RotationUtils : MinecraftInstance(), Listenable {
         fun setTargetRotationReverse(
             rotation: Rotation,
             kl: Int,
-            rt: Int,
-            resetSpeed: Pair<Float, Float> = 180f to 180f
+            resetSpeed: Pair<Float, Float> = 180f to 180f,
+            angleThresholdForReset: Float = 180f
         ) {
             if (rotation.yaw.isNaN() || rotation.pitch.isNaN() || rotation.pitch > 90 || rotation.pitch < -90) return
 
@@ -983,7 +981,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
             this.targetRotation = rotation
             this.keepLength = kl
             this.speedForReset = resetSpeed
-            this.revTick = rt + 1
+            this.angleThresholdForReset = angleThresholdForReset
         }
 
         fun bestServerRotation(): Rotation? {
@@ -1003,16 +1001,24 @@ class RotationUtils : MinecraftInstance(), Listenable {
          */
         fun reset() {
             keepLength = 0
-            targetRotation = if (revTick > 0) {
-                Rotation(
-                    targetRotation!!.yaw - getAngleDifference(
-                        targetRotation!!.yaw, mc.thePlayer.rotationYaw
-                    ) / revTick,
-                    targetRotation!!.pitch - getAngleDifference(
-                        targetRotation!!.pitch, mc.thePlayer.rotationPitch
-                    ) / revTick
-                )
-            } else null
+            targetRotation?.let { rotation ->
+                mc.thePlayer?.let {
+                    it.rotationYaw = rotation.yaw + getAngleDifference(it.rotationYaw, rotation.yaw)
+                    syncRotations()
+                }
+            }
+            targetRotation = null
+        }
+
+        fun syncRotations() {
+            val player = mc.thePlayer ?: return
+
+            player.prevRotationYaw = player.rotationYaw
+            player.prevRotationPitch = player.rotationPitch
+            player.renderArmYaw = player.rotationYaw
+            player.renderArmPitch = player.rotationPitch
+            player.prevRenderArmYaw = player.rotationYaw
+            player.prevRotationPitch = player.rotationPitch
         }
 
 
@@ -1032,25 +1038,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
             val yaw = (atan2(z, x) * 180.0 / 3.141592653589793).toFloat() - 90.0f
             val pitch = (-(atan2(y, dist) * 180.0 / 3.141592653589793)).toFloat()
             return Rotation(yaw, pitch)
-        }
-
-        @JvmStatic
-        fun performRaytrace(
-            blockPos: BlockPos,
-            rotation: Rotation,
-            reach: Float = mc.playerController.blockReachDistance,
-        ): MovingObjectPosition? {
-            val world = mc.theWorld ?: return null
-            val player = mc.thePlayer ?: return null
-
-            val eyes = player.eyes
-
-            return blockPos.getBlock()?.collisionRayTrace(
-                world,
-                blockPos,
-                eyes,
-                eyes + (getVectorForRotation(rotation) * reach.toDouble())
-            )
         }
     }
 }

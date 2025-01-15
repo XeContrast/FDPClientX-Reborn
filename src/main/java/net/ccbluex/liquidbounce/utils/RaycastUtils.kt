@@ -12,12 +12,14 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.Backtrack.loopThr
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.isVisible
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.serverRotation
+import net.ccbluex.liquidbounce.utils.block.block
 import net.ccbluex.liquidbounce.utils.extensions.eyes
 import net.ccbluex.liquidbounce.utils.extensions.hitBox
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItemFrame
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.projectile.EntityLargeFireball
 import net.minecraft.util.*
 import java.util.*
 
@@ -27,73 +29,62 @@ object RaycastUtils : MinecraftInstance() {
     @JvmOverloads
     fun raycastEntity(
         range: Double,
-        yaw: Float = serverRotation!!.yaw,
-        pitch: Float = serverRotation!!.pitch,
+        yaw: Float = serverRotation.yaw,
+        pitch: Float = serverRotation.pitch,
         entityFilter: (Entity) -> Boolean
     ): Entity? {
         val renderViewEntity = mc.renderViewEntity
 
-        if (renderViewEntity != null && mc.theWorld != null) {
-            var blockReachDistance = range
-            val eyePosition = renderViewEntity.eyes
-            val entityLook = getVectorForRotation(Rotation(yaw, pitch))
-            val vec = eyePosition.addVector(
-                entityLook.xCoord * blockReachDistance,
-                entityLook.yCoord * blockReachDistance,
-                entityLook.zCoord * blockReachDistance
-            )
+        if (renderViewEntity == null || mc.theWorld == null)
+            return null
 
-            val entityList = mc.theWorld.getEntitiesInAABBexcluding(
-                renderViewEntity, renderViewEntity.entityBoundingBox.addCoord(
-                    entityLook.xCoord * blockReachDistance,
-                    entityLook.yCoord * blockReachDistance,
-                    entityLook.zCoord * blockReachDistance
-                ).expand(1.0, 1.0, 1.0)
-            ) {
-                it != null && (it !is EntityPlayer || !it.isSpectator) && it.canBeCollidedWith()
-            }
+        var blockReachDistance = range
+        val eyePosition = renderViewEntity.eyes
+        val entityLook = getVectorForRotation(yaw, pitch)
+        val vec = eyePosition + (entityLook * blockReachDistance)
 
-            var pointedEntity: Entity? = null
-
-            for (entity in entityList) {
-                if (!entityFilter(entity)) continue
-
-                val checkEntity = {
-                    val axisAlignedBB = entity.hitBox
-
-                    val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec)
-
-                    if (axisAlignedBB.isVecInside(eyePosition)) {
-                        if (blockReachDistance >= 0.0) {
-                            pointedEntity = entity
-                            blockReachDistance = 0.0
-                        }
-                    } else if (movingObjectPosition != null) {
-                        val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
-
-                        if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
-                            if (entity == renderViewEntity.ridingEntity && !renderViewEntity.canRiderInteract()) {
-                                if (blockReachDistance == 0.0) pointedEntity = entity
-                            } else {
-                                pointedEntity = entity
-                                blockReachDistance = eyeDistance
-                            }
-                        }
-                    }
-
-                    false
-                }
-
-                // Check newest entity first
-                checkEntity()
-                if (Backtrack.mode.get() == "Legacy")
-                    loopThroughBacktrackData(entity, checkEntity)
-            }
-
-            return pointedEntity
+        val entityList = mc.theWorld.getEntities(Entity::class.java) {
+            it != null && (it is EntityLivingBase || it is EntityLargeFireball) && (it !is EntityPlayer || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
         }
 
-        return null
+        var pointedEntity: Entity? = null
+
+        for (entity in entityList) {
+            if (!entityFilter(entity)) continue
+
+            val checkEntity = {
+                val axisAlignedBB = entity.hitBox
+
+                val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec)
+
+                if (axisAlignedBB.isVecInside(eyePosition)) {
+                    if (blockReachDistance >= 0.0) {
+                        pointedEntity = entity
+                        blockReachDistance = 0.0
+                    }
+                } else if (movingObjectPosition != null) {
+                    val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
+
+                    if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
+                        if (entity == renderViewEntity.ridingEntity && !renderViewEntity.canRiderInteract()) {
+                            if (blockReachDistance == 0.0) pointedEntity = entity
+                        } else {
+                            pointedEntity = entity
+                            blockReachDistance = eyeDistance
+                        }
+                    }
+                }
+
+                false
+            }
+
+            // Check newest entity first
+            checkEntity()
+            if (Backtrack.mode.get() == "Legacy")
+                loopThroughBacktrackData(entity, checkEntity)
+        }
+
+        return pointedEntity
     }
     fun raycastEntity(range: Double, yaw: Float, pitch: Float, entityFilter: IEntityFilter): Entity? {
         val renderViewEntity = mc.renderViewEntity
@@ -169,6 +160,24 @@ object RaycastUtils : MinecraftInstance() {
     }
     interface IEntityFilter {
         fun canRaycast(entity: Entity?): Boolean
+    }
+
+    /**
+     * Creates a raytrace even when the target [blockPos] is not visible
+     */
+    fun performRaytrace(
+        blockPos: BlockPos,
+        rotation: Rotation,
+        reach: Float = mc.playerController.blockReachDistance,
+    ): MovingObjectPosition? {
+        val world = mc.theWorld ?: return null
+        val player = mc.thePlayer ?: return null
+
+        val eyes = player.eyes
+
+        return blockPos.block?.collisionRayTrace(
+            world, blockPos, eyes, eyes + (getVectorForRotation(rotation) * reach.toDouble())
+        )
     }
 
     /**

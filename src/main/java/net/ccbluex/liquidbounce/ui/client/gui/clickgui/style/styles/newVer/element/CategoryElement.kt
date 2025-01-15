@@ -1,9 +1,9 @@
-package net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.ColorManager
-import net.ccbluex.liquidbounce.ui.client.clickgui.newVer.element.module.ModuleElement
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.ColorManager
+import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.element.module.ModuleElement
 import net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer.extensions.animSmooth
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
@@ -31,9 +31,9 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
 
     fun drawLabel(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, height: Float) {
         if (focused)
-            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.dropDown.rgb)
+            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.dropDown)
         else if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x, y, x + width, y + height))
-            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.border.rgb)
+            RenderUtils.drawRoundedRect(x + 11F, y + 3F, x + width - 3F, y + height - 3F, 3F, ColorManager.border)
         Fonts.font40.drawString(name, x + 16F, y + height / 2F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
     }
 
@@ -53,10 +53,10 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
         GL11.glEnable(3089)
         var startY = y + startYY
         for (moduleElement in moduleElements) {
-            if (startY + animScrollHeight > y + height || startY + animScrollHeight + 40F + moduleElement.animHeight < y + startYY)
-                startY += 40F + moduleElement.animHeight
+            startY += if (startY + animScrollHeight > y + height || startY + animScrollHeight + 40F + moduleElement.animHeight < y + startYY)
+                40F + moduleElement.animHeight
             else
-                startY += moduleElement.drawElement(mouseX, mouseY, x, startY + animScrollHeight, width, 40F, accentColor)
+                moduleElement.drawElement(mouseX, mouseY, x, startY + animScrollHeight, width, 40F, accentColor)
         }
         GL11.glDisable(3089)
     }
@@ -68,10 +68,10 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
             else
                 scrollHeight -= 50F
         }
-        if (lastHeight > height - (startYY + 10F))
-            scrollHeight = scrollHeight.coerceIn(-lastHeight + height - (startYY + 10F), 0F)
+        scrollHeight = if (lastHeight > height - (startYY + 10F))
+            scrollHeight.coerceIn(-lastHeight + height - (startYY + 10F), 0F)
         else
-            scrollHeight = 0F
+            0F
         animScrollHeight = animScrollHeight.animSmooth(scrollHeight, 0.5F)
     }
 
@@ -84,12 +84,12 @@ class CategoryElement(val category: ModuleCategory): MinecraftInstance() {
                 y + multiply - 40f,
                 x + width - 4F,
                 y + (height - (startYY + 10F)) * ((height - (startYY + 10F)) / lastHeight) + multiply - 40f,
-                1F, Color(0x50FFFFFF).rgb)
+                1F, Color(0x50FFFFFF))
         }
     }
 
     fun handleMouseClick(mX: Int, mY: Int, mouseButton: Int, x: Float, y: Float, width: Float, height: Float) {
-        var mouseX = mX
+        val mouseX = mX
         var mouseY = mY
         if (mouseY < y + startYY || mouseY >= y + height)
             mouseY = -1

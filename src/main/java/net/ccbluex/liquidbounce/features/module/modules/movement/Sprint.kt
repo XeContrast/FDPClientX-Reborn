@@ -13,6 +13,7 @@ import net.ccbluex.liquidbounce.extensions.setSprintSafely
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
+import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold
 import net.ccbluex.liquidbounce.features.module.modules.world.scaffold.Scaffold2
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.Rotation
@@ -28,28 +29,22 @@ import kotlin.math.abs
 
 @ModuleInfo(name = "Sprint", category = ModuleCategory.MOVEMENT, defaultOn = true)
 object Sprint : Module() {
-    private val modes = ListValue("Modes", arrayOf("Vanilla","Legit"),"Legit")
-
-    private val blindness = BoolValue("Blindness",true) { modes.get() == "Vanilla" }
-    private val usingItem = BoolValue("UsingItem",true) { modes.get() == "Vanilla" }
-    private val inventory = BoolValue("Inventory",true) { modes.get() == "Vanilla" }
-    private val food = BoolValue("Food",true) { modes.get() == "Vanilla" }
+    private val blindness = BoolValue("Blindness",true)
+    private val usingItem = BoolValue("UsingItem",true) 
+    private val inventory = BoolValue("Inventory",true) 
+    private val food = BoolValue("Food",true) 
 
     private val alwaysCorrect = BoolValue("AlwaysCorrectSprint", false)
 
-    private val checkServerSide = BoolValue("CheckServerSide", false) { modes.get() == "Vanilla" }
-    private val checkServerSideGround = BoolValue("CheckServerSideOnlyGround", false) { modes.get() == "Vanilla" && checkServerSide.get() }
-
-    val jumpDirectionsValue = BoolValue("JumpDirections", false) { modes.get() == "Vanilla" }
-    private val allDirectionsValue = BoolValue("AllDirections", false) { modes.get() == "Vanilla" }
-    private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "LimitSpeed", "None"), "None") { allDirectionsValue.get() }
+    val jumpDirectionsValue = BoolValue("JumpDirections", false) 
+    private val allDirectionsValue = BoolValue("AllDirections", false) 
+    private val allDirectionsBypassValue = ListValue("AllDirectionsBypass", arrayOf("Rotate", "RotateSpoof", "Toggle", "Spoof", "SpamSprint", "NoStopSprint", "Minemora", "None"), "None") { allDirectionsValue.get() }
     private val allDirectionsLimitSpeedGround = BoolValue("AllDirectionsLimitSpeedOnlyGround", true)
-    private val allDirectionsLimitSpeedValue = FloatValue("AllDirectionsLimitSpeed", 0.7f, 0.5f, 1f) { allDirectionsBypassValue.stateDisplayable && allDirectionsBypassValue.equals("LimitSpeed") }
-    private val noPacketValue = BoolValue("NoPackets", true) { modes.get() == "Vanilla" }
+    private val allDirectionsLimitSpeedValue by FloatValue("AllDirectionsLimitSpeed", 0.7f, 0.5f, 1f) { allDirectionsValue.get() }
+    private val noPacketValue by BoolValue("NoPackets", true)
     private var switchStat = false
     private var forceSprint = false
     private var isSprinting = false
-
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
@@ -88,7 +83,7 @@ object Sprint : Module() {
                     }
                     "LimitSpeed" -> {
                         if (!allDirectionsLimitSpeedGround.get() || mc.thePlayer.onGround) {
-                            MovementUtils.limitSpeedByPercent(allDirectionsLimitSpeedValue.get())
+                            MovementUtils.limitSpeedByPercent(allDirectionsLimitSpeedValue)
                         }
                     }
                 }
@@ -134,7 +129,7 @@ object Sprint : Module() {
                     }
                 }
             }
-            if (noPacketValue.get() && !event.isCancelled) {
+            if (noPacketValue && !event.isCancelled) {
                 if (packet.action == C0BPacketEntityAction.Action.STOP_SPRINTING || packet.action == C0BPacketEntityAction.Action.START_SPRINTING) {
                     event.cancelEvent()
                 }
@@ -145,13 +140,25 @@ object Sprint : Module() {
     fun correctSprintState(movementInput: MovementInput, isUsingItem: Boolean) {
         val player = mc.thePlayer ?: return
 
+        if (Scaffold.handleEvents() && Scaffold.sprintModeValue.get() != "Fix") {
+            if (!Scaffold.sprint) {
+                player setSprintSafely false
+                isSprinting = false
+                return
+            } else if (player.isMoving) {
+                player setSprintSafely true
+                isSprinting = true
+                return
+            }
+        }
+
         if (handleEvents() || alwaysCorrect.get()) {
             player setSprintSafely !shouldStopSprinting(movementInput, isUsingItem)
             isSprinting = player.isSprinting
-            if (player.isSprinting && allDirectionsValue.get() && modes.get() != "Legit") {
+            if (player.isSprinting && allDirectionsValue.get()) {
                 if (!allDirectionsLimitSpeedGround.get() || player.onGround) {
-                    player.motionX *= allDirectionsLimitSpeedValue.get()
-                    player.motionZ *= allDirectionsLimitSpeedValue.get()
+                    player.motionX *= allDirectionsLimitSpeedValue
+                    player.motionZ *= allDirectionsLimitSpeedValue
                 }
             }
         }
@@ -159,8 +166,6 @@ object Sprint : Module() {
 
     private fun shouldStopSprinting(movementInput: MovementInput, isUsingItem: Boolean): Boolean {
         val player = mc.thePlayer ?: return false
-
-        val isLegitModeActive = modes.get() == "Legit"
 
         val modifiedForward = if (RotationUtils.targetRotation != null && (StrafeFix.handleEvents() && !StrafeFix.silentFixVaule.get())) {
             player.movementInput.moveForward
@@ -182,45 +187,43 @@ object Sprint : Module() {
             return true
         }
 
-        if ((blindness.get() || isLegitModeActive) && player.isPotionActive(Potion.blindness) && !player.isSprinting) {
+        if ((blindness.get()) && player.isPotionActive(Potion.blindness) && !player.isSprinting) {
             return true
         }
 
-        if ((food.get() || isLegitModeActive) && !(player.foodStats.foodLevel > 6f || player.capabilities.allowFlying)) {
+        if ((food.get()) && !(player.foodStats.foodLevel > 6f || player.capabilities.allowFlying)) {
             return true
         }
 
-        if ((usingItem.get() || isLegitModeActive) && !NoSlow.handleEvents() && isUsingItem) {
+        if ((usingItem.get()) && !NoSlow.handleEvents() && isUsingItem) {
             return true
         }
 
-        if ((inventory.get() || isLegitModeActive) && InventoryUtils.serverOpenInventory) {
+        if ((inventory.get()) && InventoryUtils.serverOpenInventory) {
             return true
-        }
-
-        if (isLegitModeActive) {
-            return modifiedForward < 0.8
         }
 
         if (allDirectionsValue.get()) {
             return false
         }
 
-        val threshold = if ((!usingItem.get() || NoSlow.handleEvents()) && isUsingItem) 0.2 else 0.8
-        val playerForwardInput = player.movementInput.moveForward
-
-        if (!checkServerSide.get()) {
-            return if (RotationUtils.targetRotation != null) {
-                abs(playerForwardInput) < threshold || playerForwardInput < 0 && modifiedForward < threshold
-            } else {
-                playerForwardInput < threshold
-            }
-        }
-
-        if (checkServerSideGround.get() && !player.onGround) {
-            return RotationUtils.targetRotation == null && modifiedForward < threshold
-        }
-
-        return modifiedForward < threshold
+        return modifiedForward < 0.8
+//
+//        val threshold = if ((!usingItem.get() || NoSlow.handleEvents()) && isUsingItem) 0.2 else 0.8
+//        val playerForwardInput = player.movementInput.moveForward
+//
+//        if (!checkServerSide.get()) {
+//            return if (RotationUtils.targetRotation != null) {
+//                abs(playerForwardInput) < threshold || playerForwardInput < 0 && modifiedForward < threshold
+//            } else {
+//                playerForwardInput < threshold
+//            }
+//        }
+//
+//        if (checkServerSideGround.get() && !player.onGround) {
+//            return RotationUtils.targetRotation == null && modifiedForward < threshold
+//        }
+//
+//        return modifiedForward < threshold
     }
 }

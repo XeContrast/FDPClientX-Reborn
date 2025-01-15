@@ -7,6 +7,7 @@ package net.ccbluex.liquidbounce.features.module.modules.world
 
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.rotation
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
 import net.ccbluex.liquidbounce.features.module.ModuleInfo
@@ -17,11 +18,15 @@ import net.ccbluex.liquidbounce.ui.client.hud.element.elements.NotifyType
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MovementUtils
 import net.ccbluex.liquidbounce.utils.PacketUtils
+import net.ccbluex.liquidbounce.utils.RaycastUtils.performRaytrace
 import net.ccbluex.liquidbounce.utils.RotationUtils
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.toRotation
 import net.ccbluex.liquidbounce.utils.block.BlockUtils
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlockName
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getCenterDistance
+import net.ccbluex.liquidbounce.utils.block.center
 import net.ccbluex.liquidbounce.utils.extensions.getBlock
 import net.ccbluex.liquidbounce.utils.extensions.getEyeVec3
 import net.ccbluex.liquidbounce.utils.render.RenderUtils
@@ -268,6 +273,14 @@ object Fucker : Module() {
                 RotationUtils.setTargetRotation(rotations.rotation)
             }
 
+            val targetRotation = if (rotationsValue.get()) {
+                targetRotation ?: mc.thePlayer.rotation
+            } else {
+                toRotation(currentPos.center, false).fixedSensitivity()
+            }
+
+            val raytrace = performRaytrace(currentPos, targetRotation, rangeValue.get()) ?: return
+
             when {
                 // Destory block
                 actionValue.equals("destroy") || surroundings || !isRealBlock -> {
@@ -280,14 +293,14 @@ object Fucker : Module() {
                     if (instantValue.get()) {
                         // CivBreak style block breaking
                         mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                            currentPos, EnumFacing.DOWN))
+                            currentPos, raytrace.sideHit))
                         if (swingValue.equals("Normal")) {
                             mc.thePlayer.swingItem()
                         } else if (swingValue.equals("Packet")) {
                             mc.netHandler.addToSendQueue(C0APacketAnimation())
                         }
                         mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                            currentPos, EnumFacing.DOWN))
+                            currentPos, raytrace.sideHit))
                         currentDamage = 0F
                         return
                     }
@@ -297,7 +310,7 @@ object Fucker : Module() {
 
                     if (currentDamage == 0F) {
                         mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,
-                            currentPos, EnumFacing.DOWN))
+                            currentPos, raytrace.sideHit))
 
                         if (mc.thePlayer.capabilities.isCreativeMode ||
                             block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) >= 1.0F) {
@@ -306,7 +319,7 @@ object Fucker : Module() {
                             } else if (swingValue.equals("Packet")) {
                                 mc.netHandler.addToSendQueue(C0APacketAnimation())
                             }
-                            mc.playerController.onPlayerDestroyBlock(pos, EnumFacing.DOWN)
+                            mc.playerController.onPlayerDestroyBlock(pos, raytrace.sideHit)
 
                             currentDamage = 0F
                             pos = null
@@ -336,8 +349,8 @@ object Fucker : Module() {
                             RotationUtils.setTargetRotation(rotations.rotation)
                         }
                         mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                            currentPos, EnumFacing.DOWN))
-                        mc.playerController.onPlayerDestroyBlock(currentPos, EnumFacing.DOWN)
+                            currentPos, raytrace.sideHit))
+                        mc.playerController.onPlayerDestroyBlock(currentPos, raytrace.sideHit)
                         mc.theWorld.setBlockState(currentPos, Blocks.air.defaultState, 11)
                         blockHitDelay = 4
                         currentDamage = 0F

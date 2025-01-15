@@ -391,7 +391,7 @@ object AntiKB : Module() {
                 }
                 "vanilla" -> {
                     when (vanillaMode.get().lowercase()) {
-                        "Jump" -> {
+                        "jump" -> {
                             // TODO: Recode and make all velocity modes support velocity direction checks
                             var packetDirection = 0.0
                             when (packet) {

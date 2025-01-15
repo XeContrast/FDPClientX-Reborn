@@ -1,4 +1,4 @@
-package net.ccbluex.liquidbounce.ui.client.gui.newVer
+package net.ccbluex.liquidbounce.ui.client.gui.clickgui.style.styles.newVer
 
 import net.minecraft.util.ResourceLocation
 
@@ -14,4 +14,5 @@ object IconManager {
     val online = ResourceLocation(path + "online.png")
     val reload = ResourceLocation(path + "reload.png")
     val search = ResourceLocation(path + "search.png")
+    val expand = ResourceLocation(path + "expand.png")
 }

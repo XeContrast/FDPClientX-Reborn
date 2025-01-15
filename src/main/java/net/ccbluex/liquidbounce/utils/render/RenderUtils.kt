@@ -8,6 +8,7 @@ package net.ccbluex.liquidbounce.utils.render
 import net.ccbluex.liquidbounce.injection.access.StaticStorage
 import net.ccbluex.liquidbounce.ui.font.Fonts
 import net.ccbluex.liquidbounce.utils.MinecraftInstance
+import net.ccbluex.liquidbounce.utils.RoundedRectShader
 import net.ccbluex.liquidbounce.utils.block.BlockUtils.getBlock
 import net.ccbluex.liquidbounce.utils.misc.Animation
 import net.ccbluex.liquidbounce.utils.render.ColorUtils.setColour
@@ -647,6 +648,10 @@ object RenderUtils : MinecraftInstance() {
         drawRect(x + 0.5f, y, x1 - 0.5f, y + 0.5f, insideC)
         drawRect(x + 0.5f, y1 - 0.5f, x1 - 0.5f, y1, insideC)
         drawRect(x, y + 0.5f, x1, y1 - 0.5f, insideC)
+    }
+
+    fun drawRoundedRect(x: Float, y: Float, x2: Float, y2: Float, radius: Float, color: Color) {
+        RoundedRectShader.draw(x, y, x2, y2, radius, color)
     }
 
     fun drawRoundedRect3(x: Float, y: Float, x2: Float, y2: Float, round: Float, color: Int, mode: Int) {
