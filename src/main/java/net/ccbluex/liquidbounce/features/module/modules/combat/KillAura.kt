@@ -114,7 +114,7 @@ object KillAura : Module() {
     private val reachMode = ListValue("ReachMode", arrayOf("Normal","Air","TargetPosY"),"Normal")
     private val rangeValue: FloatValue = object : FloatValue("Target-Range", 3.0f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val i = discoverRangeValue.get()
+            val i = scanRange.get()
             if (i < newValue) set(i)
         }
     }.displayable { rangeDisplay.get() && reachMode.equals("Normal") } as FloatValue
@@ -128,18 +128,20 @@ object KillAura : Module() {
     private val middleRangeValue = FloatValue("MiddleTargetPosYRange",3.0f,0f,8f) { reachMode.equals("TargetPosY") && rangeDisplay.get()}
     private val highRangeValue = FloatValue("HighTargetPosYRange",3.0f,0f,8f) { reachMode.equals("TargetPosY") && smoothReach.get() == "Normal" && rangeDisplay.get() }
 
-    private val discoverRangeValue = FloatValue("Discover-Range", 6f, 0f, 8f) { rangeDisplay.get() }
+    private val scanRange = FloatValue("scanRange", 6f, 0f, 8f) { rangeDisplay.get() }
+    private val throughWallsRange by FloatValue("ThroughWallsRange", 3f, 0f,8f) { rangeDisplay.get() }
 
     private val rangeSprintReducementValue =
-        FloatValue("RangeSprintReducement", 0f, 0f, 0.4f) { rangeDisplay.get() }
+        FloatValue("RangeSprintReduction", 0f, 0f, 0.4f) { rangeDisplay.get() }
 
     private val swingRangeValue = object : FloatValue("SwingRange", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val i = max( discoverRangeValue.get(), rangeValue.get() )
+            val i = max( scanRange.get(), rangeValue.get() )
             if (i < newValue) set(i)
             if (maxRange > newValue) set(maxRange)
         }
     }.displayable { rangeDisplay.get() } as FloatValue
+    private val generateSpotBasedOnDistance by BoolValue("GenerateSpotBasedOnDistance", false)
 
     // Modes
     private val modeDisplay = BoolValue("Mode-Options", true)
@@ -188,7 +190,7 @@ object KillAura : Module() {
 
     private val autoBlockRangeValue = object : FloatValue("AutoBlockRange", 5f, 0f, 8f) {
         override fun onChanged(oldValue: Float, newValue: Float) {
-            val i = discoverRangeValue.get()
+            val i = scanRange.get()
             if (i < newValue) set(i)
         }
     }.displayable { !autoBlockValue.equals("Off") && autoBlockValue.stateDisplayable }
@@ -333,7 +335,7 @@ object KillAura : Module() {
 
     private val rotationSmoothModeValue = ListValue(
         "SmoothMode",
-        arrayOf("Custom", "Line", "Quad", "Sine", "QuadSine"),
+        arrayOf("Custom", "Line", "Quad", "Sine", "QuadSine","QBC"),
         "Custom"
     ) {
         rotationDisplay.get() && rotationModeValue.get() in arrayOf("SmoothCustom","SmoothLiquid","SmoothCenter")
@@ -348,7 +350,7 @@ object KillAura : Module() {
     // Random Value
     private val randomCenterModeValue = ListValue(
         "RandomCenter",
-        arrayOf("Off", "Cubic", "Horizontal", "Vertical","Noise"),
+        arrayOf("Off", "Cubic", "Horizontal", "Vertical","Noise","Gaussian","PerlinNoise"),
         "Off"
     ) { rotationDisplay.get() }
     private val randomCenRangeValue = FloatValue(
@@ -438,8 +440,6 @@ object KillAura : Module() {
         false
     ) { raycastValue.get() && rotationModeValue.get() != "None" }
     private val livingRaycast = BoolValue("LivingRayCast", true) { raycastValue.get() && rotationModeValue.get() != "None" }
-
-    private val throughWallsValue = BoolValue("ThroughWalls", false)
 
     private val failRateValue = FloatValue("FailRate", 0f, 0f, 100f) { bypassDisplay.get() }
     private val fakeSwingValue =
@@ -561,7 +561,7 @@ object KillAura : Module() {
             mc.gameSettings.keyBindUseItem.pressed = false
         }
 
-        RotationUtils.serverRotation?.let {
+        RotationUtils.serverRotation.let {
             RotationUtils.setTargetRotationReverse(
                 it,
                 keepDirectionTickValue.get().takeIf { keepDirectionValue.get() } ?: 1,
@@ -1040,7 +1040,7 @@ object KillAura : Module() {
 
                 val entityFov = RotationUtils.getRotationDifference(entity)
 
-                if (distance <= discoverRangeValue.get() && (fov == 180F || entityFov <= fov)) {
+                if (distance <= scanRange.get() && (fov == 180F || entityFov <= fov)) {
                     if (switchMode && isLookingOnEntities(entity, maxSwitchFOV.get().toDouble()) || !switchMode)
                         discoveredTargets.add(entity)
                 }
@@ -1096,7 +1096,7 @@ object KillAura : Module() {
             }
 
             // Set target to current entity
-            if (mc.thePlayer.getDistanceToEntityBox(entity) < discoverRangeValue.get()) {
+            if (mc.thePlayer.getDistanceToEntityBox(entity) < scanRange.get()) {
                 currentTarget = entity
                 FDPClient.moduleManager[TargetStrafe::class.java]!!.targetEntity = currentTarget ?: return
                 FDPClient.moduleManager[TargetStrafe::class.java]!!.doStrafe =
@@ -1202,7 +1202,7 @@ object KillAura : Module() {
             lastCanBeSeen = false
         }
 
-        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictAmount)
+        val prediction = entity.currPos.subtract(entity.prevPos).times(2 + predictAmount.toDouble())
         val boundingBox = entity.hitBox.offset(prediction)
 
         val rModes = mapOf(
@@ -1221,14 +1221,16 @@ object KillAura : Module() {
                 randomCenterModeValue.get(),
                 (randomCenRangeValue.get()).toDouble(),
                 boundingBox,
-                predictValue.get(),
-                throughWallsValue.get()
+                predict = predictValue.get(),
+                throughWalls = throughWallsRange,
+                scanRange = scanRange.get(),
+                attackRange = rangeValue.get(),
+                distanceBasedSpot = generateSpotBasedOnDistance
             ) ?: return false
 
 
-        var diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, directRotation)
+        var diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, directRotation).coerceAtMost(180.0)
         if (diffAngle < 0) diffAngle = -diffAngle
-        if (diffAngle > 180.0) diffAngle = 180.0
 
         val calculateSpeed = when (rotationSmoothModeValue.get()) {
             "Custom" -> diffAngle / rotationSmoothValue.get()
@@ -1238,6 +1240,7 @@ object KillAura : Module() {
             "QuadSine" -> (-cos(diffAngle / 180 * Math.PI) * 0.5 + 0.5).pow(2.0) * maxTurnSpeedValue.get() + (1 - (-cos(
                 diffAngle.toDegrees()
             ) * 0.5 + 0.5).pow(2.0)) * minTurnSpeedValue.get()
+            "QBC" -> (1 - (sin(PI / 2 * ((diffAngle % 360) / 360.0)))) * minTurnSpeedValue.get() + (sin(PI / 2 * ((diffAngle % 360) / 360.0))) * maxTurnSpeedValue.get()
 
             else -> 360.0
         }
@@ -1377,7 +1380,7 @@ object KillAura : Module() {
 
         // Is the entity box raycast vector visible? If not, check through-wall range
         hitable =
-            isVisible(intercept.hitVec) || throughWallsValue.get()
+            isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
     }
 
     private fun checkIfAimingAtBox(
@@ -1398,7 +1401,7 @@ object KillAura : Module() {
         if (intercept != null) {
             // Is the entity box raycast vector visible? If not, check through-wall range
             hitable =
-                isVisible(intercept.hitVec) || throughWallsValue.get()
+                isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(targetToCheck) <= throughWallsRange
 
             if (hitable) {
                 onSuccess()
@@ -1610,8 +1613,8 @@ object KillAura : Module() {
     /**
      * Range
      */
-    private val maxRange: Float
-        get() = max(rangeValue.get(), if (!throughWallsValue.get()) rangeValue.get() else 0.0f)
+    private val maxRange
+        get() = max(rangeValue.get() + scanRange.get(), throughWallsRange)
 
     /**
      * HUD Tag

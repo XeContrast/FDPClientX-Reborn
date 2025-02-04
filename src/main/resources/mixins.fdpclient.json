@@ -115,6 +115,7 @@
     "render.MixinVisGraph",
     "resources.MixinDefaultResourcePack",
     "resources.MixinSkinManager",
-    "world.MixinChunk"
+    "world.MixinChunk",
+    "client.MixinMathHelper"
   ]
 }

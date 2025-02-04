@@ -9,7 +9,10 @@ import kevin.utils.component1
 import kevin.utils.component2
 import kevin.utils.component3
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.lerpWith
 import net.ccbluex.liquidbounce.extensions.rotation
+import net.ccbluex.liquidbounce.extensions.step
+import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.currentTarget
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.dynamicPitchFactor
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.dynamicYawFactor
 import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.maxPitchFactor
@@ -22,7 +25,8 @@ import net.ccbluex.liquidbounce.features.module.modules.combat.KillAura.toleranc
 import net.ccbluex.liquidbounce.features.module.modules.movement.StrafeFix
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.extensions.eyes
-import net.ccbluex.liquidbounce.utils.extensions.getBlock
+import net.ccbluex.liquidbounce.utils.extensions.getDistanceToEntityBox
+import net.ccbluex.liquidbounce.utils.extensions.getNearestPointBB
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -399,6 +403,327 @@ class RotationUtils : MinecraftInstance(), Listenable {
             return vecRotation
         }
 
+
+
+        private fun fade(t: Double): Double {
+            return t * t * t * (t * (t * 6 - 15) + 10)
+        }
+
+        private fun lerp(t: Double, a: Double, b: Double): Double {
+            return a + t * (b - a)
+        }
+
+        private fun dot(hash: Int, x: Double, y: Double, z: Double): Double {
+            val h = hash and 15
+            val u = if (h < 8) x else y
+            val v = if (h < 4) y else if (h == 12 || h == 14) x else z
+            return (if ((h and 1) == 0) u else -u) + (if ((h and 2) == 0) v else -v)
+        }
+
+        //柏林噪音
+        private fun noise(
+            x: Double,
+            y: Double,
+            z: Double,
+            seed: Int):
+                Double {
+            val p = IntArray(seed)
+            val perm = IntArray(seed * 2)
+
+            val random = Random(0) // Seed for reproducibility
+            for (i in 0 until seed) {
+                p[i] = i
+            }
+            for (i in seed - 1 downTo 1) {
+                val j = random.nextInt(i + 1)
+                val temp = p[i]
+                p[i] = p[j]
+                p[j] = temp
+            }
+            for (i in 0 until seed) {
+                perm[i + seed] = p[i]
+                perm[i] = perm[i + seed]
+            }
+
+
+            var x = x
+            var y = y
+            var z = z
+            val X = floor(x).toInt() and 255
+            val Y = floor(y).toInt() and 255
+            val Z = floor(z).toInt() and 255
+
+            x -= floor(x)
+            y -= floor(y)
+            z -= floor(z)
+
+            val u = fade(x)
+            val v = fade(y)
+            val w = fade(z)
+
+            val A = perm[X] + Y
+            val AA = perm[A] + Z
+            val AB = perm[A + 1] + Z
+            val B = perm[X + 1] + Y
+            val BA = perm[B] + Z
+            val BB = perm[B + 1] + Z
+
+            return lerp(
+                w,
+                lerp(
+                    v,
+                    lerp(
+                        u,
+                        dot(perm[AA], x, y, z),
+                        dot(perm[BA], x - 1, y, z)
+                    ),
+                    lerp(
+                        u,
+                        dot(perm[AB], x, y - 1, z),
+                        dot(perm[BB], x - 1, y - 1, z)
+                    )
+                ),
+                lerp(
+                    v,
+                    lerp(
+                        u,
+                        dot(perm[AA + 1], x, y, z - 1),
+                        dot(perm[BA + 1], x - 1, y, z - 1)
+                    ),
+                    lerp(
+                        u,
+                        dot(perm[AB + 1], x, y - 1, z - 1),
+                        dot(perm[BB + 1], x - 1, y - 1, z - 1)
+                    )
+                )
+            )
+        }
+
+        enum class BodyPoint(val rank: Int, val range: ClosedFloatingPointRange<Double>) {
+            HEAD(1, 0.75..0.9), BODY(0, 0.5..0.75), FEET(-1, 0.1..0.4), UNKNOWN(-2, 0.0..0.0);
+
+            companion object {
+                fun fromString(point: String): BodyPoint {
+                    return entries.find { it.name.equals(point, ignoreCase = true) } ?: UNKNOWN
+                }
+            }
+        }
+
+        fun rotationDifference(a: Rotation, b: Rotation = serverRotation) =
+            hypot(angleDifference(a.yaw, b.yaw), a.pitch - b.pitch)
+
+        fun calculateCenter(
+            calMode: String?,
+            randMode: String,
+            randomRange: Double,
+            bb: AxisAlignedBB,
+            predict: Boolean,
+            throughWalls: Float,
+            scanRange: Float,
+            attackRange: Float,
+            distanceBasedSpot : Boolean
+        ): VecRotation? {
+            //final Rotation randomRotation = toRotation(randomVec, predict);
+
+            var vecRotation: VecRotation? = null
+
+            //min
+            val (xMin,yMin,zMin) = when (calMode) {
+                "Full" -> listOf(0.0,0.0,0.0)
+                "HalfUp" -> listOf(0.1,0.5,0.1)
+                "HalfDown" -> listOf(0.1,0.1,0.1)
+                "CenterSimple" -> listOf(0.45,0.65,0.45)
+                "CenterLine" -> listOf(0.45,0.1,0.45)
+                else -> listOf(0.15,0.15,0.15)
+            }
+
+            //max
+            val (xMax,yMax,zMax) = when (calMode) {
+                "Full" -> listOf(1.0,1.0,1.0)
+                "HalfUp" -> listOf(0.9,0.9,0.9)
+                "HalfDown" -> listOf(0.9,0.5,0.9)
+                "CenterSimple" -> listOf(0.55,0.75,0.55)
+                "CenterLine" -> listOf(0.55,0.9,0.55)
+                else -> listOf(0.85,1.0,0.85)
+            }
+
+            //Dist
+            val (xDist,yDist,zDist) = when (calMode) {
+                "CenterSimple","CenterLine" -> listOf(0.0125,0.0125,0.0125)
+                else -> listOf(0.1,0.1,0.1)
+            }
+            val eyes = mc.thePlayer.eyes
+
+            val max = BodyPoint.fromString("HEAD").range.endInclusive
+            val min = BodyPoint.fromString("FEET").range.start
+
+            var curVec3: Vec3? = null
+
+            val preferredRotation = toRotation(getNearestPointBB(eyes, bb), predict).takeIf {
+                distanceBasedSpot
+            } ?: targetRotation ?: mc.thePlayer.rotation
+
+            val currRotation = Rotation.ZERO.plus(preferredRotation)
+
+            var attackRotation: Pair<Rotation, Float>? = null
+            var lookRotation: Pair<Rotation, Float>? = null
+
+            for (xSearch in xMin..xMax step xDist) {
+                for (ySearch in min..max step yDist) {
+                    for (zSearch in zMin..zMax step zDist) {
+                        val vec3 = bb.lerpWith(xSearch, ySearch, zSearch)
+                        val rotation = toRotation(vec3, predict).fixedSensitivity()
+
+                        // Calculate actual hit vec after applying fixed sensitivity to rotation
+                        val gcdVec = bb.calculateIntercept(
+                            eyes, eyes + getVectorForRotation(rotation) * scanRange.toDouble()
+                        )?.hitVec ?: continue
+
+                        val distance = eyes.distanceTo(gcdVec)
+
+                        if (distance > scanRange || (attackRotation != null && distance > attackRange)) continue
+
+                        if (!isVisible(gcdVec) && distance > throughWalls) continue
+
+                        val rotationWithDiff = rotation to rotationDifference(rotation, currRotation)
+
+                        if (distance <= attackRange) {
+                            if (attackRotation == null || rotationWithDiff.second < attackRotation.second) attackRotation =
+                                rotationWithDiff
+                        } else {
+                            if (lookRotation == null || rotationWithDiff.second < lookRotation.second) lookRotation =
+                                rotationWithDiff
+                        }
+
+                        val rot = attackRotation?.first ?: lookRotation?.first ?: run {
+                            val vec = getNearestPointBB(eyes, bb)
+                            val dist = eyes.distanceTo(vec)
+
+                            if (dist <= scanRange && (dist <= throughWalls || isVisible(vec))) toRotation(vec, predict)
+                            else null
+                        }
+
+                        val currentVec = VecRotation(vec3, rot ?: return null)
+
+                        if (vecRotation == null || getRotationDifference(currentVec.rotation) < getRotationDifference(
+                                vecRotation.rotation
+                            )
+                        ) {
+                            vecRotation = currentVec
+                            curVec3 = vec3
+                        }
+                    }
+                }
+            }
+
+//            return attackRotation?.first ?: lookRotation?.first ?: run {
+//                val vec = getNearestPointBB(eyes, bb)
+//                val dist = eyes.distanceTo(vec)
+//
+//                if (dist <= scanRange && (dist <= throughWalls || isVisible(vec))) toRotation(vec, predict)
+//                else null
+//            }
+
+            if (randMode == "Noise") {
+                if (gaussianHasReachedTarget(curVec3!!, vecRotation!!.vec, tolerance.get())) {
+                    val yawFactor = if (dynamicYawFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicYawFactor.get()) else (MathUtils.randomizeFloat(
+                        minYawFactor.get(),
+                        maxYawFactor.get()
+                    ))
+                    val pitchFactor = if (dynamicPitchFactor.get() > 0f) (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        maxPitchFactor.get()
+                    ) + MovementUtils.getSpeed * dynamicPitchFactor.get()) else (MathUtils.randomizeFloat(
+                        minPitchFactor.get(),
+                        minPitchFactor.get()
+                    ))
+                    targetRotation?.let {
+                        it.yaw += random.nextGaussian().toFloat() * yawFactor
+                        it.pitch += random.nextGaussian().toFloat() * pitchFactor
+                    }
+                } else {
+                    targetRotation?.let {
+                        it.yaw += MathUtils.interpolate(
+                            curVec3.xCoord,
+                            vecRotation!!.vec.xCoord,
+                            MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())
+                        ).toFloat()
+                        it.yaw += MathUtils.interpolate(
+                            curVec3.yCoord,
+                            vecRotation!!.vec.yCoord,
+                            MathUtils.randomizeDouble(minSpeed.get().toDouble(), maxSpeed.get().toDouble())
+                        ).toFloat()
+                    }
+                }
+            }
+
+            if (randMode == "Off" || randMode == "Noise") return vecRotation
+
+            var rand1 = random.nextDouble()
+            var rand2 = random.nextDouble()
+            var rand3 = random.nextDouble()
+
+            val xRange = bb.maxX - bb.minX
+            val yRange = bb.maxY - bb.minY
+            val zRange = bb.maxZ - bb.minZ
+            var minRange = Double.MAX_VALUE
+
+            if (xRange <= minRange) minRange = xRange
+            if (yRange <= minRange) minRange = yRange
+            if (zRange <= minRange) minRange = zRange
+
+            rand1 *= minRange * randomRange
+            rand2 *= minRange * randomRange
+            rand3 *= minRange * randomRange
+
+            val xPrecent = minRange * randomRange / xRange
+            val yPrecent = minRange * randomRange / yRange
+            val zPrecent = minRange * randomRange / zRange
+
+            var randomVec3 = Vec3(
+                curVec3!!.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
+                curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
+                curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
+            )
+            when (randMode) {
+                "Horizonal" -> randomVec3 = Vec3(
+                    curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
+                    curVec3.yCoord,
+                    curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
+                )
+
+                "Vertical" -> randomVec3 = Vec3(
+                    curVec3.xCoord,
+                    curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
+                    curVec3.zCoord
+                )
+
+                "Gaussian" -> {
+                    randomVec3 = Vec3(
+                        curVec3.xCoord + random.nextGaussian(),
+                        curVec3.yCoord + random.nextGaussian(),
+                        curVec3.zCoord + random.nextGaussian()
+                    )
+                }
+
+                "PerlinNoise" -> {
+                    randomVec3 = Vec3(
+                        curVec3.xCoord + noise(mc.thePlayer.posX + MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zMax, 25565).coerceIn(-randomRange..randomRange),
+                        curVec3.yCoord + noise(mc.thePlayer.posX+ MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zMin, 25565).coerceIn(-randomRange..randomRange),
+                        curVec3.zCoord + noise(mc.thePlayer.posX + MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zDist, 25565).coerceIn(-randomRange..randomRange)
+                    )
+                }
+            }
+            val randomRotation = toRotation(randomVec3, predict)
+
+            vecRotation = VecRotation(randomVec3, randomRotation)
+
+            return vecRotation
+        }
+
         fun calculateCenter(
             calMode: String?,
             randMode: String,
@@ -411,108 +736,53 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
             var vecRotation: VecRotation? = null
 
-            var xMin: Double
-            var yMin: Double
-            var zMin: Double
-            var xMax: Double
-            var yMax: Double
-            var zMax: Double
-            var xDist: Double
-            var yDist: Double
-            var zDist: Double
+            //min
+            val (xMin,yMin,zMin) = when (calMode) {
+                "Full" -> listOf(0.0,0.0,0.0)
+                "HalfUp" -> listOf(0.1,0.5,0.1)
+                "HalfDown" -> listOf(0.1,0.1,0.1)
+                "CenterSimple" -> listOf(0.45,0.65,0.45)
+                "CenterLine" -> listOf(0.45,0.1,0.45)
+                else -> listOf(0.15,0.15,0.15)
+            }
 
-            xMin = 0.15
-            xMax = 0.85
-            xDist = 0.1
-            yMin = 0.15
-            yMax = 1.00
-            yDist = 0.1
-            zMin = 0.15
-            zMax = 0.85
-            zDist = 0.1
+            //max
+            val (xMax,yMax,zMax) = when (calMode) {
+                "Full" -> listOf(1.0,1.0,1.0)
+                "HalfUp" -> listOf(0.9,0.9,0.9)
+                "HalfDown" -> listOf(0.9,0.5,0.9)
+                "CenterSimple" -> listOf(0.55,0.75,0.55)
+                "CenterLine" -> listOf(0.55,0.9,0.55)
+                else -> listOf(0.85,1.0,0.85)
+            }
+
+            //Dist
+            val (xDist,yDist,zDist) = when (calMode) {
+                "CenterSimple","CenterLine" -> listOf(0.0125,0.0125,0.0125)
+                else -> listOf(0.1,0.1,0.1)
+            }
+
+            val max = BodyPoint.fromString("HEAD").range.endInclusive
+            val min = BodyPoint.fromString("FEET").range.start
 
             var curVec3: Vec3? = null
 
-            when (calMode) {
-                "LiquidBounce" -> {}
-                "Full" -> {
-                    xMin = 0.00
-                    xMax = 1.00
-                    yMin = 0.00
-                    zMin = 0.00
-                    zMax = 1.00
-                }
-
-                "HalfUp" -> {
-                    xMin = 0.10
-                    xMax = 0.90
-                    yMin = 0.50
-                    yMax = 0.90
-                    zMin = 0.10
-                    zMax = 0.90
-                }
-
-                "HalfDown" -> {
-                    xMin = 0.10
-                    xMax = 0.90
-                    yMin = 0.10
-                    yMax = 0.50
-                    zMin = 0.10
-                    zMax = 0.90
-                }
-
-                "CenterSimple" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.65
-                    yMax = 0.75
-                    yDist = 0.0125
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-
-                "CenterLine" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.10
-                    yMax = 0.90
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-            }
-            var xSearch = xMin
-            while (xSearch < xMax) {
-                var ySearch = yMin
-                while (ySearch < yMax) {
-                    var zSearch = zMin
-                    while (zSearch < zMax) {
-                        val vec3 = Vec3(
-                            bb.minX + (bb.maxX - bb.minX) * xSearch,
-                            bb.minY + (bb.maxY - bb.minY) * ySearch,
-                            bb.minZ + (bb.maxZ - bb.minZ) * zSearch
-                        )
-                        val rotation = toRotation(vec3, predict)
+            for (xSearch in xMin..xMax step xDist) {
+                for (ySearch in min..max step yDist) {
+                    for (zSearch in zMin..zMax step zDist) {
+                        val vec3 = bb.lerpWith(xSearch,ySearch,zSearch)
+                        val rotation = toRotation(vec3, predict).fixedSensitivity()
 
                         if (throughWalls || isVisible(vec3)) {
                             val currentVec = VecRotation(vec3, rotation)
 
-                            if (vecRotation == null || (getRotationDifference(currentVec.rotation) < getRotationDifference(
-                                    vecRotation.rotation
-                                ))
-                            ) {
+                            if (vecRotation == null || getRotationDifference(currentVec.rotation) < getRotationDifference(vecRotation.rotation)) {
                                 vecRotation = currentVec
                                 curVec3 = vec3
                             }
                         }
-                        zSearch += zDist
                     }
-                    ySearch += yDist
                 }
-                xSearch += xDist
             }
 
             if (randMode == "Noise") {
@@ -560,7 +830,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
             val xRange = bb.maxX - bb.minX
             val yRange = bb.maxY - bb.minY
             val zRange = bb.maxZ - bb.minZ
-            var minRange = 999999.0
+            var minRange = Double.MAX_VALUE
 
             if (xRange <= minRange) minRange = xRange
             if (yRange <= minRange) minRange = yRange
@@ -591,6 +861,22 @@ class RotationUtils : MinecraftInstance(), Listenable {
                     curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
                     curVec3.zCoord
                 )
+
+                "Gaussian" -> {
+                    randomVec3 = Vec3(
+                        curVec3.xCoord + random.nextGaussian(),
+                        curVec3.yCoord + random.nextGaussian(),
+                        curVec3.zCoord + random.nextGaussian()
+                    )
+                }
+
+                "PerlinNoise" -> {
+                    randomVec3 = Vec3(
+                        curVec3.xCoord + noise(mc.thePlayer.posX + MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zMax, 25565).coerceIn(-randomRange..randomRange),
+                        curVec3.yCoord + noise(mc.thePlayer.posX+ MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zMin, 25565).coerceIn(-randomRange..randomRange),
+                        curVec3.zCoord + noise(mc.thePlayer.posX + MovementUtils.getSpeed,mc.thePlayer.posY + curVec3.yCoord,mc.thePlayer.posZ + zDist, 25565).coerceIn(-randomRange..randomRange)
+                    )
+                }
             }
             val randomRotation = toRotation(randomVec3, predict)
 
@@ -607,175 +893,6 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
         fun getFixedAngleDelta(sensitivity: Float = mc.gameSettings.mouseSensitivity) =
             (sensitivity * 0.6f + 0.2f).pow(3) * 1.2f
-
-        fun calculateCenter(
-            calMode: String?,
-            randMode: Boolean?,
-            randomRange: Double,
-            legitRandom: Boolean,
-            bb: AxisAlignedBB,
-            predict: Boolean,
-            throughWalls: Boolean
-        ): VecRotation? {
-            var vecRotation: VecRotation? = null
-
-            var xMin: Double
-            var yMin: Double
-            var zMin: Double
-            var xMax: Double
-            var yMax: Double
-            var zMax: Double
-            var xDist: Double
-            var yDist: Double
-            var zDist: Double
-
-            xMin = 0.15
-            xMax = 0.85
-            xDist = 0.1
-            yMin = 0.15
-            yMax = 1.00
-            yDist = 0.1
-            zMin = 0.15
-            zMax = 0.85
-            zDist = 0.1
-
-            var curVec3: Vec3? = null
-
-            when (calMode) {
-                "HalfUp" -> {
-                    xMin = 0.10
-                    xMax = 0.90
-                    yMin = 0.50
-                    yMax = 0.90
-                    zMin = 0.10
-                    zMax = 0.90
-                }
-
-                "CenterSimple" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.65
-                    yMax = 0.75
-                    yDist = 0.0125
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-
-                "CenterLine" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.50
-                    yMax = 0.90
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-
-                "CenterHead" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.85
-                    yMax = 0.95
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-
-                "CenterBody" -> {
-                    xMin = 0.45
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.70
-                    yMax = 0.95
-                    zMin = 0.45
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-
-                "LockHead" -> {
-                    xMin = 0.55
-                    xMax = 0.55
-                    xDist = 0.0125
-                    yMin = 0.949
-                    yMax = 0.95
-                    zMin = 0.55
-                    zMax = 0.55
-                    zDist = 0.0125
-                }
-            }
-            var xSearch = xMin
-            while (xSearch < xMax) {
-                var ySearch = yMin
-                while (ySearch < yMax) {
-                    var zSearch = zMin
-                    while (zSearch < zMax) {
-                        val vec3 = Vec3(
-                            bb.minX + (bb.maxX - bb.minX) * xSearch,
-                            bb.minY + (bb.maxY - bb.minY) * ySearch,
-                            bb.minZ + (bb.maxZ - bb.minZ) * zSearch
-                        )
-                        val rotation = toRotation(vec3, predict)
-
-                        if (throughWalls || isVisible(vec3)) {
-                            val currentVec = VecRotation(vec3, rotation)
-
-                            if (vecRotation == null || (getRotationDifference(currentVec.rotation) < getRotationDifference(
-                                    vecRotation.rotation
-                                ))
-                            ) {
-                                vecRotation = currentVec
-                                curVec3 = vec3
-                            }
-                        }
-                        zSearch += zDist
-                    }
-                    ySearch += yDist
-                }
-                xSearch += xDist
-            }
-
-            if (vecRotation == null || !randMode!!) return vecRotation
-
-            var rand1 = random.nextDouble()
-            var rand2 = random.nextDouble()
-            var rand3 = random.nextDouble()
-
-            val xRange = bb.maxX - bb.minX
-            val yRange = bb.maxY - bb.minY
-            val zRange = bb.maxZ - bb.minZ
-            var minRange = 999999.0
-
-            if (xRange <= minRange) minRange = xRange
-            if (yRange <= minRange) minRange = yRange
-            if (zRange <= minRange) minRange = zRange
-
-            rand1 *= minRange * randomRange
-            rand2 *= minRange * randomRange
-            rand3 *= minRange * randomRange
-
-            val xPrecent = minRange * randomRange / xRange
-            val yPrecent = minRange * randomRange / yRange
-            val zPrecent = minRange * randomRange / zRange
-
-            val randomVec3 = if (legitRandom) Vec3(
-                curVec3!!.xCoord,
-                curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
-                curVec3.zCoord
-            ) else Vec3(
-                curVec3!!.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
-                curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
-                curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
-            )
-
-            val randomRotation = toRotation(randomVec3, predict)
-            vecRotation = VecRotation(randomVec3, randomRotation)
-
-            return vecRotation
-        }
 
         /**
          * Calculate difference between the client rotation and your entity
@@ -820,22 +937,13 @@ class RotationUtils : MinecraftInstance(), Listenable {
          * @param turnSpeed your turn speed
          * @return limited rotation
          */
-        fun limitAngleChange(currentRotation: Rotation, targetRotation: Rotation, turnSpeed: Float): Rotation {
-            val yawDifference = getAngleDifference(targetRotation.yaw, currentRotation.yaw)
-            val pitchDifference = getAngleDifference(targetRotation.pitch, currentRotation.pitch)
-
-            return Rotation(
-                currentRotation.yaw + if (yawDifference > turnSpeed) turnSpeed else yawDifference.coerceAtLeast(-turnSpeed),
-                currentRotation.pitch + if (pitchDifference > turnSpeed) turnSpeed else pitchDifference.coerceAtLeast(-turnSpeed)
-            )
-        }
 
         @JvmStatic
         fun limitAngleChange(
             currentRotation: Rotation,
             targetRotation: Rotation?,
             horizontalSpeed: Float,
-            verticalSpeed: Float
+            verticalSpeed: Float = horizontalSpeed
         ): Rotation {
             val yawDifference = targetRotation?.let { getAngleDifference(it.yaw, currentRotation.yaw) }
             val pitchDifference = targetRotation?.let { getAngleDifference(it.pitch, currentRotation.pitch) }

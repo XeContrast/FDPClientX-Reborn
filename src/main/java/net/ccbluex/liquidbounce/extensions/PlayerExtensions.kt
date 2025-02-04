@@ -26,8 +26,22 @@ fun Entity.getDistance(pos: BlockPos) : Double {
 }
 val EntityLivingBase.isMoving: Boolean
     get() = this.run { moveForward != 0F || moveStrafing != 0F }
-val Entity.rotation: Rotation
-    get() = Rotation(rotationYaw, rotationPitch)
+var Entity?.rotation
+    get() = Rotation(this?.rotationYaw ?: 0f, this?.rotationPitch ?: 0f)
+    set(value) {
+        this?.run {
+            rotationYaw = value.yaw
+            rotationPitch = value.pitch
+        }
+    }
+var Entity?.prevRotation
+    get() = Rotation(this?.prevRotationYaw ?: 0f, this?.prevRotationPitch ?: 0f)
+    set(value) {
+        this?.run {
+            prevRotationYaw = value.yaw
+            prevRotationPitch = value.pitch
+        }
+    }
 val IMixinEntity.interpolatedPosition
     get() = Vec3(lerpX, lerpY, lerpZ)
 fun Entity.interpolatedPosition(start: Vec3) = Vec3(

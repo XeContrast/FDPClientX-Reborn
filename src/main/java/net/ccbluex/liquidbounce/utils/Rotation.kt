@@ -14,6 +14,7 @@ import net.ccbluex.liquidbounce.utils.block.PlaceInfo
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
+import javax.vecmath.Vector2f
 import kotlin.math.*
 
 /**
@@ -61,6 +62,28 @@ data class Rotation(var yaw: Float, var pitch: Float) {
 
     override fun toString(): String {
         return "Rotation(yaw=$yaw, pitch=$pitch)"
+    }
+
+    operator fun minus(other: Rotation): Rotation {
+        return Rotation(yaw - other.yaw, pitch - other.pitch)
+    }
+
+    operator fun plus(other: Rotation): Rotation {
+        return Rotation(yaw + other.yaw, pitch + other.pitch)
+    }
+
+    operator fun times(value: Float): Rotation {
+        return Rotation(yaw * value, pitch * value)
+    }
+
+    operator fun div(value: Float): Rotation {
+        return Rotation(yaw / value, pitch / value)
+    }
+
+    companion object {
+        val ZERO = Rotation(0f, 0f)
+
+        fun of(vec: Vector2f) = Rotation(vec.x, vec.y)
     }
 
     /**
