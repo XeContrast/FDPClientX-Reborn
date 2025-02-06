@@ -2,6 +2,8 @@
 
 # FDPClientX-Reborn
 
+没事做就写写，没之前的热情了
+
 Follow me on BiliBili: https://space.bilibili.com/1353540064
 
 </div>
