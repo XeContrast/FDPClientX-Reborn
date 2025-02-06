@@ -59,7 +59,7 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.34'
     include "com.google.zxing:core:3.5.3"
     include "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-    include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    include("org.spongepowered:mixin:0.8.7") {
         transitive = false
         exclude module: "guava"
         exclude module: "commons-io"
@@ -79,7 +79,7 @@ dependencies {
         exclude module: 'asm'
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    annotationProcessor("org.spongepowered:mixin:0.8.7")
 
     include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     include("me.friwi:jcefmaven:$jcef_version") {
