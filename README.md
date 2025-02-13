@@ -2,7 +2,7 @@
 
 # FDPClientX-Reborn
 
-没事做就写写，没之前的热情了
+最后决定放弃该项目，并重开201项目
 
 Follow me on BiliBili: https://space.bilibili.com/1353540064
 
