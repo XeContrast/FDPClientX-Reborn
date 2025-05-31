@@ -177,34 +177,34 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
     }
     public void draw(){
     }
-//    /**
-//     * @author CCBlueX
-//     */
-//    @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
-//    public void drawScreen(int mouseX, int mouseY, float partialTicks,CallbackInfo ci) {
-//        //RenderUtils.drawRect(10,10,20,20,new Color(255,255,255,255).getRGB());
-//        RenderUtils.drawRoundedCornerRect(1, this.height - (int) fade - 2, this.width - 4, this.height - 1 , 2f, new Color(255,255,255,50).getRGB());
-//        RenderUtils.drawRoundedCornerRect(2, this.height - (int) fade - 1, this.width - 3, this.height - 2 ,3f, new Color(0,0,0,200).getRGB());
-//
-//        this.inputField.drawTextBox();
-//
-//        if (FDPClient.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(FDPClient.commandManager.getPrefix()))) {
-//            String[] latestAutoComplete = FDPClient.commandManager.getLatestAutoComplete();
-//            String[] textArray = inputField.getText().split(" ");
-//            String text = textArray[textArray.length - 1];
-//            Object[] result = Arrays.stream(latestAutoComplete).filter((str) -> str.toLowerCase().startsWith(text.toLowerCase())).toArray();
-//            String resultText = "";
-//            if(result.length>0)
-//                resultText = ((String)result[0]).substring(Math.min(((String)result[0]).length(),text.length()));
-//
-//            mc.fontRendererObj.drawStringWithShadow(resultText, 5.5F + inputField.xPosition + mc.fontRendererObj.getStringWidth(inputField.getText()), inputField.yPosition+2f, new Color(165, 165, 165).getRGB());
-//        }
-//
-//        IChatComponent ichatcomponent =
-//                this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
-//
-//        if (ichatcomponent != null)
-//            this.handleComponentHover(ichatcomponent, mouseX, mouseY);
-//        ci.cancel();
-//    }
+    /**
+     * @author CCBlueX
+     */
+    @Inject(method = "drawScreen", at = @At("HEAD"), cancellable = true)
+    public void drawScreen(int mouseX, int mouseY, float partialTicks,CallbackInfo ci) {
+        //RenderUtils.drawRect(10,10,20,20,new Color(255,255,255,255).getRGB());
+        RenderUtils.drawRoundedCornerRect(1, this.height - (int) fade - 2, this.width - 4, this.height - 1 , 2f, new Color(255,255,255,50).getRGB());
+        RenderUtils.drawRoundedCornerRect(2, this.height - (int) fade - 1, this.width - 3, this.height - 2 ,3f, new Color(0,0,0,200).getRGB());
+
+        this.inputField.drawTextBox();
+
+        if (FDPClient.commandManager.getLatestAutoComplete().length > 0 && !inputField.getText().isEmpty() && inputField.getText().startsWith(String.valueOf(FDPClient.commandManager.getPrefix()))) {
+            String[] latestAutoComplete = FDPClient.commandManager.getLatestAutoComplete();
+            String[] textArray = inputField.getText().split(" ");
+            String text = textArray[textArray.length - 1];
+            Object[] result = Arrays.stream(latestAutoComplete).filter((str) -> str.toLowerCase().startsWith(text.toLowerCase())).toArray();
+            String resultText = "";
+            if(result.length>0)
+                resultText = ((String)result[0]).substring(Math.min(((String)result[0]).length(),text.length()));
+
+            mc.fontRendererObj.drawStringWithShadow(resultText, 5.5F + inputField.xPosition + mc.fontRendererObj.getStringWidth(inputField.getText()), inputField.yPosition+2f, new Color(165, 165, 165).getRGB());
+        }
+
+        IChatComponent ichatcomponent =
+                this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
+
+        if (ichatcomponent != null)
+            this.handleComponentHover(ichatcomponent, mouseX, mouseY);
+        ci.cancel();
+    }
 }

@@ -469,6 +469,8 @@ object KillAura : Module() {
     private val onSwording = BoolValue("OnSword", false) { toolsDisplay.get() }
     private val displayDebug = BoolValue("Debug", false) { toolsDisplay.get() }
 
+    private val change = BoolValue("ChangingWorldClosedModule",false)
+
     private val displayMode = ListValue("DisplayMode", arrayOf("Simple", "LessSimple", "Complicated"), "Simple")
 
     /**
@@ -640,6 +642,9 @@ object KillAura : Module() {
     @EventTarget
     fun onWorldChange(event: WorldEvent) {
         attackTickTimes.clear()
+        if (change.get()) {
+            this.state = false
+        }
     }
 
     /**

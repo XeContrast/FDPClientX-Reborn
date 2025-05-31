@@ -5,7 +5,6 @@
  */
 package net.ccbluex.liquidbounce.utils.timer
 
-import net.ccbluex.liquidbounce.utils.misc.RandomUtils
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils.nextInt
 
 object TimeUtils {
