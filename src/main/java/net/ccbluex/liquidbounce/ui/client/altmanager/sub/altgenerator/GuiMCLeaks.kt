@@ -77,7 +77,7 @@ class GuiMCLeaks(private val prevGui: GuiAltManager) : WrappedGuiScreen() {
                     button.enabled = true
                     button.displayString = "Login"
 
-                    prevGui.status = status
+                    prevGui.status = status.toString()
                     mc.displayGuiScreen(prevGui.representedScreen)
                 }
             }
