@@ -65,10 +65,18 @@ public abstract class MixinGuiScreen {
 
     @Shadow public abstract void initGui();
 
-    @Redirect(method = "handleKeyboardInput", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;getEventKeyState()Z", remap = false))
-    private boolean checkCharacter() {
-        return Keyboard.getEventKey() == 0 && Keyboard.getEventCharacter() >= ' ' || Keyboard.getEventKeyState();
+    @Shadow
+    protected abstract void keyTyped(char p_keyTyped_1_, int p_keyTyped_2_);
+
+    @Inject(method = "handleKeyboardInput",at = @At("HEAD"),cancellable = true)
+    private void inputFix(CallbackInfo ci) {
+        if (Keyboard.getEventKey() == 0 && Keyboard.getEventCharacter() >= ' ' || Keyboard.getEventKeyState()) {
+            this.keyTyped(Keyboard.getEventCharacter(), Keyboard.getEventKey());
+        }
+
+        ci.cancel();
     }
+
 
     @Inject(method = "drawWorldBackground", at = @At("HEAD"), cancellable = true)
     private void drawWorldBackground(final CallbackInfo callbackInfo) {

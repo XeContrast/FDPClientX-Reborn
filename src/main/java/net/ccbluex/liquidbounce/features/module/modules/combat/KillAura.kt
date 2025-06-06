@@ -388,10 +388,6 @@ object KillAura : Module() {
     }
 
     // Keep Rotate
-    private val rotationRevValue = BoolValue(
-        "RotationReverse",
-        false
-    ) { !rotationModeValue.equals("None") && rotationDisplay.get() }
     private val keepDirectionValue =
         BoolValue("KeepDirection", true) { !rotationModeValue.equals("None") && rotationDisplay.get() }
     private val keepDirectionTickValue = IntegerValue(
