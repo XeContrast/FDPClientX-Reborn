@@ -47,13 +47,13 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object Backtrack : Module() {
 
     private val nextBacktrackDelay = IntegerValue("NextBacktrackDelay", 0, 0,2000) { mode.get() == "Modern" }
-    private val maxDelay: IntegerValue = object : IntegerValue("MaxDelay", 80, 0,700) {
+    private val maxDelay: IntegerValue = object : IntegerValue("MaxDelay", 80, 0,2000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelay.get()
             if (i > newValue) set(i)
         }
     }
-    private val minDelay: IntegerValue = object : IntegerValue("MinDelay", 80, 0,700) {
+    private val minDelay: IntegerValue = object : IntegerValue("MinDelay", 80, 0,2000) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = maxDelay.get()
             if (i < newValue) set(i)
@@ -104,7 +104,7 @@ object Backtrack : Module() {
     private val espColor = ColorSettingsInteger(this, "ESP", withAlpha = false) { espColorMode.get() == "Custom" && espMode.get() != "Model" && mode.get() == "Modern" }.with(0, 255, 0)
 
     private val packetQueue = ConcurrentLinkedQueue<QueueData>()
-    private val positions = mutableListOf<Pair<Vec3, Long>>()
+    private val positions = ConcurrentLinkedQueue<Pair<Vec3, Long>>()
 
     var target: EntityLivingBase? = null
 
@@ -129,7 +129,7 @@ object Backtrack : Module() {
     private val nonDelayedSoundSubstrings = arrayOf("game.player.hurt", "game.player.die")
 
     val isPacketQueueEmpty
-        get() = synchronized(packetQueue) { packetQueue.isEmpty() }
+        get() = packetQueue.isEmpty()
 
     val areQueuedPacketsEmpty
         get() = PacketUtils.queuedPackets.run { synchronized(this) { isEmpty() } }
@@ -230,25 +230,19 @@ object Backtrack : Module() {
                     when (packet) {
                         is S14PacketEntity -> if (packet.entityId == target?.entityId) {
                             (target as? IMixinEntity)?.run {
-                                synchronized(positions) {
-                                    positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
-                                }
+                                positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
                             }
                         }
 
                         is S18PacketEntityTeleport -> if (packet.entityId == target?.entityId) {
                             (target as? IMixinEntity)?.run {
-                                synchronized(positions) {
-                                    positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
-                                }
+                                positions += Pair(Vec3(trueX, trueY, trueZ), System.currentTimeMillis())
                             }
                         }
                     }
 
                     event.cancelEvent()
-                    synchronized(packetQueue) {
-                        packetQueue += QueueData(packet, System.currentTimeMillis())
-                    }
+                    packetQueue += QueueData(packet, System.currentTimeMillis())
                 }
             }
         }
@@ -481,18 +475,14 @@ object Backtrack : Module() {
     }
 
     private fun handlePackets() {
-        synchronized(packetQueue) {
-            packetQueue.removeAll { (packet, timestamp) ->
-                if (timestamp <= System.currentTimeMillis() - supposedDelay) {
-                    schedulePacketProcess(packet)
-                    true
-                } else false
-            }
+        packetQueue.removeAll { (packet, timestamp) ->
+            if (timestamp <= System.currentTimeMillis() - supposedDelay) {
+                PacketUtils.schedulePacketProcess(packet)
+                true
+            } else false
         }
 
-        synchronized(positions) {
-            positions.removeAll { (_, timestamp) -> timestamp < System.currentTimeMillis() - supposedDelay }
-        }
+        positions.removeAll { (_, timestamp) -> timestamp < System.currentTimeMillis() - supposedDelay }
     }
 
     private fun handlePacketsRange() {
@@ -503,18 +493,14 @@ object Backtrack : Module() {
             return
         }
 
-        synchronized(packetQueue) {
-            packetQueue.removeAll { (packet, timestamp) ->
-                if (timestamp <= time) {
-                    schedulePacketProcess(packet)
-                    true
-                } else false
-            }
+        packetQueue.removeAll { (packet, timestamp) ->
+            if (timestamp <= time) {
+                PacketUtils.schedulePacketProcess(packet)
+                true
+            } else false
         }
 
-        synchronized(positions) {
-            positions.removeAll { (_, timestamp) -> timestamp < time }
-        }
+        positions.removeAll { (_, timestamp) -> timestamp < time }
     }
 
     private fun getRangeTime(): Long {
@@ -523,19 +509,17 @@ object Backtrack : Module() {
         var time = 0L
         var found = false
 
-        synchronized(positions) {
-            for (data in positions) {
-                time = data.second
+        for (data in positions) {
+            time = data.second
 
-                val targetPos = target.currPos
+            val targetPos = target.currPos
 
-                val (dx, dy, dz) = data.first - targetPos
-                val targetBox = target.hitBox.offset(dx, dy, dz)
+            val (dx, dy, dz) = data.first - targetPos
+            val targetBox = target.hitBox.offset(dx, dy, dz)
 
-                if (mc.thePlayer.getDistanceToBox(targetBox) in minDistance.get()..maxDistance.get()) {
-                    found = true
-                    break
-                }
+            if (mc.thePlayer.getDistanceToBox(targetBox) in minDistance.get()..maxDistance.get()) {
+                found = true
+                break
             }
         }
 
@@ -543,14 +527,12 @@ object Backtrack : Module() {
     }
 
     private fun clearPackets(handlePackets: Boolean = true) {
-        synchronized(packetQueue) {
-            packetQueue.removeAll {
-                if (handlePackets) {
-                    schedulePacketProcess(it.packet)
-                }
-
-                true
+        packetQueue.removeAll {
+            if (handlePackets) {
+                PacketUtils.schedulePacketProcess(it.packet)
             }
+
+            true
         }
 
         positions.clear()
@@ -655,7 +637,7 @@ object Backtrack : Module() {
         }
     }
 
-    fun runWithSimulatedPosition(entity: Entity, vec3: Vec3, f: () -> Double?): Double? {
+    fun <T> runWithSimulatedPosition(entity: Entity, vec3: Vec3, f: () -> T?): T? {
         val currPos = entity.currPos
         val prevPos = entity.prevPos
 

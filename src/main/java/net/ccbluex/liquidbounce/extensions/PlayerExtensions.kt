@@ -49,6 +49,11 @@ fun Entity.interpolatedPosition(start: Vec3) = Vec3(
     start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks,
     start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
 )
+fun Entity.interpolatedPosition(start: Vec3, extraHeight: Float? = null) = Vec3(
+    start.xCoord + (posX - start.xCoord) * mc.timer.renderPartialTicks,
+    start.yCoord + (posY - start.yCoord) * mc.timer.renderPartialTicks + (extraHeight ?: 0f),
+    start.zCoord + (posZ - start.zCoord) * mc.timer.renderPartialTicks
+)
 fun Entity.getLookDistanceToEntityBox(entity: Entity =this, rotation: Rotation? = null, range: Double=10.0): Double {
     val eyes = this.eyes
     val end = (rotation?: RotationUtils.bestServerRotation())!!.toDirection().multiply(range).add(eyes)

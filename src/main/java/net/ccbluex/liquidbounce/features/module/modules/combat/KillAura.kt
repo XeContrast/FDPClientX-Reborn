@@ -10,6 +10,8 @@ import kevin.utils.plus
 import kevin.utils.times
 import net.ccbluex.liquidbounce.FDPClient
 import net.ccbluex.liquidbounce.event.*
+import net.ccbluex.liquidbounce.extensions.interpolatedPosition
+import net.ccbluex.liquidbounce.extensions.lerpWith
 import net.ccbluex.liquidbounce.extensions.offset
 import net.ccbluex.liquidbounce.features.module.Module
 import net.ccbluex.liquidbounce.features.module.ModuleCategory
@@ -32,9 +34,12 @@ import net.ccbluex.liquidbounce.utils.EntityUtils.rotation
 import net.ccbluex.liquidbounce.utils.RaycastUtils.raycastEntity
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getVectorForRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.isVisible
+import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.serverRotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.targetRotation
 import net.ccbluex.liquidbounce.utils.extensions.*
 import net.ccbluex.liquidbounce.utils.misc.RandomUtils
+import net.ccbluex.liquidbounce.utils.render.ColorUtils
+import net.ccbluex.liquidbounce.utils.render.RenderUtils
 import net.ccbluex.liquidbounce.utils.timer.MSTimer
 import net.ccbluex.liquidbounce.utils.timer.TimeUtils
 import net.minecraft.client.gui.ScaledResolution
@@ -466,6 +471,11 @@ object KillAura : Module() {
     private val displayDebug = BoolValue("Debug", false) { toolsDisplay.get() }
 
     private val change = BoolValue("ChangingWorldClosedModule",false)
+    private val renderAimPointBox by BoolValue("RenderAimPointBox", false)
+    private val aimPointBoxColorR by IntegerValue("AimPointBoxColorRed", 255,0,255) { renderAimPointBox }
+    private val aimPointBoxColorG by IntegerValue("AimPointBoxColorGreen", 255,0,255) { renderAimPointBox }
+    private val aimPointBoxColorB by IntegerValue("AimPointBoxColorBlue", 255,0,255) { renderAimPointBox }
+    private val aimPointBoxSize by FloatValue("AimPointBoxSize", 0.1f, 0f,0.2F) { renderAimPointBox }
 
     private val displayMode = ListValue("DisplayMode", arrayOf("Simple", "LessSimple", "Complicated"), "Simple")
 
@@ -648,7 +658,10 @@ object KillAura : Module() {
      */
     @EventTarget
     fun onUpdate(ignoredEvent: UpdateEvent) {
-        if (clickOnly.get() && !mc.gameSettings.keyBindAttack.isKeyDown) return
+        if (clickOnly.get() && !mc.gameSettings.keyBindAttack.isKeyDown) {
+            clicks = 0
+            return
+        }
 
         if (cancelRun) {
             currentTarget = null
@@ -1521,6 +1534,8 @@ object KillAura : Module() {
             inRangeDiscoveredTargets.clear()
         }
 
+        drawAimPointBox()
+
         currentTarget?.let {
             if (attackTimer.hasTimePassed(attackDelay) && it.hurtTime <= hurtTimeValue.get()) {
                 clicks++
@@ -1588,15 +1603,83 @@ object KillAura : Module() {
      * Check if run should be cancelled
      */
     private val cancelRun: Boolean
-        get() = mc.thePlayer.isSpectator || !isAlive(mc.thePlayer)
-                || FDPClient.moduleManager[FreeCam::class.java]!!.state
-                || (noScaffValue.get() && FDPClient.moduleManager[Scaffold::class.java]!!.state)
-                || (noScaffValue.get() && FDPClient.moduleManager[Scaffold2::class.java]!!.state)
-                || (noFlyValue.get() && FDPClient.moduleManager[Flight::class.java]!!.state)
-                || (noEat.get() && mc.thePlayer.isUsingItem && (mc.thePlayer.heldItem?.item is ItemFood || mc.thePlayer.heldItem?.item is ItemBucketMilk || mc.thePlayer.isUsingItem && (mc.thePlayer.heldItem?.item is ItemPotion)))
-                || (noBlocking.get() && mc.thePlayer.isUsingItem && mc.thePlayer.heldItem?.item is ItemBlock)
-                || (noInventoryAttackValue.equals("CancelRun") && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get()))
-                || (onSwording.get() && mc.thePlayer.heldItem?.item !is ItemSword)
+        get() {
+            // 玩家相关条件
+            if (mc.thePlayer.isSpectator || !isAlive(mc.thePlayer)) return true
+
+            // 模块冲突条件
+            if (FDPClient.moduleManager[FreeCam::class.java]!!.state) return true
+
+            // Scaffold 模块相关条件
+            if (noScaffValue.get() && (
+                        FDPClient.moduleManager[Scaffold::class.java]!!.state ||
+                                FDPClient.moduleManager[Scaffold2::class.java]!!.state
+                        )
+            ) return true
+
+            // 飞行模块条件
+            if (noFlyValue.get() && FDPClient.moduleManager[Flight::class.java]!!.state) return true
+
+            // 吃东西相关条件
+            if (noEat.get() && isPlayerConsumingSpecialItem()) return true
+
+            // 阻挡方块条件
+            if (noBlocking.get() && isPlayerUsingBlockItem()) return true
+
+            // 库存攻击相关条件
+            if (shouldCancelRunDueToInventoryConditions()) return true
+
+            // 持剑状态条件
+            if (onSwording.get() && !isHoldingSword()) return true
+
+            return false
+        }
+
+    private fun isPlayerConsumingSpecialItem(): Boolean {
+        return mc.thePlayer.isUsingItem && (
+                mc.thePlayer.heldItem?.item is ItemFood ||
+                        mc.thePlayer.heldItem?.item is ItemBucketMilk ||
+                        (mc.thePlayer.heldItem?.item is ItemPotion && mc.thePlayer.isUsingItem)
+                )
+    }
+
+    private fun isPlayerUsingBlockItem(): Boolean {
+        return mc.thePlayer.isUsingItem && (mc.thePlayer.heldItem?.item is ItemBlock)
+    }
+
+    private fun shouldCancelRunDueToInventoryConditions(): Boolean {
+        return noInventoryAttackValue.get() == "CancelRun" && (
+                mc.currentScreen is GuiContainer ||
+                        System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get()
+                )
+    }
+
+    private fun isHoldingSword(): Boolean {
+        return mc.thePlayer.heldItem?.item is ItemSword
+    }
+
+    private fun drawAimPointBox() {
+        val player = mc.thePlayer ?: return
+        val target = this.currentTarget ?: return
+
+        if (!renderAimPointBox) {
+            return
+        }
+
+        val f = aimPointBoxSize.toDouble()
+
+        val box = AxisAlignedBB(0.0, 0.0, 0.0, f, f, f)
+
+        val renderManager = mc.renderManager
+
+        val rotationVec = player.interpolatedPosition(player.prevPos, player.eyeHeight) + getVectorForRotation(
+            serverRotation.lerpWith(targetRotation ?: player.rotation, mc.timer.renderPartialTicks)
+        ) * player.getDistanceToEntityBox(target).coerceAtMost(rangeValue.get().toDouble())
+
+        val offSetBox = box.offset(rotationVec - renderManager.renderPos)
+
+        RenderUtils.drawAxisAlignedBB(offSetBox, Color(aimPointBoxColorR, aimPointBoxColorG, aimPointBoxColorB))
+    }
 
 
     /**

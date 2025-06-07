@@ -18,11 +18,22 @@ import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.*
 import net.minecraft.util.Vec3
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.math.roundToInt
 
 object PacketUtils : MinecraftInstance(), Listenable {
 
     val queuedPackets = mutableListOf<Packet<*>>()
+    private val queueLock = ReentrantLock()
+
+    fun schedulePacketProcess(elements: Collection<Packet<*>>): Boolean = queueLock.withLock {
+        queuedPackets.addAll(elements)
+    }
+
+    fun schedulePacketProcess(element: Packet<*>): Boolean = queueLock.withLock {
+        queuedPackets.add(element)
+    }
 
     @EventTarget(priority = 2)
     fun onTick(event: GameTickEvent) {

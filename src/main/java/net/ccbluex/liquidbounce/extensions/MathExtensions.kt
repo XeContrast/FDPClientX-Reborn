@@ -5,6 +5,7 @@
  */
 package net.ccbluex.liquidbounce.extensions
 
+import net.ccbluex.liquidbounce.utils.Rotation
 import net.ccbluex.liquidbounce.utils.RotationUtils.Companion.getFixedAngleDelta
 import net.minecraft.block.Block
 import net.minecraft.client.gui.ScaledResolution
@@ -201,6 +202,9 @@ fun Vec3.lerpWith(other: Vec3, tickDelta: Double) = Vec3(
     yCoord + (other.yCoord - yCoord) * tickDelta,
     zCoord + (other.zCoord - zCoord) * tickDelta
 )
+
+fun Rotation.lerpWith(other: Rotation, tickDelta: Number) =
+    Rotation((yaw..other.yaw).lerpWith(tickDelta), (pitch..other.pitch).lerpWith(tickDelta))
 
 fun Vec3.lerpWith(other: Vec3, tickDelta: Float) = lerpWith(other, tickDelta.toDouble())
 
