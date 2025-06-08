@@ -521,7 +521,9 @@ class RotationUtils : MinecraftInstance(), Listenable {
             throughWalls: Float,
             scanRange: Float,
             attackRange: Float,
-            distanceBasedSpot : Boolean
+            distanceBasedSpot : Boolean,
+            bodyPoints: List<String> = listOf("Head", "Feet"),
+            findBodyMode: Boolean
         ): VecRotation? {
             //final Rotation randomRotation = toRotation(randomVec, predict);
 
@@ -529,7 +531,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
             //min
             val (xMin,yMin,zMin) = when (calMode) {
-                "Full" -> listOf(0.0,0.0,0.0)
+                "Full","Auto" -> listOf(0.0,0.0,0.0)
                 "HalfUp" -> listOf(0.1,0.5,0.1)
                 "HalfDown" -> listOf(0.1,0.1,0.1)
                 "CenterSimple" -> listOf(0.45,0.65,0.45)
@@ -539,7 +541,7 @@ class RotationUtils : MinecraftInstance(), Listenable {
 
             //max
             val (xMax,yMax,zMax) = when (calMode) {
-                "Full" -> listOf(1.0,1.0,1.0)
+                "Full","Auto" -> listOf(1.0,1.0,1.0)
                 "HalfUp" -> listOf(0.9,0.9,0.9)
                 "HalfDown" -> listOf(0.9,0.5,0.9)
                 "CenterSimple" -> listOf(0.55,0.75,0.55)
@@ -554,8 +556,8 @@ class RotationUtils : MinecraftInstance(), Listenable {
             }
             val eyes = mc.thePlayer.eyes
 
-            val max = BodyPoint.fromString("HEAD").range.endInclusive
-            val min = BodyPoint.fromString("FEET").range.start
+            val max = BodyPoint.fromString(bodyPoints[0].takeIf { findBodyMode } ?: "HEAD").range.endInclusive
+            val min = BodyPoint.fromString(bodyPoints[1].takeIf { findBodyMode } ?: "FEET").range.start
 
             var curVec3: Vec3? = null
 
@@ -683,8 +685,11 @@ class RotationUtils : MinecraftInstance(), Listenable {
             val yPrecent = minRange * randomRange / yRange
             val zPrecent = minRange * randomRange / zRange
 
+            if (curVec3 == null)
+                return vecRotation
+
             var randomVec3 = Vec3(
-                curVec3!!.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
+                curVec3.xCoord - xPrecent * (curVec3.xCoord - bb.minX) + rand1,
                 curVec3.yCoord - yPrecent * (curVec3.yCoord - bb.minY) + rand2,
                 curVec3.zCoord - zPrecent * (curVec3.zCoord - bb.minZ) + rand3
             )

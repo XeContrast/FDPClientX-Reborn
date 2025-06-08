@@ -273,7 +273,8 @@ object KillAura : Module() {
             "CenterDot",
             "MidRange",
             "HeadRange",
-            "Optimal"
+            "Optimal",
+            "Auto"
         ),
         "HalfUp"
     ) { rotationDisplay.get() && rotationModeValue.equals("SmoothCustom") }
@@ -337,6 +338,25 @@ object KillAura : Module() {
             if (v < newValue) set(v)
         }
     }.displayable { rotationDisplay.get() } as FloatValue
+
+    private val highest: ListValue = object : ListValue("Highest", arrayOf("HEAD","BODY","FEET"),"HEAD") {
+        override fun onChanged(oldValue: String, newValue: String) {
+            val v = lowest.get()
+            when {
+                v == "BODY" && newValue == "FEET" -> set("BODY")
+                v == "HEAD" && newValue in arrayOf("BODY","FEET") -> set("HEAD")
+            }
+        }
+    }.displayable { rotationDisplay.get() && rotationModeValue.get() in arrayOf("SmoothCustom") && customRotationValue.get() == "Auto" } as ListValue
+    private val lowest: ListValue = object : ListValue("Lowest", arrayOf("HEAD","BODY","FEET"),"HEAD") {
+        override fun onChanged(oldValue: String, newValue: String) {
+            val v = highest.get()
+            when {
+                v == "FEET" && newValue in arrayOf("BODY","HEAD") -> set("FEET")
+                v == "BODY" && newValue == "HEAD" -> set("BODY")
+            }
+        }
+    }.displayable { rotationDisplay.get() && rotationModeValue.get() in arrayOf("SmoothCustom") && customRotationValue.get() == "Auto" } as ListValue
 
     private val rotationSmoothModeValue = ListValue(
         "SmoothMode",
@@ -1226,7 +1246,7 @@ object KillAura : Module() {
             "SmoothCenter" to "CenterLine",
             "Optimal" to  "Optimal",
             "LockView" to  "CenterSimple",
-            "SmoothCustom" to  customRotationValue.get()
+            "SmoothCustom" to customRotationValue.get()
         )
 
         val (_, directRotation) =
@@ -1239,7 +1259,9 @@ object KillAura : Module() {
                 throughWalls = throughWallsRange,
                 scanRange = scanRange.get(),
                 attackRange = rangeValue.get(),
-                distanceBasedSpot = generateSpotBasedOnDistance
+                distanceBasedSpot = generateSpotBasedOnDistance,
+                bodyPoints = listOf(highest.get(), lowest.get()),
+                findBodyMode = rotationModeValue.get() in arrayOf("SmoothCustom") && customRotationValue.get() == "Auto"
             ) ?: return false
 
 
