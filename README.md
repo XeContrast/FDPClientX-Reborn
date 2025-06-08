@@ -2,8 +2,6 @@
 
 # FDPClientXD-Reborn-Reborn
 
-Follow me on BiliBili: https://space.bilibili.com/1353540064
-
 </div>
 
 <div align="Center">
